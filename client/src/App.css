@@ -1,0 +1,19 @@
+.App {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.wedding-page {
+  width: 100%;
+}
+
+.wedding-page section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .wedding-page section {
+    padding: 3rem 1rem !important;
+  }
+}

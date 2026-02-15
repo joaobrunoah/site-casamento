@@ -1,0 +1,77 @@
+.confirmation-form {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 3rem;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2c2c2c;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  background: white;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #8b7355;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 1rem;
+  background: #2c2c2c;
+  color: white;
+  border: none;
+  border-radius: 0;
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 1rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.submit-button:hover:not(:disabled) {
+  background: #8b7355;
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .confirmation-form {
+    padding: 1.5rem;
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "site-casamento",
+  "version": "1.0.0",
+  "description": "Site de casamento com React.js (TypeScript) e Firebase Functions",
+  "scripts": {
+    "install-all": "npm install && cd client && npm install && cd ../functions && npm install",
+    "build": "cd client && npm run build && cd ../functions && npm run build",
+    "deploy": "node deploy.js",
+    "deploy:hosting": "node deploy.js --hosting-only",
+    "deploy:functions": "node deploy.js --functions-only",
+    "deploy:firestore": "node deploy.js --firestore-only",
+    "deploy:all": "node deploy.js"
+  },
+  "keywords": ["casamento", "wedding", "react", "typescript", "firebase"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "firebase-tools": "^13.0.0"
+  }
+}

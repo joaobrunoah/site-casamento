@@ -1,0 +1,142 @@
+import * as functions from "firebase-functions";
+import * as admin from "firebase-admin";
+
+admin.initializeApp();
+
+const db = admin.firestore();
+
+// CORS helper function
+const corsHandler = (req: functions.https.Request, res: functions.Response) => {
+  res.set("Access-Control-Allow-Origin", "*");
+  res.set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+
+  if (req.method === "OPTIONS") {
+    res.status(204).send("");
+    return true;
+  }
+  return false;
+};
+
+// API: Get all confirmations
+export const getConfirmacoes = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      try {
+        const snapshot = await db.collection("confirmacoes").get();
+        const confirmacoes = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        response.json(confirmacoes);
+      } catch (error) {
+        functions.logger.error("Error fetching confirmacoes", error);
+        response.status(500).json({error: "Failed to fetch confirmacoes"});
+      }
+    }
+);
+
+// API: Create a new confirmation
+export const createConfirmacao = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "POST") {
+        response.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      try {
+        const {nome, email, telefone, quantidadePessoas, mensagem} = request.body;
+
+        if (!nome || !email || !quantidadePessoas) {
+          response.status(400).json({
+            error: "Campos obrigatórios: nome, email, quantidadePessoas",
+          });
+          return;
+        }
+
+        const confirmacao = {
+          nome,
+          email,
+          telefone: telefone || "",
+          quantidadePessoas: parseInt(quantidadePessoas),
+          mensagem: mensagem || "",
+          dataConfirmacao: admin.firestore.FieldValue.serverTimestamp(),
+        };
+
+        const docRef = await db.collection("confirmacoes").add(confirmacao);
+        response.status(201).json({id: docRef.id, ...confirmacao});
+      } catch (error) {
+        functions.logger.error("Error creating confirmacao", error);
+        response.status(500).json({error: "Failed to create confirmacao"});
+      }
+    }
+);
+
+// API: Get all gifts (presentes)
+export const getPresentes = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      try {
+        const snapshot = await db.collection("presentes").get();
+        const presentes = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        response.json(presentes);
+      } catch (error) {
+        functions.logger.error("Error fetching presentes", error);
+        response.status(500).json({error: "Failed to fetch presentes"});
+      }
+    }
+);
+
+// API: Update a gift (presente)
+export const updatePresente = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "PUT") {
+        response.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      try {
+        // Get ID from query parameter or request body
+        const presenteId = request.query.id as string || request.body.id;
+        if (!presenteId) {
+          response.status(400).json({error: "Presente ID is required"});
+          return;
+        }
+
+        const presenteRef = db.collection("presentes").doc(presenteId);
+        const presenteDoc = await presenteRef.get();
+
+        if (!presenteDoc.exists) {
+          response.status(404).json({error: "Presente não encontrado"});
+          return;
+        }
+
+        const updateData: {comprado?: boolean} = {};
+        if (request.body.comprado !== undefined) {
+          updateData.comprado = request.body.comprado;
+        }
+
+        await presenteRef.update(updateData);
+        const updatedDoc = await presenteRef.get();
+        response.json({id: updatedDoc.id, ...updatedDoc.data()});
+      } catch (error) {
+        functions.logger.error("Error updating presente", error);
+        response.status(500).json({error: "Failed to update presente"});
+      }
+    }
+);
+
+// Health check endpoint
+export const health = functions.https.onRequest((request, response) => {
+  if (corsHandler(request, response)) return;
+  response.json({status: "OK", message: "Firebase Functions funcionando"});
+});

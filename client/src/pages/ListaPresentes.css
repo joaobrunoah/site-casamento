@@ -1,0 +1,97 @@
+.presents-section {
+  margin-bottom: 3rem;
+}
+
+.presents-section h3 {
+  font-size: 2rem;
+  font-weight: 300;
+  color: #2c2c2c;
+  margin-bottom: 2rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+}
+
+.presents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.presente-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  min-height: 160px;
+  border: 1px solid #f0f0f0;
+}
+
+.presente-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.presente-card.available {
+  border: 1px solid #f0f0f0;
+}
+
+.presente-card.selected {
+  border: 1px solid #8b7355;
+  background: #faf9f7;
+}
+
+.presente-info {
+  margin-bottom: 1rem;
+}
+
+.presente-info h4 {
+  font-size: 1.3rem;
+  color: #2c2c2c;
+  margin-bottom: 0.75rem;
+  font-weight: 400;
+}
+
+.presente-valor {
+  font-size: 1.5rem;
+  color: #8b7355;
+  font-weight: 300;
+}
+
+.presente-button {
+  width: 100%;
+  padding: 0.875rem;
+  background: #2c2c2c;
+  color: white;
+  border: none;
+  border-radius: 0;
+  font-size: 0.95rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.presente-button:hover {
+  background: #8b7355;
+}
+
+.presente-button.selected {
+  background: #8b7355;
+  cursor: pointer;
+}
+
+.presente-button.selected:hover {
+  background: #6b5a42;
+}
+
+@media (max-width: 768px) {
+  .presents-grid {
+    grid-template-columns: 1fr;
+  }
+}
