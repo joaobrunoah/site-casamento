@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Countdown from '../components/Countdown';
 import Cerimony from '../components/Cerimony';
 import './Home.css';
@@ -6,6 +6,113 @@ import './Home.css';
 const Home: React.FC = () => {
   // Target date: June 13, 2026 at 15:00 Brazilian time (America/Sao_Paulo)
   const targetDate = new Date('2026-06-13T15:00:00-03:00'); // Brazilian time (UTC-3)
+
+  const ceremonySectionRef = useRef<HTMLElement>(null);
+  const ceremonyTextColumnRef = useRef<HTMLDivElement>(null);
+  const ceremonyImageRef = useRef<HTMLImageElement>(null);
+  const [imageTransform, setImageTransform] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!ceremonySectionRef.current || !ceremonyTextColumnRef.current || !ceremonyImageRef.current) {
+        return;
+      }
+
+      const section = ceremonySectionRef.current;
+      const textColumn = ceremonyTextColumnRef.current;
+      const image = ceremonyImageRef.current;
+      const imageColumn = image.parentElement as HTMLElement;
+
+      if (!imageColumn) return;
+
+      const isMobile = window.innerWidth <= 768;
+      
+      // Get container height
+      let containerHeight: number;
+      if (isMobile) {
+        // On mobile, use the square container height (determined by aspect-ratio CSS)
+        // The container width equals its height due to aspect-ratio: 1 / 1
+        containerHeight = imageColumn.offsetWidth;
+      } else {
+        // On desktop, match the text column height
+        const textColumnHeight = textColumn.offsetHeight;
+        containerHeight = textColumnHeight;
+        imageColumn.style.height = `${textColumnHeight}px`;
+      }
+
+      const sectionTop = section.offsetTop;
+      const sectionHeight = section.offsetHeight;
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+
+      // Calculate when the section enters and exits the viewport
+      const sectionStart = sectionTop - windowHeight;
+      const sectionEnd = sectionTop + sectionHeight;
+
+      // Calculate scroll progress (0 to 1) as we scroll through the section
+      let progress = 0;
+      if (scrollY >= sectionStart && scrollY <= sectionEnd) {
+        progress = (scrollY - sectionStart) / (sectionEnd - sectionStart);
+        progress = Math.max(0, Math.min(1, progress)); // Clamp between 0 and 1
+      } else if (scrollY > sectionEnd) {
+        progress = 1;
+      }
+
+      const containerWidth = imageColumn.offsetWidth;
+      
+      // Calculate image dimensions
+      // The image should be tall enough to allow parallax scrolling
+      // We'll make it 1.5x the container height to ensure we can scroll through the full image
+      let imageHeight = containerHeight * 1.5;
+      
+      // If image is loaded, try to maintain aspect ratio while ensuring it's tall enough
+      if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+        const imageAspectRatio = image.naturalWidth / image.naturalHeight;
+        const aspectRatioHeight = containerWidth / imageAspectRatio;
+        // Use the larger of the two to ensure we have enough image to scroll through
+        imageHeight = Math.max(containerHeight * 1.5, aspectRatioHeight);
+      }
+      
+      // Set image dimensions
+      image.style.width = '100%';
+      image.style.height = `${imageHeight}px`;
+      image.style.objectFit = 'cover';
+      
+      // Calculate parallax translation
+      // When progress = 0: show bottom of image (translateY = 0)
+      // When progress = 1: show top of image (translateY = -(imageHeight - containerHeight))
+      const maxTranslate = -(imageHeight - containerHeight);
+      const translateY = progress * maxTranslate;
+
+      setImageTransform(translateY);
+    };
+
+    // Wait for image to load before calculating dimensions
+    const image = ceremonyImageRef.current;
+    const runHandleScroll = () => {
+      // Small delay to ensure layout is calculated
+      setTimeout(handleScroll, 10);
+    };
+
+    if (image) {
+      if (image.complete) {
+        runHandleScroll();
+      } else {
+        image.addEventListener('load', runHandleScroll);
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', runHandleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', runHandleScroll);
+      if (image) {
+        image.removeEventListener('load', runHandleScroll);
+      }
+    };
+  }, []);
 
   return (
     <div>
@@ -27,12 +134,17 @@ const Home: React.FC = () => {
           <Countdown endDate={targetDate} />
         </div>
       </section>
-      <section id="ceremony">
+      <section id="ceremony" ref={ceremonySectionRef}>
         <div className="ceremony-container">
           <div className="ceremony-image-column">
-            <img src="/assets/villa_mandacaru2.jpeg" alt="Villa Mandacarú" />
+            <img 
+              ref={ceremonyImageRef}
+              src="/assets/villa_mandacaru2.jpeg" 
+              alt="Villa Mandacarú"
+              style={{ transform: `translateY(${imageTransform}px)` }}
+            />
           </div>
-          <div className="ceremony-text-column">
+          <div className="ceremony-text-column" ref={ceremonyTextColumnRef}>
             <h1 className="h1-section">Cerimônia e Festa</h1>
             <p className="ceremony-text">
               Um fim de tarde gostoso, lugar incrível e todas as pessoas que a gente ama reunidas.<br/>

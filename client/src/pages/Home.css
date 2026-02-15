@@ -117,7 +117,8 @@
 .countdown-display {
   font-family: 'Amsterdam', sans-serif;
   color: #2c2c2c;
-  font-size: 2em;
+  font-size: 3em;
+  line-height: 1.1;
   text-align: center;
 }
 
@@ -137,13 +138,16 @@
   flex-shrink: 0;
   display: flex;
   align-items: stretch;
+  height: 700px;
+  overflow: hidden;
+  position: relative;
 }
 
 .ceremony-image-column img {
   width: 100%;
-  height: 100%;
   object-fit: cover;
   display: block;
+  will-change: transform;
 }
 
 .ceremony-text-column {
@@ -190,13 +194,13 @@
   
   .ceremony-image-column {
     width: 100%;
+    height: auto !important;
     aspect-ratio: 1 / 1;
     overflow: hidden;
   }
   
   .ceremony-image-column img {
     width: 100%;
-    height: 100%;
     object-fit: cover;
   }
   
