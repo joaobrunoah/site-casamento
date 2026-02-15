@@ -47,7 +47,7 @@ const Navigation: React.FC = () => {
         {/* Desktop Menu */}
         <ul className="nav-menu desktop-menu">
           <li>
-            <button onClick={() => handleHomeClick()}>
+            <button onClick={() => handleHomeClick('home')}>
               Cerimônia e Festa
             </button>
           </li>
@@ -119,7 +119,7 @@ const Navigation: React.FC = () => {
       {/* Mobile Menu */}
       <ul className={`nav-menu mobile-menu ${isMenuOpen ? 'active' : ''}`}>
         <li>
-          <button onClick={() => handleHomeClick()}>
+          <button onClick={() => handleHomeClick('home')}>
             Cerimônia e Festa
           </button>
         </li>
