@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import CountdownBox from './CountdownBox';
 import '../pages/Home.css';
 
 interface CountdownProps {
@@ -41,11 +40,8 @@ const Countdown: React.FC<CountdownProps> = ({ endDate }) => {
   }, [endDate]);
 
   return (
-    <div className="countdown-boxes">
-      <CountdownBox text="Dias" number={timeLeft.days} />
-      <CountdownBox text="Horas" number={timeLeft.hours} />
-      <CountdownBox text="Minutos" number={timeLeft.minutes} />
-      <CountdownBox text="Segundos" number={timeLeft.seconds} />
+    <div className="countdown-display">
+      {timeLeft.days} dias {timeLeft.hours} horas {timeLeft.minutes} min {timeLeft.seconds} seg
     </div>
   );
 };

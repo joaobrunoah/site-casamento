@@ -22,7 +22,7 @@ const Home: React.FC = () => {
       </section>
       <section id="countdown">
         <div className="countdown-bar">
-          <p className="countdown-text">CONTAGEM REGRESSIVA</p>
+          <p className="countdown-text">Contagem Regressiva</p>
           <Countdown endDate={targetDate} />
         </div>
       </section>

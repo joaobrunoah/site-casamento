@@ -1,5 +1,6 @@
 #home h1 {
-  font-size: 5.5em;
+  font-size: 6.5em;
+  line-height: 1.3;
 }
 
 .home-images {
@@ -7,7 +8,6 @@
   gap: 20px;
   justify-content: center;
   align-items: center;
-  margin-top: 30px;
   flex-wrap: wrap;
 }
 
@@ -15,19 +15,24 @@
   max-width: 100%;
   height: auto;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* Desktop: images side by side */
 @media (min-width: 769px) {
+  #home h1 {
+    font-size: 8.0em;
+  }
+  
   .home-images {
     flex-direction: row;
+    gap: 0;
   }
   
   .home-images img {
     flex: 1;
-    max-width: calc(33.333% - 14px);
+    max-width: 33.333%;
     min-width: 200px;
   }
 }
@@ -36,7 +41,7 @@
 @media (max-width: 768px) {
   .home-images {
     flex-direction: column;
-    gap: 20px;
+    gap: 0;
   }
   
   .home-images img {
@@ -52,10 +57,11 @@
 }
 
 .home-date {
-  font-size: 2em;
+  font-size: 1.5em;
   font-weight: 500;
   margin-bottom: 10px;
   font-family: 'Glacial Indifference', sans-serif;
+  letter-spacing: 0.1em;
 }
 
 .home-location {
@@ -75,85 +81,24 @@
 }
 
 .countdown-bar {
-  background-color: #97412f;
+  background-color: #DCAE9D;
   width: 100%;
-  padding: 50px 20px;
+  padding: 20px;
   text-align: center;
 }
 
 .countdown-text {
-  color: white;
+  color: #2c2c2c;
   font-family: 'Glacial Indifference', sans-serif;
-  font-size: 2.2em;
+  font-size: 1.2em;
   font-weight: 500;
   margin: 0;
-  margin-bottom: 20px;
 }
 
-.countdown-boxes {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
-}
-
-.countdown-box {
-  background-color: #FBEDE0;
-  color: #97412f;
-  padding: 20px;
-  width: 120px;
-  border-radius: 8px;
+.countdown-display {
+  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+  color: #2c2c2c;
+  font-size: 3.5em;
+  font-weight: bold;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.countdown-value {
-  font-family: 'Glacial Indifference', sans-serif;
-  font-size: 2.5em;
-  font-weight: normal;
-  color: #97412f;
-  margin-bottom: 0px;
-  line-height: 36px;
-}
-
-.countdown-label {
-  font-family: 'Glacial Indifference', sans-serif;
-  font-size: 1em;
-  font-weight: 500;
-  color: #97412f;
-  text-transform: uppercase;
-  text-align: center;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-}
-
-@media (max-width: 768px) {
-  .countdown-boxes {
-    gap: 10px;
-  }
-  
-  .countdown-box {
-    width: 110px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .countdown-value {
-    font-size: 2em;
-  }
-  
-  .countdown-label {
-    font-size: 0.85em;
-    text-align: center;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
-  }
 }
