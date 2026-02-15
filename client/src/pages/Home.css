@@ -323,6 +323,153 @@
   padding-bottom: 40px;
 }
 
+.cerimony-bottom-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.cerimony-bottom-image img {
+  width: 200px;
+  height: auto;
+  max-width: 100%;
+}
+
+#hotels {
+  background-color: #EECCC3;
+  padding: 60px 20px;
+}
+
+.hotels-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.hotels-header .h1-section {
+  margin: 0;
+}
+
+.hotels-header-image {
+  height: 150px;
+  width: auto;
+  position: absolute;
+  right: 0;
+}
+
+.hotels-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 40px;
+}
+
+.hotel-card {
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 30px;
+  background-color: transparent;
+}
+
+.hotel-name {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #2c2c2c;
+  margin: 0 0 10px 0;
+}
+
+.hotel-distance {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  margin: 0 0 10px 0;
+}
+
+.hotel-instagram {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  margin: 0 0 20px 0;
+}
+
+.hotel-section-title {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #2c2c2c;
+  margin: 20px 0 10px 0;
+}
+
+.hotel-section-title:first-of-type {
+  margin-top: 0;
+}
+
+.hotel-room-type {
+  margin: 15px 0;
+}
+
+.hotel-room-title {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin: 0 0 8px 0;
+}
+
+.hotel-rate {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.95em;
+  color: #2c2c2c;
+  margin: 4px 0;
+  padding-left: 15px;
+}
+
+.hotel-info {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  margin: 5px 0;
+  line-height: 1.5;
+}
+
+.hotel-important {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.95em;
+  color: #2c2c2c;
+  margin: 5px 0;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .hotels-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .hotels-header-image {
+    height: 100px;
+  }
+  
+  .hotels-container {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding-top: 30px;
+  }
+  
+  .hotel-card {
+    padding: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   #cerimony-details {
     padding: 40px 20px;

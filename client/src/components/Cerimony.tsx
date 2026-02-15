@@ -43,6 +43,9 @@ const Cerimony: React.FC<CerimonyProps> = ({
         <p className="cerimony-label">Local</p>
         <p className="cerimony-place">{place}</p>
       </div>
+      <div className="cerimony-bottom-image">
+        <img src="/assets/bottom-cerimony.svg" alt="" />
+      </div>
     </div>
   );
 };
