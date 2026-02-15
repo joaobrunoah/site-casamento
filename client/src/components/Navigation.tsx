@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useConfig } from '../contexts/ConfigContext';
 import './Navigation.css';
 
 const Navigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const { isAuthenticated, logout } = useAuth();
+  const { showConfirmationForm, showGiftsList } = useConfig();
 
   const handleHomeClick = (sectionId?: string) => {
     navigate('/');
@@ -29,6 +32,15 @@ const Navigation: React.FC = () => {
     setIsMenuOpen(false);
   };
 
+  const handleLogout = () => {
+    logout();
+    setIsMenuOpen(false);
+    // Check if user is on an admin page and redirect to home
+    if (location.pathname.startsWith('/admin')) {
+      navigate('/');
+    }
+  };
+
   return (
     <nav className="navigation">
       <div className="nav-container">
@@ -49,18 +61,23 @@ const Navigation: React.FC = () => {
               Transporte
             </button>
           </li>
-          <li>
-            <Link to="/attending-form" onClick={closeMenu}>
-              Confirme sua Presença
-            </Link>
-          </li>
-          <li>
-            <Link to="/gifts" onClick={closeMenu}>
-              Lista de Presentes
-            </Link>
-          </li>
+          {showConfirmationForm && (
+            <li>
+              <Link to="/attending-form" onClick={closeMenu}>
+                Confirme sua Presença
+              </Link>
+            </li>
+          )}
+          {showGiftsList && (
+            <li>
+              <Link to="/gifts" onClick={closeMenu}>
+                Lista de Presentes
+              </Link>
+            </li>
+          )}
           {isAuthenticated && (
             <>
+              <li className="nav-separator"></li>
               <li>
                 <Link to="/admin/attending-list" onClick={closeMenu}>
                   Lista de Convidados
@@ -70,6 +87,11 @@ const Navigation: React.FC = () => {
                 <Link to="/admin/gifts" onClick={closeMenu}>
                   Gerenciar Presentes
                 </Link>
+              </li>
+              <li>
+                <button onClick={handleLogout} className="logout-button">
+                  Sair
+                </button>
               </li>
             </>
           )}
@@ -111,18 +133,23 @@ const Navigation: React.FC = () => {
             Transporte
           </button>
         </li>
-        <li>
-          <Link to="/attending-form" onClick={closeMenu}>
-            Confirme sua Presença
-          </Link>
-        </li>
-        <li>
-          <Link to="/gifts" onClick={closeMenu}>
-            Lista de Presentes
-          </Link>
-        </li>
+        {showConfirmationForm && (
+          <li>
+            <Link to="/attending-form" onClick={closeMenu}>
+              Confirme sua Presença
+            </Link>
+          </li>
+        )}
+        {showGiftsList && (
+          <li>
+            <Link to="/gifts" onClick={closeMenu}>
+              Lista de Presentes
+            </Link>
+          </li>
+        )}
         {isAuthenticated && (
           <>
+            <li className="nav-separator mobile-separator"></li>
             <li>
               <Link to="/admin/attending-list" onClick={closeMenu}>
                 Lista de Convidados
@@ -132,6 +159,11 @@ const Navigation: React.FC = () => {
               <Link to="/admin/gifts" onClick={closeMenu}>
                 Gerenciar Presentes
               </Link>
+            </li>
+            <li>
+              <button onClick={handleLogout} className="logout-button">
+                Sair
+              </button>
             </li>
           </>
         )}

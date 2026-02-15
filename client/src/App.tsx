@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ConfigProvider } from './contexts/ConfigContext';
 import Navigation from './components/Navigation';
 import Home from './pages/Home';
 import AttendingForm from './pages/AttendingForm';
@@ -13,21 +14,23 @@ import './App.css';
 function App(): JSX.Element {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
-          <Navigation />
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/attending-form" element={<AttendingForm />} />
-              <Route path="/gifts" element={<Gifts />} />
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin/attending-list" element={<AdminAttendingList />} />
-              <Route path="/admin/gifts" element={<AdminGifts />} />
-            </Routes>
-          </main>
-        </div>
-      </Router>
+      <ConfigProvider>
+        <Router>
+          <div className="App">
+            <Navigation />
+            <main className="main-content">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/attending-form" element={<AttendingForm />} />
+                <Route path="/gifts" element={<Gifts />} />
+                <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/admin/attending-list" element={<AdminAttendingList />} />
+                <Route path="/admin/gifts" element={<AdminGifts />} />
+              </Routes>
+            </main>
+          </div>
+        </Router>
+      </ConfigProvider>
     </AuthProvider>
   );
 }

@@ -177,6 +177,62 @@ export const login = functions.https.onRequest(
     }
 );
 
+// API: Get config
+export const getConfig = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      try {
+        const configDoc = await db.collection("config").doc("config").get();
+        
+        if (!configDoc.exists) {
+          // Create default config if it doesn't exist
+          const defaultConfig = {
+            "show-confirmation-form": false,
+            "show-gifts-list": false,
+          };
+          await db.collection("config").doc("config").set(defaultConfig);
+          response.json({success: true, config: defaultConfig});
+          return;
+        }
+
+        response.json({success: true, config: configDoc.data()});
+      } catch (error) {
+        functions.logger.error("Error fetching config", error);
+        response.status(500).json({error: "Erro ao buscar configuração"});
+      }
+    }
+);
+
+// API: Update config
+export const updateConfig = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "POST") {
+        response.status(405).json({error: "Método não permitido"});
+        return;
+      }
+
+      try {
+        const updateData = request.body;
+        
+        if (!updateData || typeof updateData !== "object") {
+          response.status(400).json({error: "Dados inválidos"});
+          return;
+        }
+
+        await db.collection("config").doc("config").set(updateData, { merge: true });
+        const updatedDoc = await db.collection("config").doc("config").get();
+        
+        response.json({success: true, config: updatedDoc.data()});
+      } catch (error) {
+        functions.logger.error("Error updating config", error);
+        response.status(500).json({error: "Erro ao atualizar configuração"});
+      }
+    }
+);
+
 // Health check endpoint
 export const health = functions.https.onRequest((request, response) => {
   if (corsHandler(request, response)) return;
