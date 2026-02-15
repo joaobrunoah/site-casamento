@@ -83,23 +83,39 @@ npm run install-all
 
 ## Development
 
-### Run Frontend Locally
+### Run Everything Locally
 
+To run the client, functions, and Firestore emulators together:
+
+```bash
+npm run dev
+# or
+./run-local.sh
+```
+
+This will start:
+- React development server at `http://localhost:3000`
+- Firebase Functions emulator at `http://localhost:5001`
+- Firestore emulator at `localhost:8080`
+- Firebase Emulator UI at `http://localhost:4000`
+
+Press `Ctrl+C` to stop all services.
+
+### Run Services Individually
+
+**Frontend only:**
 ```bash
 cd client
 npm start
 ```
 
-The app will be available at `http://localhost:3000`
-
-### Run Firebase Functions Locally
-
+**Firebase Functions and Firestore emulators only:**
 ```bash
 cd functions
 npm run serve
+# or
+firebase emulators:start --only functions,firestore
 ```
-
-This will start the Firebase emulators.
 
 ## Building
 
@@ -119,13 +135,9 @@ Deploy frontend, functions, and Firestore rules/indexes:
 npm run deploy
 ```
 
-Or use the deployment scripts directly:
+Or use the deployment script directly:
 
 ```bash
-# Using Node.js script (recommended)
-node deploy.js
-
-# Using Bash script
 ./deploy.sh
 ```
 
@@ -135,21 +147,21 @@ Deploy only the frontend:
 ```bash
 npm run deploy:hosting
 # or
-node deploy.js --hosting-only
+./deploy.sh --hosting-only
 ```
 
 Deploy only the functions:
 ```bash
 npm run deploy:functions
 # or
-node deploy.js --functions-only
+./deploy.sh --functions-only
 ```
 
 Deploy only Firestore rules and indexes:
 ```bash
 npm run deploy:firestore
 # or
-node deploy.js --firestore-only
+./deploy.sh --firestore-only
 ```
 
 ## Project Structure
@@ -173,8 +185,8 @@ site-casamento/
 ├── .firebaserc            # Firebase project settings
 ├── firestore.rules        # Firestore security rules
 ├── firestore.indexes.json # Firestore indexes
-├── deploy.js              # Node.js deployment script (main)
-├── deploy.sh              # Bash deployment script (alternative)
+├── deploy.sh              # Deployment script
+├── run-local.sh           # Local development script
 └── package.json
 ```
 

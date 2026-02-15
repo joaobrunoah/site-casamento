@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getFunctions } from 'firebase/functions';
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 // Your web app's Firebase configuration
 // Replace these values with your Firebase project configuration
@@ -21,5 +21,22 @@ export const db = getFirestore(app);
 
 // Initialize Cloud Functions
 export const functions = getFunctions(app);
+
+// Connect to emulators in development mode
+if (process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_EMULATORS === 'true') {
+  try {
+    connectFirestoreEmulator(db, 'localhost', 8080);
+    connectFunctionsEmulator(functions, 'localhost', 5001);
+    console.log('🔥 Connected to Firebase emulators');
+  } catch (error) {
+    // Emulators may already be connected (e.g., in React StrictMode)
+    // This is safe to ignore
+    if (error instanceof Error && error.message.includes('already been called')) {
+      console.log('Firebase emulators already connected');
+    } else {
+      console.warn('Error connecting to emulators:', error);
+    }
+  }
+}
 
 export default app;

@@ -5,11 +5,13 @@
   "scripts": {
     "install-all": "npm install && cd client && npm install && cd ../functions && npm install",
     "build": "cd client && npm run build && cd ../functions && npm run build",
-    "deploy": "node deploy.js",
-    "deploy:hosting": "node deploy.js --hosting-only",
-    "deploy:functions": "node deploy.js --functions-only",
-    "deploy:firestore": "node deploy.js --firestore-only",
-    "deploy:all": "node deploy.js"
+    "dev": "./run-local.sh",
+    "start": "./run-local.sh",
+    "deploy": "./deploy.sh",
+    "deploy:hosting": "./deploy.sh --hosting-only",
+    "deploy:functions": "./deploy.sh --functions-only",
+    "deploy:firestore": "./deploy.sh --firestore-only",
+    "deploy:all": "./deploy.sh"
   },
   "keywords": ["casamento", "wedding", "react", "typescript", "firebase"],
   "author": "",
