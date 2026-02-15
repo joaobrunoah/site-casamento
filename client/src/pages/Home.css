@@ -102,3 +102,77 @@
   font-weight: bold;
   text-align: center;
 }
+
+#ceremony {
+  background-color: #EECCC3;
+  padding: 0;
+}
+
+.ceremony-container {
+  display: flex;
+  width: 100%;
+}
+
+.ceremony-image-column {
+  width: 50%;
+  flex-shrink: 0;
+}
+
+.ceremony-image-column img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ceremony-text-column {
+  width: 50%;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ceremony-text-column h1 {
+  margin-bottom: 30px;
+}
+
+.ceremony-text {
+  font-family: 'Glacial Indifference', sans-serif;
+  color: #2c2c2c;
+  font-size: 1.1em;
+  line-height: 1.6;
+  white-space: pre-line;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.ceremony-map-link {
+  font-family: 'Glacial Indifference', sans-serif;
+  color: #2c2c2c;
+  font-size: 1.1em;
+  text-decoration: underline;
+  transition: opacity 0.3s ease;
+  text-align: center;
+  display: block;
+  margin-top: 30px;
+}
+
+.ceremony-map-link:hover {
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .ceremony-container {
+    flex-direction: column;
+  }
+  
+  .ceremony-image-column {
+    width: 100%;
+  }
+  
+  .ceremony-text-column {
+    width: 100%;
+    padding: 30px 20px;
+  }
+}
