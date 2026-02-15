@@ -50,6 +50,11 @@ if [ "$HOSTING_ONLY" = true ]; then
     echo "📦 Building React frontend..."
     cd client
     npm install
+    # Copy .env.prod to .env if it exists for production build
+    if [ -f .env.prod ]; then
+        echo "📋 Using .env.prod for production build..."
+        cp .env.prod .env
+    fi
     npm run build
     cd ..
     
@@ -85,6 +90,11 @@ fi
 echo "📦 Building React frontend..."
 cd client
 npm install
+# Copy .env.prod to .env if it exists for production build
+if [ -f .env.prod ]; then
+    echo "📋 Using .env.prod for production build..."
+    cp .env.prod .env
+fi
 npm run build
 cd ..
 

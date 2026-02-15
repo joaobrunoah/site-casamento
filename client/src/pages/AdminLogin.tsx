@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getFunctions } from 'firebase/functions';
 import { useAuth } from '../contexts/AuthContext';
-import app from '../firebase';
+import { getApiUrl } from '../utils/api';
 import './AdminLogin.css';
 
 const AdminLogin: React.FC = () => {
@@ -19,18 +18,8 @@ const AdminLogin: React.FC = () => {
     setCarregando(true);
 
     try {
-      // Get the function URL
-      const functionsInstance = getFunctions(app);
-      const projectId = app.options.projectId || '';
-      const region = 'us-central1'; // Default region
-      
-      // For emulator, use localhost
-      const isEmulator = process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_EMULATORS === 'true';
-      const finalUrl = isEmulator 
-        ? `http://localhost:5001/${projectId}/${region}/login`
-        : `https://${region}-${projectId}.cloudfunctions.net/login`;
-
-      const response = await fetch(finalUrl, {
+      const url = getApiUrl('login');
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

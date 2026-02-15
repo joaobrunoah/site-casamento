@@ -18,6 +18,8 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.prod
+client/.env.prod
 
 # Logs
 npm-debug.log*

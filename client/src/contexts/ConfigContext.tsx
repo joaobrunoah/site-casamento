@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getFunctions } from 'firebase/functions';
-import app from '../firebase';
+import { getApiUrl } from '../utils/api';
 
 interface ConfigContextType {
   showConfirmationForm: boolean;
@@ -18,19 +17,9 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [showGiftsList, setShowGiftsList] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const getFunctionUrl = (functionName: string): string => {
-    const functionsInstance = getFunctions(app);
-    const projectId = app.options.projectId || '';
-    const region = 'us-central1';
-    const isEmulator = process.env.NODE_ENV === 'development' && process.env.REACT_APP_USE_EMULATORS === 'true';
-    return isEmulator 
-      ? `http://localhost:5001/${projectId}/${region}/${functionName}`
-      : `https://${region}-${projectId}.cloudfunctions.net/${functionName}`;
-  };
-
   const refreshConfig = async () => {
     try {
-      const url = getFunctionUrl('getConfig');
+      const url = getApiUrl('getConfig');
       const response = await fetch(url);
       const result = await response.json();
       if (result.success && result.config) {
@@ -46,7 +35,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const updateShowConfirmationForm = async (value: boolean) => {
     try {
-      const url = getFunctionUrl('updateConfig');
+      const url = getApiUrl('updateConfig');
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -68,7 +57,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const updateShowGiftsList = async (value: boolean) => {
     try {
-      const url = getFunctionUrl('updateConfig');
+      const url = getApiUrl('updateConfig');
       const response = await fetch(url, {
         method: 'POST',
         headers: {

@@ -11,7 +11,7 @@ A wedding website built with React.js (TypeScript), Firebase Functions, and Fire
 
 ## Prerequisites
 
-- Node.js (v18 or higher)
+- Node.js (v22 or higher)
 - npm or yarn
 - Firebase CLI (`npm install -g firebase-tools`)
 - A Firebase project (create one at [Firebase Console](https://console.firebase.google.com/))
@@ -220,18 +220,19 @@ Update these files according to your needs.
 
 ## Environment Variables
 
-Create a `.env` file in the `client` directory with your Firebase configuration. The file should contain:
+### Production API URL
+
+For production builds, create a `.env.prod` file in the `client` directory with your production API URL:
 
 ```
-REACT_APP_FIREBASE_API_KEY=your-api-key
-REACT_APP_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
-REACT_APP_FIREBASE_PROJECT_ID=your-project-id
-REACT_APP_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-REACT_APP_FIREBASE_APP_ID=your-app-id
+REACT_APP_API_URL=https://us-central1-your-project-id.cloudfunctions.net
 ```
 
-**Important:** Add `client/.env` to your `.gitignore` file to avoid committing sensitive credentials.
+**Important:** 
+- The `.env.prod` file is gitignored and should not be committed
+- Copy `.env.prod.example` to `.env.prod` and fill in your production API URL
+- During deployment, the deploy script automatically uses `.env.prod` for production builds
+- For local development, the frontend automatically points to `http://localhost:5001`
 
 ## Troubleshooting
 
