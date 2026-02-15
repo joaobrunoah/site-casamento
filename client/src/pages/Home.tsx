@@ -244,7 +244,7 @@ const Home: React.FC = () => {
           <div className="hotel-card">
             <h2 className="hotel-name">Hotel KK ⭐⭐⭐</h2>
             <p className="hotel-distance">Distância: 22 min. da Villa Mandacarú</p>
-            <p className="hotel-instagram">Instagram: @hotelkkitu</p>
+            <p className="hotel-instagram">Instagram: <a href="https://www.instagram.com/hotelkkitu/" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>@hotelkkitu</a></p>
             
             <h3 className="hotel-section-title">📅 Período do pacote especial</h3>
             <p className="hotel-info">Check-in: 12/06/2026 (sexta), a partir das 12h</p>
@@ -274,9 +274,9 @@ const Home: React.FC = () => {
             <p className="hotel-info">Saída no sábado (13/06): check-out até 12h</p>
             
             <h3 className="hotel-section-title">📞 Contato</h3>
-            <p className="hotel-info">E-mail: hotelkk@hotelkk.com.br</p>
+            <p className="hotel-info">E-mail: <a href="mailto:hotelkk@hotelkk.com.br" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>hotelkk@hotelkk.com.br</a></p>
             <p className="hotel-info">Telefone: (11) 4013-9000</p>
-            <p className="hotel-info">WhatsApp: (11) 95881-0444</p>
+            <p className="hotel-info">WhatsApp: <a href="https://wa.me/+5511958810444" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>(11) 95881-0444</a></p>
             
             <h3 className="hotel-section-title">💳 Pagamento</h3>
             <p className="hotel-info">Pagamento antecipado (cartão, depósito ou Pix)</p>
@@ -308,8 +308,8 @@ const Home: React.FC = () => {
             <p className="hotel-info">Check-out: até 12h</p>
             
             <h3 className="hotel-section-title">📞 Contato</h3>
-            <p className="hotel-info">Telefone / WhatsApp: (11) 4024-9700</p>
-            <p className="hotel-info">E-mail: comercial@gandinihotel.com.br</p>
+            <p className="hotel-info">Telefone / WhatsApp: <a href="https://wa.me/+551140249700" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>(11) 4024-9700</a></p>
+            <p className="hotel-info">E-mail: <a href="mailto:comercial@gandinihotel.com.br" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>comercial@gandinihotel.com.br</a></p>
             <p className="hotel-info">Responsável: Bruna</p>
           </div>
           <div className="hotel-card">
@@ -331,9 +331,9 @@ const Home: React.FC = () => {
             <p className="hotel-info">A equipe do hotel ficará responsável por enviar lembretes aos hóspedes que realizarem a reserva.</p>
             
             <h3 className="hotel-section-title">📞 Contato</h3>
-            <p className="hotel-info">WhatsApp (Reservas): (11) 94730-3805</p>
-            <p className="hotel-info">Telefone e WhatsApp: (11) 3414-3454</p>
-            <p className="hotel-info">E-mail: h8138@accor.com</p>
+            <p className="hotel-info">WhatsApp (Reservas): <a href="https://wa.me/+5511947303805" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>(11) 94730-3805</a></p>
+            <p className="hotel-info">Telefone e WhatsApp: <a href="https://wa.me/+551134143454" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>(11) 3414-3454</a></p>
+            <p className="hotel-info">E-mail: <a href="mailto:h8138@accor.com" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>h8138@accor.com</a></p>
           </div>
         </div>
       </section>
