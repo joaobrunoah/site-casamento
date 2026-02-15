@@ -3,6 +3,11 @@
   width: 100%;
 }
 
+.main-content {
+  min-height: calc(100vh - 70px);
+  padding: 20px;
+}
+
 .wedding-page {
   width: 100%;
 }
@@ -10,6 +15,7 @@
 .wedding-page section {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 40px 20px;
 }
 
 @media (max-width: 768px) {

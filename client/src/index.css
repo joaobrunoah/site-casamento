@@ -6,16 +6,33 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Cormorant+Garamond:wght@300;400;500;600;700&display=swap');
 
+
 body {
   font-family: 'Cormorant Garamond', 'Playfair Display', 'Georgia', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #faf9f7;
+  background-image: url('/assets/background.jpeg');
+  background-repeat: repeat;
+  background-color: #faf9f7;
   color: #2c2c2c;
   line-height: 1.6;
   min-height: 100vh;
   margin: 0;
   padding: 0;
+}
+
+/* Sections and Subsections use BDScript font */
+h1, h2, h3, h4, h5, h6,
+section h1, section h2, section h3,
+section h4, section h5, section h6 {
+  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+}
+
+/* h1 styling for page titles */
+h1 {
+  font-size: 4.5em;
+  font-weight: bold;
+  text-align: center;
 }
 
 code {

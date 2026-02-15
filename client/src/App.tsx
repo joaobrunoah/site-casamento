@@ -1,12 +1,34 @@
 import React from 'react';
-import WeddingPage from './pages/WeddingPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import Navigation from './components/Navigation';
+import Home from './pages/Home';
+import AttendingForm from './pages/AttendingForm';
+import Gifts from './pages/Gifts';
+import AdminLogin from './pages/AdminLogin';
+import AdminAttendingList from './pages/AdminAttendingList';
+import AdminGifts from './pages/AdminGifts';
 import './App.css';
 
 function App(): JSX.Element {
   return (
-    <div className="App">
-      <WeddingPage />
-    </div>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Navigation />
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/attending-form" element={<AttendingForm />} />
+              <Route path="/gifts" element={<Gifts />} />
+              <Route path="/admin/login" element={<AdminLogin />} />
+              <Route path="/admin/attending-list" element={<AdminAttendingList />} />
+              <Route path="/admin/gifts" element={<AdminGifts />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </AuthProvider>
   );
 }
 

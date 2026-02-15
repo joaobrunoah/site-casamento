@@ -135,6 +135,48 @@ export const updatePresente = functions.https.onRequest(
     }
 );
 
+// API: Login
+export const login = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "POST") {
+        response.status(405).json({error: "Método não permitido"});
+        return;
+      }
+
+      try {
+        const {user, password} = request.body;
+
+        if (!user || !password) {
+          response.status(400).json({
+            error: "Usuário e senha são obrigatórios",
+          });
+          return;
+        }
+
+        // Read credentials from environment variables
+        const validUser = process.env.ADMIN_USER;
+        const validPassword = process.env.ADMIN_PASSWORD;
+
+        if (!validUser || !validPassword) {
+          functions.logger.error("Admin credentials not configured in environment");
+          response.status(500).json({error: "Configuração do servidor inválida"});
+          return;
+        }
+
+        if (user === validUser && password === validPassword) {
+          response.json({success: true, message: "Login realizado com sucesso"});
+        } else {
+          response.status(401).json({success: false, error: "Usuário ou senha incorretos"});
+        }
+      } catch (error) {
+        functions.logger.error("Error in login", error);
+        response.status(500).json({error: "Erro ao processar login"});
+      }
+    }
+);
+
 // Health check endpoint
 export const health = functions.https.onRequest((request, response) => {
   if (corsHandler(request, response)) return;
