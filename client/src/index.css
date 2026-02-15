@@ -35,6 +35,20 @@ h1 {
   text-align: center;
 }
 
+.h1-section {
+  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 4em;
+  font-weight: bold;
+  text-align: center;
+  color: #2c2c2c;
+}
+
+@media (min-width: 769px) {
+  .h1-section {
+    font-size: 6.5em;
+  }
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }

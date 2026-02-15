@@ -20,7 +20,7 @@ const AdminAttendingList: React.FC = () => {
 
   return (
     <div className="admin-attending-list">
-      <h1>Lista de Convidados</h1>
+      <h1 className="h1-section">Lista de Convidados</h1>
       <div className="config-section">
         <label className="toggle-label">
           <input

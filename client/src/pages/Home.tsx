@@ -1,5 +1,6 @@
 import React from 'react';
 import Countdown from '../components/Countdown';
+import Cerimony from '../components/Cerimony';
 import './Home.css';
 
 const Home: React.FC = () => {
@@ -29,10 +30,10 @@ const Home: React.FC = () => {
       <section id="ceremony">
         <div className="ceremony-container">
           <div className="ceremony-image-column">
-            <img src="/assets/villa_mandacaru.jpeg" alt="Villa Mandacarú" />
+            <img src="/assets/villa_mandacaru2.jpeg" alt="Villa Mandacarú" />
           </div>
           <div className="ceremony-text-column">
-            <h1>Cerimônia e Festa</h1>
+            <h1 className="h1-section">Cerimônia e Festa</h1>
             <p className="ceremony-text">
               Um fim de tarde gostoso, lugar incrível e todas as pessoas que a gente ama reunidas.<br/>
 
@@ -52,12 +53,37 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+      <section id="cerimony-details">
+        <div className="cerimony-details-container">
+          <div className="cerimony-details-column">
+            <Cerimony
+              title="Pré Wedding"
+              dateText="12 de Junho"
+              timeText="20hs"
+              description="pizzada de boas vindas aos convidados"
+              dressCode="Para a sexta feira (pré-casamento) : Casual"
+              place="Itu - SP - a definir"
+              icon="/assets/glass.svg"
+            />
+          </div>
+          <div className="cerimony-details-column">
+            <Cerimony
+              title="Cerimônia"
+              dateText="13 de Junho"
+              timeText="15hs"
+              description="Cerimônia e festa no mesmo lugar"
+              dressCode="Para sabado: Esporte Fino"
+              place="Villa Mandacaru - Itu"
+            />
+          </div>
+        </div>
+      </section>
       <section id="hotels">
-        <h1>Hotéis</h1>
+        <h1 className="h1-section">Hotéis</h1>
         {/* Content will be added later */}
       </section>
       <section id="transport">
-        <h1>Transporte</h1>
+        <h1 className="h1-section">Transporte</h1>
         {/* Content will be added later */}
       </section>
     </div>

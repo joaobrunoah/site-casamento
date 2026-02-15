@@ -20,7 +20,7 @@ const AdminGifts: React.FC = () => {
 
   return (
     <div className="admin-gifts">
-      <h1>Gerenciar Presentes</h1>
+      <h1 className="h1-section">Gerenciar Presentes</h1>
       <div className="config-section">
         <label className="toggle-label">
           <input
