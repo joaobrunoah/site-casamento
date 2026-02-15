@@ -75,9 +75,9 @@ const Navigation: React.FC = () => {
               </Link>
             </li>
           )}
+          <li className="nav-separator"></li>
           {isAuthenticated && (
             <>
-              <li className="nav-separator"></li>
               <li>
                 <Link to="/admin/attending-list" onClick={closeMenu}>
                   Lista de Convidados
@@ -147,9 +147,9 @@ const Navigation: React.FC = () => {
             </Link>
           </li>
         )}
+        <li className="nav-separator mobile-separator"></li>
         {isAuthenticated && (
           <>
-            <li className="nav-separator mobile-separator"></li>
             <li>
               <Link to="/admin/attending-list" onClick={closeMenu}>
                 Lista de Convidados

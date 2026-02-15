@@ -7,10 +7,14 @@ const db = admin.firestore();
 
 // CORS helper function
 const corsHandler = (req: functions.https.Request, res: functions.Response) => {
+  // Set CORS headers for all requests
+  // Allow all origins for local development (can be restricted in production)
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.set("Access-Control-Max-Age", "3600");
 
+  // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
     res.status(204).send("");
     return true;
