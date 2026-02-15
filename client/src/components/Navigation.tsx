@@ -41,9 +41,23 @@ const Navigation: React.FC = () => {
     }
   };
 
+  const handleLogoClick = () => {
+    navigate('/');
+    setIsMenuOpen(false);
+  };
+
   return (
     <nav className="navigation">
       <div className="nav-container">
+        {/* Logo - Desktop (left side) */}
+        <button 
+          className="nav-logo desktop-logo"
+          onClick={handleLogoClick}
+          aria-label="Home"
+        >
+          <img src="/assets/logo.png" alt="Logo" />
+        </button>
+
         {/* Desktop Menu */}
         <ul className="nav-menu desktop-menu">
           <li>
@@ -103,6 +117,15 @@ const Navigation: React.FC = () => {
             </li>
           )}
         </ul>
+
+        {/* Logo - Mobile (center) */}
+        <button 
+          className="nav-logo mobile-logo"
+          onClick={handleLogoClick}
+          aria-label="Home"
+        >
+          <img src="/assets/logo.png" alt="Logo" />
+        </button>
 
         {/* Mobile Hamburger Button */}
         <button 
