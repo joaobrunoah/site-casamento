@@ -357,7 +357,6 @@ const Home: React.FC = () => {
             <p className="hotel-info">Pagamento antecipado de 1 diária para confirmação</p>
             <p className="hotel-info">Cancelamento gratuito até 24h antes da hospedagem</p>
             <p className="hotel-info">Não aceitam pets</p>
-            <p className="hotel-info">Saída no sábado (13/06): check-out até 12h</p>
             
             <h3 className="hotel-section-title">📞 Contato</h3>
             <p className="hotel-info">E-mail: <a href="mailto:hotelkk@hotelkk.com.br" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>hotelkk@hotelkk.com.br</a></p>
