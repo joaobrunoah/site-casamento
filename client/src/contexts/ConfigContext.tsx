@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { getApiUrl } from '../utils/api';
+import { getApiUrl, getAuthHeaders } from '../utils/api';
 
 interface ConfigContextType {
   showConfirmationForm: boolean;
@@ -38,9 +38,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const url = getApiUrl('updateConfig');
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ 'show-confirmation-form': value }),
       });
       const result = await response.json();
@@ -60,9 +58,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const url = getApiUrl('updateConfig');
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ 'show-gifts-list': value }),
       });
       const result = await response.json();

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
 import * as XLSX from 'xlsx';
 import InviteCard, { Invite, Guest } from '../components/InviteCard';
-import { getApiUrl } from '../utils/api';
+import { getApiUrl, getAuthHeaders } from '../utils/api';
 import './AdminAttendingList.css';
 
 type TabType = 'convidados' | 'convites' | 'importar' | 'configuracoes';
@@ -17,6 +17,14 @@ interface ConfirmationDialog {
   message: string;
   onConfirm: () => void;
   onCancel?: () => void;
+}
+
+interface FilterPopup {
+  tableType: 'convidados' | 'convites';
+  column: string;
+  values: string[];
+  selectedValues: Set<string>;
+  position: { top: number; left: number };
 }
 
 const AdminAttendingList: React.FC = () => {
@@ -38,6 +46,36 @@ const AdminAttendingList: React.FC = () => {
   const [selectedInvites, setSelectedInvites] = useState<Set<string>>(new Set()); // Format: inviteId
   const fileInputRef = useRef<HTMLInputElement>(null);
   const toastIdCounter = useRef<number>(0);
+  
+  // Filter states for Convidados table
+  const [guestsFilters, setGuestsFilters] = useState<{
+    nomeDoConvite: Set<string>;
+    nome: Set<string>;
+    telefone: Set<string>;
+    situacao: Set<string>;
+    mesa: Set<string>;
+  }>({
+    nomeDoConvite: new Set(),
+    nome: new Set(),
+    telefone: new Set(),
+    situacao: new Set(),
+    mesa: new Set(),
+  });
+  
+  // Filter states for Convites table
+  const [invitesFilters, setInvitesFilters] = useState<{
+    nomeDoConvite: Set<string>;
+    telefone: Set<string>;
+    grupo: Set<string>;
+    observacao: Set<string>;
+  }>({
+    nomeDoConvite: new Set(),
+    telefone: new Set(),
+    grupo: new Set(),
+    observacao: new Set(),
+  });
+  
+  const [filterPopup, setFilterPopup] = useState<FilterPopup | null>(null);
 
   // Show toast notification
   const showToast = (message: string, type: 'success' | 'error') => {
@@ -109,9 +147,7 @@ const AdminAttendingList: React.FC = () => {
         const url = getApiUrl(`updateGuest?id=${guest.id}`);
         const response = await fetch(url, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             [field]: value
           }),
@@ -140,9 +176,7 @@ const AdminAttendingList: React.FC = () => {
         const url = getApiUrl(`updateInvite?id=${inviteId}`);
         const response = await fetch(url, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
           body: JSON.stringify({
             guests: [{
               index: guestIndex,
@@ -463,6 +497,18 @@ const AdminAttendingList: React.FC = () => {
     fetchInvites();
   }, []);
 
+  // Close filter popup on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && filterPopup) {
+        setFilterPopup(null);
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscape);
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [filterPopup]);
+
   // Save all imported invites to database
   const handleSaveImportedInvites = async () => {
     if (importedInvites.length === 0) {
@@ -479,9 +525,7 @@ const AdminAttendingList: React.FC = () => {
           
           const response = await fetch(url, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
               id: invite.id,
               nomeDoConvite: invite.nomeDoConvite || '',
@@ -588,20 +632,56 @@ const AdminAttendingList: React.FC = () => {
       });
     });
     // Sort alphabetically by invite name (Nome do Convite)
-    return allGuests.sort((a, b) => {
+    let filtered = allGuests.sort((a, b) => {
       const nameA = (a.inviteNome || '').toLowerCase();
       const nameB = (b.inviteNome || '').toLowerCase();
       return nameA.localeCompare(nameB);
     });
+    
+    // Apply filters
+    if (guestsFilters.nomeDoConvite.size > 0) {
+      filtered = filtered.filter(g => guestsFilters.nomeDoConvite.has(g.inviteNome || ''));
+    }
+    if (guestsFilters.nome.size > 0) {
+      filtered = filtered.filter(g => guestsFilters.nome.has(g.nome || ''));
+    }
+    if (guestsFilters.telefone.size > 0) {
+      filtered = filtered.filter(g => guestsFilters.telefone.has(g.telefone || ''));
+    }
+    if (guestsFilters.situacao.size > 0) {
+      filtered = filtered.filter(g => guestsFilters.situacao.has(g.situacao || ''));
+    }
+    if (guestsFilters.mesa.size > 0) {
+      filtered = filtered.filter(g => guestsFilters.mesa.has(g.mesa || ''));
+    }
+    
+    return filtered;
   };
 
   // Get sorted invites for display
   const getSortedInvites = () => {
-    return [...invites].sort((a, b) => {
+    let filtered = [...invites].sort((a, b) => {
       const nameA = (a.nomeDoConvite || '').toLowerCase();
       const nameB = (b.nomeDoConvite || '').toLowerCase();
       return nameA.localeCompare(nameB);
     });
+    
+    // Apply filters
+    if (invitesFilters.nomeDoConvite.size > 0) {
+      filtered = filtered.filter(inv => invitesFilters.nomeDoConvite.has(inv.nomeDoConvite || ''));
+    }
+    if (invitesFilters.telefone.size > 0) {
+      const telefoneStr = (inv: Invite) => inv.ddi && inv.telefone ? `${inv.ddi} ${inv.telefone}` : (inv.telefone || '');
+      filtered = filtered.filter(inv => invitesFilters.telefone.has(telefoneStr(inv)));
+    }
+    if (invitesFilters.grupo.size > 0) {
+      filtered = filtered.filter(inv => invitesFilters.grupo.has(inv.grupo || ''));
+    }
+    if (invitesFilters.observacao.size > 0) {
+      filtered = filtered.filter(inv => invitesFilters.observacao.has(inv.observacao || ''));
+    }
+    
+    return filtered;
   };
 
   const handleInviteClick = (invite: Invite) => {
@@ -669,9 +749,7 @@ const AdminAttendingList: React.FC = () => {
         const url = getApiUrl(`deleteInvite?id=${invite.id}`);
         const response = await fetch(url, {
           method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: getAuthHeaders(),
         });
 
         if (!response.ok) {
@@ -783,9 +861,7 @@ const AdminAttendingList: React.FC = () => {
             const url = getApiUrl(`deleteGuest?id=${guestId}`);
             const response = await fetch(url, {
               method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: getAuthHeaders(),
             });
 
             if (!response.ok) {
@@ -822,9 +898,7 @@ const AdminAttendingList: React.FC = () => {
               const url = getApiUrl(`updateInvite?id=${inviteId}`);
               const response = await fetch(url, {
                 method: 'PUT',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
+                headers: getAuthHeaders(),
                 body: JSON.stringify({
                   guests: updatedGuests
                 }),
@@ -881,9 +955,7 @@ const AdminAttendingList: React.FC = () => {
             const url = getApiUrl(`deleteInvite?id=${inviteId}`);
             const response = await fetch(url, {
               method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: getAuthHeaders(),
             });
 
             if (!response.ok) {
@@ -908,6 +980,174 @@ const AdminAttendingList: React.FC = () => {
         }
       }
     );
+  };
+
+  // Filter popup handlers
+  const handleOpenFilterPopup = (tableType: 'convidados' | 'convites', column: string, event: React.MouseEvent<HTMLElement>) => {
+    event.stopPropagation();
+    
+    let values: string[] = [];
+    let selectedValues: Set<string> = new Set();
+    
+    if (tableType === 'convidados') {
+      const allGuests = invites.flatMap(invite => 
+        invite.guests.map((guest, guestIndex) => ({
+          ...guest,
+          inviteId: invite.id || '',
+          inviteNome: invite.nomeDoConvite || '',
+          telefone: invite.ddi && invite.telefone ? `${invite.ddi} ${invite.telefone}` : (invite.telefone || ''),
+        }))
+      );
+      
+      switch (column) {
+        case 'nomeDoConvite':
+          values = Array.from(new Set(allGuests.map(g => g.inviteNome || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(guestsFilters.nomeDoConvite);
+          break;
+        case 'nome':
+          values = Array.from(new Set(allGuests.map(g => g.nome || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(guestsFilters.nome);
+          break;
+        case 'telefone':
+          values = Array.from(new Set(allGuests.map(g => g.telefone || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(guestsFilters.telefone);
+          break;
+        case 'situacao':
+          values = Array.from(new Set(allGuests.map(g => g.situacao || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(guestsFilters.situacao);
+          break;
+        case 'mesa':
+          values = Array.from(new Set(allGuests.map(g => g.mesa || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(guestsFilters.mesa);
+          break;
+      }
+    } else {
+      // convites table
+      switch (column) {
+        case 'nomeDoConvite':
+          values = Array.from(new Set(invites.map(inv => inv.nomeDoConvite || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(invitesFilters.nomeDoConvite);
+          break;
+        case 'telefone':
+          values = Array.from(new Set(invites.map(inv => {
+            return inv.ddi && inv.telefone ? `${inv.ddi} ${inv.telefone}` : (inv.telefone || '');
+          }).filter(v => v !== ''))).sort();
+          selectedValues = new Set(invitesFilters.telefone);
+          break;
+        case 'grupo':
+          values = Array.from(new Set(invites.map(inv => inv.grupo || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(invitesFilters.grupo);
+          break;
+        case 'observacao':
+          values = Array.from(new Set(invites.map(inv => inv.observacao || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(invitesFilters.observacao);
+          break;
+      }
+    }
+    
+    const rect = event.currentTarget.getBoundingClientRect();
+    const popupWidth = 350;
+    const popupHeight = 500;
+    let left = rect.left;
+    let top = rect.bottom + 5;
+    
+    // Adjust if popup would go off-screen
+    if (left + popupWidth > window.innerWidth) {
+      left = window.innerWidth - popupWidth - 10;
+    }
+    if (top + popupHeight > window.innerHeight) {
+      top = rect.top - popupHeight - 5;
+    }
+    if (left < 10) {
+      left = 10;
+    }
+    if (top < 10) {
+      top = 10;
+    }
+    
+    setFilterPopup({
+      tableType,
+      column,
+      values,
+      selectedValues: new Set(selectedValues),
+      position: { top, left }
+    });
+  };
+
+  const handleCloseFilterPopup = () => {
+    setFilterPopup(null);
+  };
+
+  const handleToggleFilterValue = (value: string) => {
+    if (!filterPopup) return;
+    
+    const newSelected = new Set(filterPopup.selectedValues);
+    if (newSelected.has(value)) {
+      newSelected.delete(value);
+    } else {
+      newSelected.add(value);
+    }
+    
+    setFilterPopup({
+      ...filterPopup,
+      selectedValues: newSelected
+    });
+  };
+
+  const handleToggleSelectAllFilter = () => {
+    if (!filterPopup) return;
+    
+    if (filterPopup.selectedValues.size === filterPopup.values.length) {
+      setFilterPopup({
+        ...filterPopup,
+        selectedValues: new Set()
+      });
+    } else {
+      setFilterPopup({
+        ...filterPopup,
+        selectedValues: new Set(filterPopup.values)
+      });
+    }
+  };
+
+  const handleApplyFilter = () => {
+    if (!filterPopup) return;
+    
+    if (filterPopup.tableType === 'convidados') {
+      setGuestsFilters(prev => ({
+        ...prev,
+        [filterPopup.column]: filterPopup.selectedValues
+      }));
+    } else {
+      setInvitesFilters(prev => ({
+        ...prev,
+        [filterPopup.column]: filterPopup.selectedValues
+      }));
+    }
+    
+    setFilterPopup(null);
+  };
+
+  const handleClearFilter = (tableType: 'convidados' | 'convites', column: string) => {
+    if (tableType === 'convidados') {
+      setGuestsFilters(prev => ({
+        ...prev,
+        [column]: new Set()
+      }));
+    } else {
+      setInvitesFilters(prev => ({
+        ...prev,
+        [column]: new Set()
+      }));
+    }
+  };
+
+  const hasActiveFilter = (tableType: 'convidados' | 'convites', column: string): boolean => {
+    if (tableType === 'convidados') {
+      return guestsFilters[column as keyof typeof guestsFilters].size > 0;
+    } else {
+      return invitesFilters[column as keyof typeof invitesFilters].size > 0;
+    }
   };
 
   if (loadingInvites) {
@@ -1064,11 +1304,41 @@ const AdminAttendingList: React.FC = () => {
                         />
                       </th>
                     )}
-                    <th>Nome do Convite</th>
-                    <th>Nome</th>
-                    <th>Telefone</th>
-                    <th>Situação</th>
-                    <th>Mesa</th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convidados', 'nomeDoConvite', e)}
+                    >
+                      <span>Nome do Convite</span>
+                      {hasActiveFilter('convidados', 'nomeDoConvite') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convidados', 'nome', e)}
+                    >
+                      <span>Nome</span>
+                      {hasActiveFilter('convidados', 'nome') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convidados', 'telefone', e)}
+                    >
+                      <span>Telefone</span>
+                      {hasActiveFilter('convidados', 'telefone') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convidados', 'situacao', e)}
+                    >
+                      <span>Situação</span>
+                      {hasActiveFilter('convidados', 'situacao') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convidados', 'mesa', e)}
+                    >
+                      <span>Mesa</span>
+                      {hasActiveFilter('convidados', 'mesa') && <span className="filter-indicator">🔽</span>}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1192,10 +1462,34 @@ const AdminAttendingList: React.FC = () => {
                         />
                       </th>
                     )}
-                    <th>Nome do Convite</th>
-                    <th>Telefone</th>
-                    <th>Grupo</th>
-                    <th>Observação</th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convites', 'nomeDoConvite', e)}
+                    >
+                      <span>Nome do Convite</span>
+                      {hasActiveFilter('convites', 'nomeDoConvite') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convites', 'telefone', e)}
+                    >
+                      <span>Telefone</span>
+                      {hasActiveFilter('convites', 'telefone') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convites', 'grupo', e)}
+                    >
+                      <span>Grupo</span>
+                      {hasActiveFilter('convites', 'grupo') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convites', 'observacao', e)}
+                    >
+                      <span>Observação</span>
+                      {hasActiveFilter('convites', 'observacao') && <span className="filter-indicator">🔽</span>}
+                    </th>
                     {!bulkDeleteMode && <th>Excluir</th>}
                   </tr>
                 </thead>
@@ -1393,6 +1687,78 @@ const AdminAttendingList: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Filter Popup */}
+      {filterPopup && (
+        <>
+          <div className="filter-popup-overlay" onClick={handleCloseFilterPopup}></div>
+          <div 
+            className="filter-popup"
+            style={{
+              top: `${filterPopup.position.top}px`,
+              left: `${filterPopup.position.left}px`
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="filter-popup-header">
+              <h3>Filtrar por {filterPopup.column === 'nomeDoConvite' ? 'Nome do Convite' : 
+                          filterPopup.column === 'nome' ? 'Nome' :
+                          filterPopup.column === 'telefone' ? 'Telefone' :
+                          filterPopup.column === 'situacao' ? 'Situação' :
+                          filterPopup.column === 'mesa' ? 'Mesa' :
+                          filterPopup.column === 'grupo' ? 'Grupo' :
+                          filterPopup.column === 'observacao' ? 'Observação' : filterPopup.column}</h3>
+              <button className="filter-popup-close" onClick={handleCloseFilterPopup}>×</button>
+            </div>
+            <div className="filter-popup-content">
+              <div className="filter-select-all">
+                <label className="filter-checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={filterPopup.selectedValues.size === filterPopup.values.length && filterPopup.values.length > 0}
+                    onChange={handleToggleSelectAllFilter}
+                    className="filter-checkbox"
+                  />
+                  <span>Selecionar todos</span>
+                </label>
+              </div>
+              <div className="filter-values-list">
+                {filterPopup.values.map((value) => (
+                  <label key={value} className="filter-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={filterPopup.selectedValues.has(value)}
+                      onChange={() => handleToggleFilterValue(value)}
+                      className="filter-checkbox"
+                    />
+                    <span>{value || '(vazio)'}</span>
+                  </label>
+                ))}
+                {filterPopup.values.length === 0 && (
+                  <div className="filter-no-values">Nenhum valor disponível</div>
+                )}
+              </div>
+            </div>
+            <div className="filter-popup-footer">
+              <button 
+                className="filter-button filter-clear-button"
+                onClick={() => {
+                  handleClearFilter(filterPopup.tableType, filterPopup.column);
+                  setFilterPopup(null);
+                }}
+              >
+                Limpar
+              </button>
+              <button 
+                className="filter-button filter-apply-button"
+                onClick={handleApplyFilter}
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import { FieldValue } from "firebase-admin/firestore";
+import * as crypto from "crypto";
 
 // Initialize Firebase Admin
 if (!admin.apps.length) {
@@ -8,6 +9,17 @@ if (!admin.apps.length) {
 }
 
 const db = admin.firestore();
+
+// Generate admin hash: concatenate ADMIN_USER and ADMIN_PASSWORD, then hash without salt
+const generateAdminHash = (): string => {
+  const adminUser = process.env.ADMIN_USER || "";
+  const adminPassword = process.env.ADMIN_PASSWORD || "";
+  const concatenated = `${adminUser}${adminPassword}`;
+  return crypto.createHash("sha256").update(concatenated).digest("hex");
+};
+
+// Store the admin hash
+const ADMIN_HASH = generateAdminHash();
 
 // Configure Firestore to use emulator if running locally
 if (process.env.FUNCTIONS_EMULATOR === "true" || process.env.FIRESTORE_EMULATOR_HOST) {
@@ -23,7 +35,7 @@ const corsHandler = (req: functions.https.Request, res: functions.Response) => {
   // Allow all origins for local development (can be restricted in production)
   res.set("Access-Control-Allow-Origin", "*");
   res.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Auth-Hash");
   res.set("Access-Control-Max-Age", "3600");
 
   // Handle preflight OPTIONS request
@@ -32,6 +44,23 @@ const corsHandler = (req: functions.https.Request, res: functions.Response) => {
     return true;
   }
   return false;
+};
+
+// Authentication middleware for POST/PUT/DELETE requests
+const requireAuth = (req: functions.https.Request, res: functions.Response): boolean => {
+  const authHash = req.headers["x-auth-hash"] || req.headers["X-Auth-Hash"];
+  
+  if (!authHash) {
+    res.status(400).json({error: "Authentication hash is required"});
+    return false;
+  }
+  
+  if (authHash !== ADMIN_HASH) {
+    res.status(403).json({error: "Invalid authentication hash"});
+    return false;
+  }
+  
+  return true;
 };
 
 // API: Login
@@ -65,7 +94,11 @@ export const login = functions.https.onRequest(
         }
 
         if (user === validUser && password === validPassword) {
-          response.json({success: true, message: "Login realizado com sucesso"});
+          response.json({
+            success: true, 
+            message: "Login realizado com sucesso",
+            hash: ADMIN_HASH
+          });
         } else {
           response.status(401).json({success: false, error: "Usuário ou senha incorretos"});
         }
@@ -110,6 +143,10 @@ export const updateConfig = functions.https.onRequest(
 
       if (request.method !== "POST") {
         response.status(405).json({error: "Método não permitido"});
+        return;
+      }
+
+      if (!requireAuth(request, response)) {
         return;
       }
 
@@ -211,6 +248,10 @@ export const postInvite = functions.https.onRequest(
 
       if (request.method !== "POST") {
         response.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      if (!requireAuth(request, response)) {
         return;
       }
 
@@ -361,6 +402,10 @@ export const updateInvite = functions.https.onRequest(
         return;
       }
 
+      if (!requireAuth(request, response)) {
+        return;
+      }
+
       try {
         const inviteId = request.query.id as string || request.body.id;
         
@@ -483,6 +528,10 @@ export const deleteInvite = functions.https.onRequest(
         return;
       }
 
+      if (!requireAuth(request, response)) {
+        return;
+      }
+
       try {
         const inviteId = request.query.id as string || request.body.id;
         
@@ -569,6 +618,10 @@ export const postGuest = functions.https.onRequest(
         return;
       }
 
+      if (!requireAuth(request, response)) {
+        return;
+      }
+
       try {
         const {
           id,
@@ -650,6 +703,10 @@ export const updateGuest = functions.https.onRequest(
         return;
       }
 
+      if (!requireAuth(request, response)) {
+        return;
+      }
+
       try {
         const guestId = request.query.id as string || request.body.id;
         
@@ -710,6 +767,10 @@ export const deleteGuest = functions.https.onRequest(
 
       if (request.method !== "DELETE" && request.method !== "POST") {
         response.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      if (!requireAuth(request, response)) {
         return;
       }
 

@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
 import { parsePhoneNumber } from 'react-phone-number-input';
-import { getApiUrl } from '../utils/api';
+import { getApiUrl, getAuthHeaders } from '../utils/api';
 
 export interface Guest {
   id?: string;
@@ -103,9 +103,7 @@ const InviteCard: React.FC<InviteCardProps> = ({
       const url = getApiUrl('postInvite');
       const response = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           id: invite.id,
           nomeDoConvite: editedInvite.nomeDoConvite,
@@ -212,9 +210,7 @@ const InviteCard: React.FC<InviteCardProps> = ({
       const url = getApiUrl(`deleteInvite?id=${invite.id}`);
       const response = await fetch(url, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) {

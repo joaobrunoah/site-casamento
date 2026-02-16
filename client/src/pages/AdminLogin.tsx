@@ -30,7 +30,11 @@ const AdminLogin: React.FC = () => {
       const result = await response.json();
       
       if (result.success) {
-        login();
+        if (result.hash) {
+          login(result.hash);
+        } else {
+          login('');
+        }
         navigate('/');
       } else {
         setErro('Usuário ou senha incorretos');

@@ -65,3 +65,27 @@ export const getApiUrl = (endpoint: string): string => {
   
   return fullUrl;
 };
+
+/**
+ * Get the authentication hash from localStorage
+ */
+export const getAuthHash = (): string | null => {
+  return localStorage.getItem('authHash');
+};
+
+/**
+ * Get headers for authenticated API requests (POST/PUT/DELETE)
+ * Includes the auth hash in the X-Auth-Hash header
+ */
+export const getAuthHeaders = (): HeadersInit => {
+  const authHash = getAuthHash();
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (authHash) {
+    headers['X-Auth-Hash'] = authHash;
+  }
+  
+  return headers;
+};
