@@ -68,6 +68,11 @@ fi
 if [ "$FUNCTIONS_ONLY" = true ]; then
     echo "🔨 Building Firebase Functions..."
     cd functions
+    # Copy .env.prod to .env if it exists for production deployment
+    if [ -f .env.prod ]; then
+        echo "📋 Using .env.prod for production deployment..."
+        cp .env.prod .env
+    fi
     npm install
     npm run build
     cd ..
@@ -100,6 +105,11 @@ cd ..
 
 echo "🔨 Building Firebase Functions..."
 cd functions
+# Copy .env.prod to .env if it exists for production deployment
+if [ -f .env.prod ]; then
+    echo "📋 Using .env.prod for production deployment..."
+    cp .env.prod .env
+fi
 npm install
 npm run build
 cd ..

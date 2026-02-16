@@ -50,6 +50,12 @@ if [ ! -d "functions/node_modules" ]; then
     cd ..
 fi
 
+# Copy .env.local to .env for functions if it exists
+if [ -f "functions/.env.local" ]; then
+    echo -e "${BLUE}📋 Using .env.local for functions...${NC}"
+    cp functions/.env.local functions/.env
+fi
+
 # Build functions first
 echo -e "${BLUE}🔨 Building Firebase Functions...${NC}"
 cd functions

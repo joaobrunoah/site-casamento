@@ -44,6 +44,7 @@ const Navigation: React.FC = () => {
   const handleLogoClick = () => {
     navigate('/');
     setIsMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -61,7 +62,7 @@ const Navigation: React.FC = () => {
         {/* Desktop Menu */}
         <ul className="nav-menu desktop-menu">
           <li>
-            <button onClick={() => handleHomeClick('home')}>
+            <button onClick={() => handleHomeClick('ceremony')}>
               Cerimônia e Festa
             </button>
           </li>
@@ -142,7 +143,7 @@ const Navigation: React.FC = () => {
       {/* Mobile Menu */}
       <ul className={`nav-menu mobile-menu ${isMenuOpen ? 'active' : ''}`}>
         <li>
-          <button onClick={() => handleHomeClick('home')}>
+          <button onClick={() => handleHomeClick('ceremony')}>
             Cerimônia e Festa
           </button>
         </li>
