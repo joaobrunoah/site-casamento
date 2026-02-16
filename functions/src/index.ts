@@ -294,6 +294,95 @@ export const postInvite = functions.https.onRequest(
     }
 );
 
+// API: Update invite partially (PUT method)
+export const updateInvite = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "PUT") {
+        response.status(405).json({error: "Method not allowed. Use PUT."});
+        return;
+      }
+
+      try {
+        const inviteId = request.query.id as string || request.body.id;
+        
+        if (!inviteId) {
+          response.status(400).json({error: "Invite ID is required"});
+          return;
+        }
+
+        const updateData = request.body;
+        
+        if (!updateData || typeof updateData !== "object") {
+          response.status(400).json({error: "Invalid update data"});
+          return;
+        }
+
+        functions.logger.info("Updating invite", { inviteId, updateData });
+
+        const inviteRef = db.collection("invites").doc(inviteId);
+        const inviteDoc = await inviteRef.get();
+
+        if (!inviteDoc.exists) {
+          response.status(404).json({error: "Invite not found"});
+          return;
+        }
+
+        const currentInvite = inviteDoc.data();
+        
+        // Handle guest updates - if guests array is provided, update specific guest fields
+        if (updateData.guests && Array.isArray(updateData.guests)) {
+          const updatedGuests = [...(currentInvite?.guests || [])];
+          
+          // Update guests based on the provided array
+          updateData.guests.forEach((guestUpdate: any) => {
+            if (guestUpdate.index !== undefined && guestUpdate.index >= 0 && guestUpdate.index < updatedGuests.length) {
+              // Update specific guest fields
+              if (guestUpdate.situacao !== undefined) {
+                updatedGuests[guestUpdate.index] = {
+                  ...updatedGuests[guestUpdate.index],
+                  situacao: guestUpdate.situacao
+                };
+              }
+              if (guestUpdate.mesa !== undefined) {
+                updatedGuests[guestUpdate.index] = {
+                  ...updatedGuests[guestUpdate.index],
+                  mesa: guestUpdate.mesa
+                };
+              }
+            }
+          });
+          
+          updateData.guests = updatedGuests;
+        }
+
+        // Prepare update object (exclude id from updateData)
+        const { id, ...fieldsToUpdate } = updateData;
+        
+        // Add updatedAt timestamp
+        const finalUpdateData = {
+          ...fieldsToUpdate,
+          updatedAt: FieldValue.serverTimestamp(),
+        };
+
+        await inviteRef.update(finalUpdateData);
+        
+        const updatedDoc = await inviteRef.get();
+        
+        functions.logger.info("Invite updated successfully", { inviteId });
+        response.status(200).json({id: inviteId, ...updatedDoc.data()});
+      } catch (error) {
+        functions.logger.error("Error updating invite", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        response.status(500).json({
+          error: "Failed to update invite",
+          details: errorMessage
+        });
+      }
+    }
+);
+
 // API: Delete an invite
 export const deleteInvite = functions.https.onRequest(
     async (request, response) => {

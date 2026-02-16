@@ -30,6 +30,7 @@ interface InviteCardProps {
   onGuestUpdate: (inviteIndex: number, guestIndex: number, field: keyof Guest, value: string) => void;
   onInviteSaved?: (inviteIndex: number, savedInvite: Invite) => void;
   onInviteDeleted?: (inviteIndex: number, inviteId: string) => void;
+  disableApiSave?: boolean; // If true, save only updates local state without API call
 }
 
 const InviteCard: React.FC<InviteCardProps> = ({ 
@@ -38,7 +39,8 @@ const InviteCard: React.FC<InviteCardProps> = ({
   onInviteUpdate, 
   onGuestUpdate,
   onInviteSaved,
-  onInviteDeleted
+  onInviteDeleted,
+  disableApiSave = false
 }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -78,6 +80,18 @@ const InviteCard: React.FC<InviteCardProps> = ({
   };
 
   const handleSave = async () => {
+    if (disableApiSave) {
+      // In import mode, just update local state without API call
+      setOriginalInvite(deepClone(editedInvite));
+      setIsEditing(false);
+      
+      // Notify parent component
+      if (onInviteSaved) {
+        onInviteSaved(inviteIndex, editedInvite);
+      }
+      return;
+    }
+
     if (!invite.id) {
       alert('Erro: Convite não possui ID. Não é possível salvar.');
       return;
