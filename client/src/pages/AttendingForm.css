@@ -304,11 +304,13 @@
   margin-bottom: 1rem;
   color: #22543d;
   font-weight: 400;
+  font-family: 'Glacial Indifference', sans-serif;
 }
 
 .attending-form-success p {
   font-size: 1.2rem;
   line-height: 1.8;
+  font-family: 'Glacial Indifference', sans-serif;
 }
 
 .error-message {
