@@ -1228,6 +1228,10 @@ const AdminAttendingList: React.FC = () => {
                   <>
                     <div className="stats-row">
                       <div className="stat-item">
+                        <div className="stat-label"># Convites</div>
+                        <div className="stat-value">{invites.length}</div>
+                      </div>
+                      <div className="stat-item">
                         <div className="stat-label"># Convidados</div>
                         <div className="stat-value">{stats.totalGuests}</div>
                       </div>
@@ -1406,6 +1410,55 @@ const AdminAttendingList: React.FC = () => {
         {/* Tab Convites */}
         {activeTab === 'convites' && (
           <>
+            {invites.length > 0 && (
+              <div className={`stats-section ${statsExpanded ? 'expanded' : 'collapsed'}`}>
+                <div 
+                  className="stats-header"
+                  onClick={() => setStatsExpanded(!statsExpanded)}
+                >
+                  <div className="stats-header-title">Estatísticas</div>
+                  <div className="stats-header-icon">
+                    {statsExpanded ? '▼' : '▶'}
+                  </div>
+                </div>
+                {statsExpanded && (
+                  <>
+                    <div className="stats-row">
+                      <div className="stat-item">
+                        <div className="stat-label"># Convites</div>
+                        <div className="stat-value">{invites.length}</div>
+                      </div>
+                      <div className="stat-item">
+                        <div className="stat-label"># Convidados</div>
+                        <div className="stat-value">{stats.totalGuests}</div>
+                      </div>
+                      <div className="stat-item">
+                        <div className="stat-label"># Pendentes</div>
+                        <div className="stat-value">{stats.pendentes}</div>
+                      </div>
+                      <div className="stat-item stat-confirmed">
+                        <div className="stat-label"># Confirmados</div>
+                        <div className="stat-value">{stats.confirmados}</div>
+                      </div>
+                      <div className="stat-item stat-not-attending">
+                        <div className="stat-label"># Não comparecerão</div>
+                        <div className="stat-value">{stats.naoComparecerao}</div>
+                      </div>
+                    </div>
+                    <div className="stats-row">
+                      <div className="stat-item">
+                        <div className="stat-label"># Mulheres</div>
+                        <div className="stat-value">{stats.mulheres}</div>
+                      </div>
+                      <div className="stat-item">
+                        <div className="stat-label"># Crianças</div>
+                        <div className="stat-value">{stats.criancas}</div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
             <div className="export-section">
               <button
                 type="button"
