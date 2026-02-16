@@ -372,7 +372,7 @@ const Home: React.FC = () => {
           </div>
           <div className="hotel-card">
             <h2 className="hotel-name">Hotel Gandini ⭐⭐⭐</h2>
-            <p className="hotel-distance">Distância: 15 minutos da Villa Mandacarú</p>
+            <p className="hotel-distance">Distância: 22 minutos da Villa Mandacarú</p>
             <p className="hotel-instagram">Site: <a href="https://gandinihotel.com.br" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>https://gandinihotel.com.br</a></p>
             
             <h3 className="hotel-section-title">💸 Desconto especial</h3>
