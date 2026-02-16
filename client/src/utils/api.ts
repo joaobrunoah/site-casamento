@@ -8,9 +8,24 @@ export const getApiBaseUrl = (): string => {
   // Firebase Functions emulator exposes functions at:
   // http://localhost:5001/{project-id}/{region}/{function-name}
   if (process.env.NODE_ENV === 'development') {
-    const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID || 'your-project-id';
+    const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID;
+    
+    if (!projectId || projectId === 'your-project-id') {
+      console.warn(
+        '⚠️ REACT_APP_FIREBASE_PROJECT_ID is not set or is using placeholder value.\n' +
+        'Please set it in your client/.env file:\n' +
+        'REACT_APP_FIREBASE_PROJECT_ID=your-actual-project-id\n\n' +
+        'You can find your project ID in .firebaserc or Firebase Console.\n' +
+        'Falling back to demo-project for emulator.'
+      );
+      // Fallback to demo-project which is commonly used by Firebase emulators
+      return 'http://localhost:5001/demo-project/us-central1';
+    }
+    
     const region = 'us-central1'; // Default region for Firebase Functions
-    return `http://localhost:5001/${projectId}/${region}`;
+    const baseUrl = `http://localhost:5001/${projectId}/${region}`;
+    console.log(`🔗 Using Firebase Functions emulator: ${baseUrl}`);
+    return baseUrl;
   }
   
   // In production, use the API URL from environment variables
@@ -39,5 +54,11 @@ export const getApiUrl = (endpoint: string): string => {
   
   // Ensure baseUrl doesn't end with a slash
   const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
-  return `${cleanBaseUrl}/${cleanEndpoint}`;
+  const fullUrl = `${cleanBaseUrl}/${cleanEndpoint}`;
+  
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`📡 API URL for ${endpoint}: ${fullUrl}`);
+  }
+  
+  return fullUrl;
 };

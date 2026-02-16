@@ -64,17 +64,26 @@ cd ..
 
 # Start Firebase emulators in the background
 echo -e "${BLUE}🔥 Starting Firebase emulators (Functions & Firestore)...${NC}"
+echo -e "${YELLOW}📋 Emulator logs will be saved to: /tmp/firebase-emulators.log${NC}"
+echo -e "${YELLOW}💡 To view logs in real-time, run: tail -f /tmp/firebase-emulators.log${NC}\n"
 firebase emulators:start --only functions,firestore > /tmp/firebase-emulators.log 2>&1 &
 FUNCTIONS_PID=$!
 
 # Wait a bit for emulators to start
-sleep 3
+sleep 5
 
 # Check if emulators started successfully
 if ! kill -0 $FUNCTIONS_PID 2>/dev/null; then
     echo -e "${RED}❌ Failed to start Firebase emulators. Check /tmp/firebase-emulators.log for details.${NC}"
+    echo -e "${YELLOW}Last 20 lines of log:${NC}"
+    tail -20 /tmp/firebase-emulators.log
     exit 1
 fi
+
+# Show recent emulator output
+echo -e "${BLUE}📋 Recent emulator output:${NC}"
+tail -10 /tmp/firebase-emulators.log
+echo ""
 
 # Start React development server in the background
 echo -e "${BLUE}⚛️  Starting React development server...${NC}"
@@ -99,6 +108,9 @@ echo -e "   - React App:        ${BLUE}http://localhost:3000${NC}"
 echo -e "   - Firebase Functions: ${BLUE}http://localhost:5001${NC}"
 echo -e "   - Firestore:         ${BLUE}localhost:8080${NC}"
 echo -e "   - Emulator UI:       ${BLUE}http://localhost:4000${NC}"
+echo -e "\n${YELLOW}📋 To view emulator logs in real-time:${NC}"
+echo -e "   ${BLUE}./view-emulator-logs.sh${NC}"
+echo -e "   ${BLUE}or: tail -f /tmp/firebase-emulators.log${NC}"
 echo -e "\n${YELLOW}Press Ctrl+C to stop all services${NC}\n"
 
 # Wait for processes

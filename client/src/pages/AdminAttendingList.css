@@ -193,10 +193,114 @@
   padding: 24px;
   transition: box-shadow 0.3s ease;
   font-family: 'Glacial Indifference', sans-serif;
+  position: relative;
 }
 
 .invite-card:hover {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.invite-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  border-radius: 8px;
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+  margin-bottom: 8px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-text {
+  color: #666;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.invite-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.invite-action-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.invite-action-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.edit-button {
+  background-color: #2196F3;
+  color: white;
+}
+
+.edit-button:hover:not(:disabled) {
+  background-color: #1976D2;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #d32f2f;
+}
+
+.save-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-button:hover:not(:disabled) {
+  background-color: #d32f2f;
+}
+
+.button-icon {
+  font-size: 1rem;
 }
 
 .invite-header {
@@ -277,6 +381,10 @@
 
 .detail-value {
   color: #333;
+  padding: 8px 10px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
 }
 
 .detail-input {
@@ -294,6 +402,12 @@
   outline: none;
   border-color: #4caf50;
   box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+.detail-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 select.detail-input {
@@ -353,12 +467,44 @@ select.detail-input:focus {
   margin-top: 20px;
 }
 
+.guests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 .guests-title {
   font-size: 1.1rem;
   font-weight: 600;
   color: #333;
-  margin: 0 0 16px 0;
+  margin: 0;
   font-family: 'Glacial Indifference', sans-serif;
+}
+
+.add-guest-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.add-guest-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.add-guest-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .guests-table-container {
@@ -406,6 +552,54 @@ select.detail-input:focus {
   outline: none;
   border-color: #4caf50;
   box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+.guest-input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.guest-value {
+  padding: 8px 10px;
+  color: #333;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.delete-column {
+  width: 50px;
+  text-align: center;
+  padding: 8px 4px !important;
+}
+
+.delete-guest-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.delete-guest-button:hover:not(:disabled) {
+  background-color: #ffebee;
+  transform: scale(1.1);
+}
+
+.delete-guest-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.delete-guest-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 select.guest-input {

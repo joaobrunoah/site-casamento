@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
 import * as XLSX from 'xlsx';
 import InviteCard, { Invite, Guest } from '../components/InviteCard';
+import { getApiUrl } from '../utils/api';
 import './AdminAttendingList.css';
 
 const AdminAttendingList: React.FC = () => {
@@ -9,6 +10,8 @@ const AdminAttendingList: React.FC = () => {
   const [updating, setUpdating] = useState<boolean>(false);
   const [invites, setInvites] = useState<Invite[]>([]);
   const [statsExpanded, setStatsExpanded] = useState<boolean>(false);
+  const [loadingInvites, setLoadingInvites] = useState<boolean>(true);
+  const [savingInvites, setSavingInvites] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleToggle = async () => {
@@ -59,8 +62,46 @@ const AdminAttendingList: React.FC = () => {
 
         // Parse rows and group guests under invites
         // First 5 columns are invite fields, rest are guest fields
+        // New invite is only created when "Nome do Convite" (column 0) is filled
         const parsedInvites: Invite[] = [];
         let currentInvite: Invite | null = null;
+
+        // Helper function to clean phone number
+        const cleanPhoneNumber = (ddi: string, telefone: string): { ddi: string; telefone: string } => {
+          let cleanedDdi = ddi || '';
+          let cleanedTelefone = telefone || '';
+          
+          // If telefone has formatting like (XX) XXXX-XXXX or (XX) XXXXX-XXXX
+          if (cleanedTelefone && /^\(?\d{2}\)?\s*\d{4,5}-?\d{4}$/.test(cleanedTelefone)) {
+            // Clean the telefone (remove all non-digit characters)
+            const cleanTelefone = cleanedTelefone.replace(/\D/g, '');
+            // If no DDI, assume it's Brazilian and set DDI to +55
+            if (!cleanedDdi || cleanedDdi.trim() === '') {
+              cleanedDdi = '+55';
+            }
+            cleanedTelefone = cleanTelefone;
+          } else if (cleanedTelefone && !cleanedDdi) {
+            // If telefone exists but no DDI, check if it's already a clean number
+            const cleanTelefone = cleanedTelefone.replace(/\D/g, '');
+            if (cleanTelefone.length === 10 || cleanTelefone.length === 11) {
+              // Likely a Brazilian number, add +55
+              cleanedDdi = '+55';
+              cleanedTelefone = cleanTelefone;
+            }
+          }
+          
+          return { ddi: cleanedDdi, telefone: cleanedTelefone };
+        };
+
+        // Helper function to format phone for observacao
+        const formatPhoneForObservacao = (ddi: string, telefone: string): string => {
+          if (!telefone) return '';
+          const cleaned = cleanPhoneNumber(ddi, telefone);
+          if (cleaned.telefone) {
+            return cleaned.ddi ? `${cleaned.ddi} ${cleaned.telefone}` : cleaned.telefone;
+          }
+          return '';
+        };
 
         for (const row of dataRows) {
           // Check if row has any data
@@ -73,64 +114,78 @@ const AdminAttendingList: React.FC = () => {
 
           // Extract invite fields (first 5 columns)
           const inviteFields = row.slice(0, 5).map(cell => String(cell || '').trim());
-          const hasInviteData = inviteFields.some(field => field !== '');
-
+          const nomeDoConvite = inviteFields[0] || '';
+          
           // Extract guest fields (remaining columns)
           const guestFields = row.slice(5).map(cell => String(cell || '').trim());
+          const guestNome = guestFields[0] || '';
           const hasGuestData = guestFields.some(field => field !== '');
 
-          // If invite fields are not empty, create a new invite
-          if (hasInviteData) {
+          // New invite is only created when "Nome do Convite" is filled
+          if (nomeDoConvite) {
             // Save previous invite if it exists and has guests
             if (currentInvite && currentInvite.guests.length > 0) {
               parsedInvites.push(currentInvite);
             }
 
-            // Clean phone number if it's in format (XX) XXXX-XXXX or (XX) XXXXX-XXXX
-            let ddi = inviteFields[1] || '';
-            let telefone = inviteFields[2] || '';
-            
-            // If telefone has formatting like (XX) XXXX-XXXX or (XX) XXXXX-XXXX
-            // This regex matches: (XX) XXXX-XXXX, (XX) XXXXX-XXXX, (XX)XXXX-XXXX, etc.
-            if (telefone && /^\(?\d{2}\)?\s*\d{4,5}-?\d{4}$/.test(telefone)) {
-              // Clean the telefone (remove all non-digit characters)
-              const cleanTelefone = telefone.replace(/\D/g, '');
-              // If no DDI, assume it's Brazilian and set DDI to +55
-              if (!ddi || ddi.trim() === '') {
-                ddi = '+55';
-              }
-              telefone = cleanTelefone;
-            } else if (telefone && !ddi) {
-              // If telefone exists but no DDI, and it's not in the formatted pattern,
-              // check if it's already a clean number (10 or 11 digits for Brazil)
-              const cleanTelefone = telefone.replace(/\D/g, '');
-              if (cleanTelefone.length === 10 || cleanTelefone.length === 11) {
-                // Likely a Brazilian number, add +55
-                ddi = '+55';
-                telefone = cleanTelefone;
-              }
-            }
+            // Clean phone number from this row (first row of the invite)
+            const phoneData = cleanPhoneNumber(inviteFields[1] || '', inviteFields[2] || '');
 
-            // Create new invite
+            // Create new invite with phone and grupo from this row
             currentInvite = {
-              nomeDoConvite: inviteFields[0] || '',
-              ddi: ddi,
-              telefone: telefone,
-              grupo: inviteFields[3] || '',
-              observacao: inviteFields[4] || '',
+              nomeDoConvite: nomeDoConvite,
+              ddi: phoneData.ddi,
+              telefone: phoneData.telefone,
+              grupo: inviteFields[3] || '', // Grupo only from first row
+              observacao: inviteFields[4] || '', // Initial observacao from first row
               guests: []
             };
           }
 
           // If there's guest data, add guest to current invite
-          // (guests belong to the last non-empty invite above)
-          if (hasGuestData) {
-            if (!currentInvite) {
-              // If no invite exists yet, skip this guest row
-              continue;
+          if (hasGuestData && currentInvite) {
+            // Collect observations from this row (phone numbers, observacao)
+            const rowObservations: string[] = [];
+            
+            // If this row has phone number (and it's not the first row with nomeDoConvite)
+            if (!nomeDoConvite) {
+              const rowDdi = inviteFields[1] || '';
+              const rowTelefone = inviteFields[2] || '';
+              
+              if (rowTelefone) {
+                const phoneText = formatPhoneForObservacao(rowDdi, rowTelefone);
+                if (phoneText) {
+                  rowObservations.push(phoneText);
+                }
+              }
+              
+              // Add observacao from this row if it exists
+              if (inviteFields[4]) {
+                rowObservations.push(inviteFields[4]);
+              }
             }
+            
+            // Build observation line with guest name
+            if (rowObservations.length > 0 && guestNome) {
+              const observationLine = `${guestNome} (${rowObservations.join(', ')})`;
+              if (currentInvite.observacao) {
+                currentInvite.observacao += '\n' + observationLine;
+              } else {
+                currentInvite.observacao = observationLine;
+              }
+            } else if (rowObservations.length > 0) {
+              // If no guest name but has observations
+              const observationLine = rowObservations.join(', ');
+              if (currentInvite.observacao) {
+                currentInvite.observacao += '\n' + observationLine;
+              } else {
+                currentInvite.observacao = observationLine;
+              }
+            }
+
+            // Add guest to the invite
             const guest: Guest = {
-              nome: guestFields[0] || '',
+              nome: guestNome,
               genero: guestFields[1] || '',
               faixaEtaria: guestFields[2] || '',
               custo: guestFields[3] || '',
@@ -167,6 +222,104 @@ const AdminAttendingList: React.FC = () => {
 
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+  };
+
+  // Fetch invites from database on mount
+  useEffect(() => {
+    const fetchInvites = async () => {
+      setLoadingInvites(true);
+      try {
+        const url = getApiUrl('listInvites');
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error('Failed to fetch invites');
+        }
+        const data = await response.json();
+        // Ensure guests array exists for each invite
+        const invitesWithGuests = data.map((invite: Invite) => ({
+          ...invite,
+          guests: invite.guests || []
+        }));
+        setInvites(invitesWithGuests);
+      } catch (error) {
+        console.error('Error fetching invites:', error);
+        alert('Erro ao carregar convites do banco de dados.');
+      } finally {
+        setLoadingInvites(false);
+      }
+    };
+
+    fetchInvites();
+  }, []);
+
+  // Save all invites to database
+  const handleSaveInvites = async () => {
+    if (invites.length === 0) {
+      alert('Não há convites para salvar.');
+      return;
+    }
+
+    setSavingInvites(true);
+    try {
+      const savePromises = invites.map(async (invite, index) => {
+        try {
+          const url = getApiUrl('postInvite');
+          console.log(`Saving invite ${index + 1}/${invites.length}:`, invite);
+          
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: invite.id,
+              nomeDoConvite: invite.nomeDoConvite || '',
+              ddi: invite.ddi || '',
+              telefone: invite.telefone || '',
+              grupo: invite.grupo || '',
+              observacao: invite.observacao || '',
+              guests: invite.guests || []
+            }),
+          });
+
+          if (!response.ok) {
+            let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+            try {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } catch (e) {
+              const text = await response.text();
+              errorMessage = text || errorMessage;
+            }
+            console.error(`Error saving invite ${index + 1}:`, errorMessage);
+            throw new Error(`Convite ${index + 1} (${invite.nomeDoConvite || 'sem nome'}): ${errorMessage}`);
+          }
+
+          const savedInvite = await response.json();
+          console.log(`Successfully saved invite ${index + 1}:`, savedInvite);
+          return savedInvite;
+        } catch (error) {
+          console.error(`Error saving invite ${index + 1}:`, error);
+          throw error;
+        }
+      });
+
+      const savedInvites = await Promise.all(savePromises);
+      
+      // Update invites with their IDs (in case new invites were created)
+      setInvites(savedInvites.map((saved, index) => ({
+        ...saved,
+        guests: saved.guests || invites[index].guests || []
+      })));
+
+      alert(`Convites salvos com sucesso! Total: ${savedInvites.length}`);
+    } catch (error) {
+      console.error('Error saving invites:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      alert(`Erro ao salvar convites:\n\n${errorMessage}\n\nVerifique o console para mais detalhes.`);
+    } finally {
+      setSavingInvites(false);
+    }
   };
 
   // Calculate statistics
@@ -206,6 +359,14 @@ const AdminAttendingList: React.FC = () => {
   };
 
   const stats = calculateStatistics();
+
+  if (loadingInvites) {
+    return (
+      <div className="admin-attending-list">
+        <div style={{ padding: '20px', textAlign: 'center' }}>Carregando convites...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-attending-list">
@@ -283,6 +444,17 @@ const AdminAttendingList: React.FC = () => {
           onChange={handleFileUpload}
           style={{ display: 'none' }}
         />
+        {invites.length > 0 && (
+          <button
+            type="button"
+            onClick={handleSaveInvites}
+            className="upload-button"
+            disabled={savingInvites}
+            style={{ marginLeft: '10px' }}
+          >
+            {savingInvites ? 'Salvando...' : 'Salvar Convites'}
+          </button>
+        )}
       </div>
       
       {invites.length > 0 && (
@@ -290,7 +462,7 @@ const AdminAttendingList: React.FC = () => {
           <div className="invites-list">
             {invites.map((invite, inviteIndex) => (
               <InviteCard
-                key={inviteIndex}
+                key={invite.id || inviteIndex}
                 invite={invite}
                 inviteIndex={inviteIndex}
                 onInviteUpdate={(inviteIdx, field, value) => {
@@ -310,6 +482,18 @@ const AdminAttendingList: React.FC = () => {
                       )
                     };
                     return updated;
+                  });
+                }}
+                onInviteSaved={(inviteIdx, savedInvite) => {
+                  setInvites(prevInvites => {
+                    const updated = [...prevInvites];
+                    updated[inviteIdx] = savedInvite;
+                    return updated;
+                  });
+                }}
+                onInviteDeleted={(inviteIdx, inviteId) => {
+                  setInvites(prevInvites => {
+                    return prevInvites.filter((_, idx) => idx !== inviteIdx);
                   });
                 }}
               />
