@@ -224,6 +224,115 @@ const AdminAttendingList: React.FC = () => {
     fileInputRef.current?.click();
   };
 
+  const handleExportToExcel = () => {
+    if (invites.length === 0) {
+      alert('Não há convites para exportar.');
+      return;
+    }
+
+    try {
+      // Create workbook
+      const workbook = XLSX.utils.book_new();
+      
+      // Prepare data array
+      const data: (string | number)[][] = [];
+      
+      // Row 1: Empty
+      data.push([]);
+      
+      // Row 2: Headers
+      // ID, Nome do Convite, DDI, Telefone, Grupo, Observação, Nome, Gênero, Faixa Etária, Custo, Situação, Mesa
+      data.push([
+        'ID',
+        'Nome do Convite',
+        'DDI',
+        'Telefone',
+        'Grupo',
+        'Observação',
+        'Nome',
+        'Gênero',
+        'Faixa Etária',
+        'Custo',
+        'Situação',
+        'Mesa'
+      ]);
+      
+      // Row 3+: Data rows
+      invites.forEach((invite) => {
+        if (invite.guests.length === 0) {
+          // If no guests, still add a row with invite info
+          data.push([
+            invite.id || '',
+            invite.nomeDoConvite || '',
+            invite.ddi || '',
+            invite.telefone || '',
+            invite.grupo || '',
+            invite.observacao || '',
+            '', // Nome
+            '', // Gênero
+            '', // Faixa Etária
+            '', // Custo
+            '', // Situação
+            ''  // Mesa
+          ]);
+        } else {
+          // First row: invite info + first guest
+          data.push([
+            invite.id || '',
+            invite.nomeDoConvite || '',
+            invite.ddi || '',
+            invite.telefone || '',
+            invite.grupo || '',
+            invite.observacao || '',
+            invite.guests[0].nome || '',
+            invite.guests[0].genero || '',
+            invite.guests[0].faixaEtaria || '',
+            invite.guests[0].custo || '',
+            invite.guests[0].situacao || '',
+            invite.guests[0].mesa || ''
+          ]);
+          
+          // Subsequent rows: empty invite fields + other guests
+          for (let i = 1; i < invite.guests.length; i++) {
+            data.push([
+              '', // ID (empty for subsequent rows)
+              '', // Nome do Convite
+              '', // DDI
+              '', // Telefone
+              '', // Grupo
+              '', // Observação
+              invite.guests[i].nome || '',
+              invite.guests[i].genero || '',
+              invite.guests[i].faixaEtaria || '',
+              invite.guests[i].custo || '',
+              invite.guests[i].situacao || '',
+              invite.guests[i].mesa || ''
+            ]);
+          }
+        }
+      });
+      
+      // Create worksheet
+      const worksheet = XLSX.utils.aoa_to_sheet(data);
+      
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Convites');
+      
+      // Generate filename with current date
+      const date = new Date();
+      const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+      const filename = `convites_${dateStr}.xlsx`;
+      
+      // Write file
+      XLSX.writeFile(workbook, filename);
+      
+      alert(`Convites exportados com sucesso! Arquivo: ${filename}`);
+    } catch (error) {
+      console.error('Error exporting to Excel:', error);
+      alert('Erro ao exportar convites. Tente novamente.');
+    }
+  };
+
   // Fetch invites from database on mount
   useEffect(() => {
     const fetchInvites = async () => {
@@ -445,15 +554,25 @@ const AdminAttendingList: React.FC = () => {
           style={{ display: 'none' }}
         />
         {invites.length > 0 && (
-          <button
-            type="button"
-            onClick={handleSaveInvites}
-            className="upload-button"
-            disabled={savingInvites}
-            style={{ marginLeft: '10px' }}
-          >
-            {savingInvites ? 'Salvando...' : 'Salvar Convites'}
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={handleSaveInvites}
+              className="upload-button"
+              disabled={savingInvites}
+              style={{ marginLeft: '10px' }}
+            >
+              {savingInvites ? 'Salvando...' : 'Salvar Convites'}
+            </button>
+            <button
+              type="button"
+              onClick={handleExportToExcel}
+              className="upload-button export-button"
+              style={{ marginLeft: '10px' }}
+            >
+              Exportar para Excel
+            </button>
+          </>
         )}
       </div>
       

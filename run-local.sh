@@ -56,6 +56,14 @@ if [ -f "functions/.env.local" ]; then
     cp functions/.env.local functions/.env
 fi
 
+# Check for client .env.local (React automatically loads it)
+if [ -f "client/.env.local" ]; then
+    echo -e "${BLUE}📋 Using .env.local from client folder for React app...${NC}"
+else
+    echo -e "${YELLOW}⚠️  No client/.env.local found. React app will use default environment variables.${NC}"
+    echo -e "${YELLOW}   Create client/.env.local to set REACT_APP_* environment variables.${NC}"
+fi
+
 # Build functions first
 echo -e "${BLUE}🔨 Building Firebase Functions...${NC}"
 cd functions

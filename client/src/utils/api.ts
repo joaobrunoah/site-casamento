@@ -13,7 +13,7 @@ export const getApiBaseUrl = (): string => {
     if (!projectId || projectId === 'your-project-id') {
       console.warn(
         '⚠️ REACT_APP_FIREBASE_PROJECT_ID is not set or is using placeholder value.\n' +
-        'Please set it in your client/.env file:\n' +
+        'Please set it in your client/.env.local file:\n' +
         'REACT_APP_FIREBASE_PROJECT_ID=your-actual-project-id\n\n' +
         'You can find your project ID in .firebaserc or Firebase Console.\n' +
         'Falling back to demo-project for emulator.'
