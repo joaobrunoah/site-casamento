@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import InviteCard, { Invite, Guest } from '../components/InviteCard';
 import { getApiUrl, getAuthHeaders } from '../utils/api';
 import './AdminAttendingList.css';
@@ -50,12 +50,14 @@ const AdminAttendingList: React.FC = () => {
   // Filter states for Convidados table
   const [guestsFilters, setGuestsFilters] = useState<{
     nomeDoConvite: Set<string>;
+    grupo: Set<string>;
     nome: Set<string>;
     telefone: Set<string>;
     situacao: Set<string>;
     mesa: Set<string>;
   }>({
     nomeDoConvite: new Set(),
+    grupo: new Set(),
     nome: new Set(),
     telefone: new Set(),
     situacao: new Set(),
@@ -398,7 +400,10 @@ const AdminAttendingList: React.FC = () => {
       const workbook = XLSX.utils.book_new();
       const data: (string | number)[][] = [];
       
-      data.push([]);
+      // First row: Title
+      data.push(['PLANILHA DE CONVIDADOS (2.0)']);
+      
+      // Second row: Headers
       data.push([
         'ID',
         'Nome do Convite',
@@ -456,6 +461,37 @@ const AdminAttendingList: React.FC = () => {
       });
       
       const worksheet = XLSX.utils.aoa_to_sheet(data);
+      
+      // Style the first row (title row) - merge A1:L1 and style
+      if (!worksheet['!merges']) worksheet['!merges'] = [];
+      worksheet['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: 11 } });
+      
+      // Style first row (A1)
+      if (!worksheet['A1']) worksheet['A1'] = {};
+      worksheet['A1'].s = {
+        fill: { fgColor: { rgb: '30C1C6' } },
+        font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 14 },
+        alignment: { horizontal: 'center', vertical: 'center' }
+      };
+      
+      // Style header row (row 2, columns A through L)
+      const headerColumns = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+      headerColumns.forEach((col) => {
+        const cellRef = `${col}2`;
+        if (!worksheet[cellRef]) worksheet[cellRef] = {};
+        worksheet[cellRef].s = {
+          fill: { fgColor: { rgb: '30C1C6' } },
+          font: { bold: true, color: { rgb: 'FFFFFF' } },
+          alignment: { horizontal: 'center', vertical: 'center' }
+        };
+      });
+      
+      // Set row heights: first and second rows should be 3x the default height
+      // Default row height is typically 15 points, so 3x = 45 points
+      if (!worksheet['!rows']) worksheet['!rows'] = [];
+      worksheet['!rows'][0] = { hpt: 45 }; // First row (title)
+      worksheet['!rows'][1] = { hpt: 45 }; // Second row (headers)
+      
       XLSX.utils.book_append_sheet(workbook, worksheet, 'Convites');
       
       const date = new Date();
@@ -618,13 +654,14 @@ const AdminAttendingList: React.FC = () => {
 
   // Get all guests flattened with invite info, sorted alphabetically by invite name
   const getAllGuests = () => {
-    const allGuests: Array<Guest & { inviteId: string; inviteNome: string; telefone: string; guestIndex: number; guestKey: string }> = [];
+    const allGuests: Array<Guest & { inviteId: string; inviteNome: string; grupo: string; telefone: string; guestIndex: number; guestKey: string }> = [];
     invites.forEach(invite => {
       invite.guests.forEach((guest, guestIndex) => {
         allGuests.push({
           ...guest,
           inviteId: invite.id || '',
           inviteNome: invite.nomeDoConvite || '',
+          grupo: invite.grupo || '',
           telefone: invite.ddi && invite.telefone ? `${invite.ddi} ${invite.telefone}` : (invite.telefone || ''),
           guestIndex: guestIndex,
           guestKey: `${invite.id || ''}-${guestIndex}`
@@ -641,6 +678,9 @@ const AdminAttendingList: React.FC = () => {
     // Apply filters
     if (guestsFilters.nomeDoConvite.size > 0) {
       filtered = filtered.filter(g => guestsFilters.nomeDoConvite.has(g.inviteNome || ''));
+    }
+    if (guestsFilters.grupo.size > 0) {
+      filtered = filtered.filter(g => guestsFilters.grupo.has(g.grupo || ''));
     }
     if (guestsFilters.nome.size > 0) {
       filtered = filtered.filter(g => guestsFilters.nome.has(g.nome || ''));
@@ -995,6 +1035,7 @@ const AdminAttendingList: React.FC = () => {
           ...guest,
           inviteId: invite.id || '',
           inviteNome: invite.nomeDoConvite || '',
+          grupo: invite.grupo || '',
           telefone: invite.ddi && invite.telefone ? `${invite.ddi} ${invite.telefone}` : (invite.telefone || ''),
         }))
       );
@@ -1003,6 +1044,10 @@ const AdminAttendingList: React.FC = () => {
         case 'nomeDoConvite':
           values = Array.from(new Set(allGuests.map(g => g.inviteNome || '').filter(v => v !== ''))).sort();
           selectedValues = new Set(guestsFilters.nomeDoConvite);
+          break;
+        case 'grupo':
+          values = Array.from(new Set(allGuests.map(g => g.grupo || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(guestsFilters.grupo);
           break;
         case 'nome':
           values = Array.from(new Set(allGuests.map(g => g.nome || '').filter(v => v !== ''))).sort();
@@ -1263,24 +1308,32 @@ const AdminAttendingList: React.FC = () => {
               </div>
             )}
 
-            <div className="guests-table-section">
+            <div className="export-section">
+              <button
+                type="button"
+                onClick={handleExportToExcel}
+                className="export-button"
+              >
+                <span className="button-icon">📥</span>
+                Exportar para Excel
+              </button>
               {!bulkDeleteMode ? (
-                <div className="bulk-delete-controls">
-                  <button
-                    type="button"
-                    onClick={handleToggleBulkDeleteMode}
-                    className="bulk-delete-button"
-                  >
-                    <span className="button-icon">✓</span>
-                    Marcar para Exclusão
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleBulkDeleteMode}
+                  className="bulk-delete-button"
+                  style={{ marginLeft: '10px' }}
+                >
+                  <span className="button-icon">✓</span>
+                  Marcar para Exclusão
+                </button>
               ) : (
-                <div className="bulk-delete-controls">
+                <>
                   <button
                     type="button"
                     onClick={handleCancelBulkDelete}
                     className="bulk-delete-cancel-button"
+                    style={{ marginLeft: '10px' }}
                   >
                     Cancelar Exclusão
                   </button>
@@ -1289,12 +1342,15 @@ const AdminAttendingList: React.FC = () => {
                     onClick={handleBulkDeleteGuests}
                     className="bulk-delete-confirm-button"
                     disabled={selectedGuests.size === 0}
+                    style={{ marginLeft: '10px' }}
                   >
                     <span className="button-icon">🗑️</span>
                     Excluir ({selectedGuests.size})
                   </button>
-                </div>
+                </>
               )}
+            </div>
+            <div className="guests-table-section">
               <table className="guests-list-table">
                 <thead>
                   <tr>
@@ -1314,6 +1370,13 @@ const AdminAttendingList: React.FC = () => {
                     >
                       <span>Nome do Convite</span>
                       {hasActiveFilter('convidados', 'nomeDoConvite') && <span className="filter-indicator">🔽</span>}
+                    </th>
+                    <th 
+                      className="filter-header"
+                      onClick={(e) => handleOpenFilterPopup('convidados', 'grupo', e)}
+                    >
+                      <span>Grupo</span>
+                      {hasActiveFilter('convidados', 'grupo') && <span className="filter-indicator">🔽</span>}
                     </th>
                     <th 
                       className="filter-header"
@@ -1373,6 +1436,7 @@ const AdminAttendingList: React.FC = () => {
                             {guest.inviteNome}
                           </button>
                         </td>
+                        <td>{guest.grupo || ''}</td>
                         <td>{guest.nome}</td>
                         <td>{guest.telefone}</td>
                         <td>
@@ -1755,11 +1819,11 @@ const AdminAttendingList: React.FC = () => {
           >
             <div className="filter-popup-header">
               <h3>Filtrar por {filterPopup.column === 'nomeDoConvite' ? 'Nome do Convite' : 
+                          filterPopup.column === 'grupo' ? 'Grupo' :
                           filterPopup.column === 'nome' ? 'Nome' :
                           filterPopup.column === 'telefone' ? 'Telefone' :
                           filterPopup.column === 'situacao' ? 'Situação' :
                           filterPopup.column === 'mesa' ? 'Mesa' :
-                          filterPopup.column === 'grupo' ? 'Grupo' :
                           filterPopup.column === 'observacao' ? 'Observação' : filterPopup.column}</h3>
               <button className="filter-popup-close" onClick={handleCloseFilterPopup}>×</button>
             </div>
