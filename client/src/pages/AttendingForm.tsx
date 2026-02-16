@@ -151,7 +151,6 @@ const AttendingForm: React.FC = () => {
           dataChegada,
           horaChegada,
           transporteAeroportoHotel,
-          transporteHotelFesta,
           transporteFestaHotel
         }),
       });
@@ -403,7 +402,7 @@ const AttendingForm: React.FC = () => {
           </div>
 
           <div className="form-section">
-            <label className="form-label">Pretende usar nosso transporte?</label>
+            <label className="form-label">Pretende usar van?</label>
             <div className="checkbox-group">
               <label className="checkbox-label">
                 <input
@@ -411,15 +410,7 @@ const AttendingForm: React.FC = () => {
                   checked={transporteAeroportoHotel}
                   onChange={(e) => setTransporteAeroportoHotel(e.target.checked)}
                 />
-                <span>Van do aeroporto para o hotel</span>
-              </label>
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={transporteHotelFesta}
-                  onChange={(e) => setTransporteHotelFesta(e.target.checked)}
-                />
-                <span>Van do hotel para a festa</span>
+                <span>Van do aeroporto ao hotel (Vamos ver quantas pessoas querem e horário dos vôos pra ver se é possível disponibilizar)</span>
               </label>
               <label className="checkbox-label">
                 <input
