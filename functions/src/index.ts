@@ -292,6 +292,15 @@ export const postInvite = functions.https.onRequest(
           telefone: telefone || "",
           grupo: grupo || "",
           observacao: observacao || "",
+          intoleranciaGluten: request.body.intoleranciaGluten || false,
+          intoleranciaLactose: request.body.intoleranciaLactose || false,
+          intoleranciaOutro: request.body.intoleranciaOutro || "",
+          aeroportoChegada: request.body.aeroportoChegada || "",
+          dataChegada: request.body.dataChegada || "",
+          horaChegada: request.body.horaChegada || "",
+          transporteAeroportoHotel: request.body.transporteAeroportoHotel || false,
+          transporteHotelFesta: request.body.transporteHotelFesta || false,
+          transporteFestaHotel: request.body.transporteFestaHotel || false,
           updatedAt: FieldValue.serverTimestamp(),
         };
 
@@ -801,6 +810,291 @@ export const deleteGuest = functions.https.onRequest(
           error: "Failed to delete guest",
           details: errorMessage
         });
+      }
+    }
+);
+
+// API: Update invite confirmation (public endpoint for guests)
+export const updateInviteConfirmation = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "POST") {
+        response.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      try {
+        const {
+          id,
+          guests,
+          intoleranciaGluten,
+          intoleranciaLactose,
+          intoleranciaOutro,
+          aeroportoChegada,
+          dataChegada,
+          horaChegada,
+          transporteAeroportoHotel,
+          transporteHotelFesta,
+          transporteFestaHotel
+        } = request.body;
+
+        if (!id) {
+          response.status(400).json({error: "Invite ID is required"});
+          return;
+        }
+
+        const inviteRef = db.collection("invites").doc(id);
+        const inviteDoc = await inviteRef.get();
+
+        if (!inviteDoc.exists) {
+          response.status(404).json({error: "Invite not found"});
+          return;
+        }
+
+        // Update invite confirmation fields
+        const updateData: any = {
+          updatedAt: FieldValue.serverTimestamp(),
+        };
+
+        if (intoleranciaGluten !== undefined) updateData.intoleranciaGluten = intoleranciaGluten;
+        if (intoleranciaLactose !== undefined) updateData.intoleranciaLactose = intoleranciaLactose;
+        if (intoleranciaOutro !== undefined) updateData.intoleranciaOutro = intoleranciaOutro;
+        if (aeroportoChegada !== undefined) updateData.aeroportoChegada = aeroportoChegada;
+        if (dataChegada !== undefined) updateData.dataChegada = dataChegada;
+        if (horaChegada !== undefined) updateData.horaChegada = horaChegada;
+        if (transporteAeroportoHotel !== undefined) updateData.transporteAeroportoHotel = transporteAeroportoHotel;
+        if (transporteHotelFesta !== undefined) updateData.transporteHotelFesta = transporteHotelFesta;
+        if (transporteFestaHotel !== undefined) updateData.transporteFestaHotel = transporteFestaHotel;
+
+        await inviteRef.update(updateData);
+
+        // Update guest situations if provided
+        if (guests && Array.isArray(guests)) {
+          // const currentGuests = await fetchGuestsForInvite(id);
+          
+          for (const guestUpdate of guests) {
+            if (guestUpdate.id && guestUpdate.situacao !== undefined) {
+              const guestRef = db.collection("guests").doc(guestUpdate.id);
+              await guestRef.update({
+                situacao: guestUpdate.situacao,
+                updatedAt: FieldValue.serverTimestamp(),
+              });
+            }
+          }
+        }
+
+        const updatedDoc = await inviteRef.get();
+        const updatedGuests = await fetchGuestsForInvite(id);
+
+        response.json({
+          success: true,
+          id: id,
+          ...updatedDoc.data(),
+          guests: updatedGuests.map(({ inviteId, ...guestData }) => guestData),
+        });
+      } catch (error) {
+        functions.logger.error("Error updating invite confirmation", error);
+        response.status(500).json({error: "Failed to update confirmation"});
+      }
+    }
+);
+
+// Helper function to normalize text (remove accents, convert to lowercase)
+function normalizeText(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // Remove diacritics
+    .trim();
+}
+
+// Helper function to calculate Levenshtein distance (edit distance)
+function levenshteinDistance(str1: string, str2: string): number {
+  const m = str1.length;
+  const n = str2.length;
+  const dp: number[][] = [];
+
+  // Initialize DP table
+  for (let i = 0; i <= m; i++) {
+    dp[i] = [i];
+  }
+  for (let j = 0; j <= n; j++) {
+    dp[0][j] = j;
+  }
+
+  // Fill DP table
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (str1[i - 1] === str2[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,     // deletion
+          dp[i][j - 1] + 1,     // insertion
+          dp[i - 1][j - 1] + 1  // substitution
+        );
+      }
+    }
+  }
+
+  return dp[m][n];
+}
+
+// Helper function to calculate similarity score between two strings
+function calculateSimilarityScore(searchTerm: string, guestName: string): number {
+  const normalizedSearch = normalizeText(searchTerm);
+  const normalizedGuest = normalizeText(guestName);
+
+  // Exact match (case and accent insensitive)
+  if (normalizedGuest === normalizedSearch) {
+    return 100;
+  }
+
+  // Starts with match
+  if (normalizedGuest.startsWith(normalizedSearch)) {
+    const lengthRatio = normalizedSearch.length / normalizedGuest.length;
+    return 90 + (lengthRatio * 10); // 90-100 based on how much of the name matches
+  }
+
+  // Contains match
+  if (normalizedGuest.includes(normalizedSearch)) {
+    const lengthRatio = normalizedSearch.length / normalizedGuest.length;
+    return 70 + (lengthRatio * 20); // 70-90 based on match ratio
+  }
+
+  // Word-by-word matching
+  const searchWords = normalizedSearch.split(/\s+/).filter(w => w.length > 0);
+  const guestWords = normalizedGuest.split(/\s+/).filter(w => w.length > 0);
+  
+  if (searchWords.length > 0 && guestWords.length > 0) {
+    let matchedWords = 0;
+    let totalWordScore = 0;
+
+    for (const searchWord of searchWords) {
+      let bestWordScore = 0;
+      for (const guestWord of guestWords) {
+        if (guestWord === searchWord) {
+          bestWordScore = 100;
+          break;
+        } else if (guestWord.startsWith(searchWord)) {
+          bestWordScore = Math.max(bestWordScore, 80);
+        } else if (guestWord.includes(searchWord)) {
+          bestWordScore = Math.max(bestWordScore, 60);
+        } else {
+          // Use Levenshtein distance for fuzzy matching
+          const distance = levenshteinDistance(searchWord, guestWord);
+          const maxLen = Math.max(searchWord.length, guestWord.length);
+          if (maxLen > 0) {
+            const similarity = (1 - distance / maxLen) * 100;
+            bestWordScore = Math.max(bestWordScore, similarity);
+          }
+        }
+      }
+      if (bestWordScore > 40) { // Only count words with reasonable match
+        matchedWords++;
+        totalWordScore += bestWordScore;
+      }
+    }
+
+    if (matchedWords > 0) {
+      const avgWordScore = totalWordScore / searchWords.length;
+      const coverageRatio = matchedWords / searchWords.length;
+      return avgWordScore * coverageRatio; // 0-100 based on word matches
+    }
+  }
+
+  // Use Levenshtein distance for overall fuzzy matching
+  const distance = levenshteinDistance(normalizedSearch, normalizedGuest);
+  const maxLen = Math.max(normalizedSearch.length, normalizedGuest.length);
+  if (maxLen === 0) return 0;
+  
+  const similarity = (1 - distance / maxLen) * 100;
+  
+  // Only return similarity if it's above a threshold (e.g., 50%)
+  return similarity >= 50 ? similarity : 0;
+}
+
+// API: Search invites by guest name
+export const searchInvitesByGuestName = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      try {
+        const guestName = request.query.name as string;
+        if (!guestName || guestName.trim() === '') {
+          response.status(400).json({error: "Guest name is required"});
+          return;
+        }
+
+        // Get all invites
+        const invitesSnapshot = await db.collection("invites").get();
+        const invitesWithGuests = await Promise.all(
+          invitesSnapshot.docs.map(async (doc) => {
+            const inviteData = doc.data();
+            const guests = await fetchGuestsForInvite(doc.id);
+            return {
+              id: doc.id,
+              ...inviteData,
+              guests: guests.map(({ inviteId, ...guestData }) => guestData),
+            };
+          })
+        );
+
+        // Search for closest match by guest name using improved text matching
+        const searchTerm = guestName.trim();
+        const matches: Array<{ invite: any; guest: any; score: number }> = [];
+
+        invitesWithGuests.forEach((invite) => {
+          invite.guests.forEach((guest: any) => {
+            const guestName = guest.nome || '';
+            if (guestName.trim() === '') return;
+
+            const score = calculateSimilarityScore(searchTerm, guestName);
+            
+            // Only include matches with a reasonable similarity score (>= 40)
+            if (score >= 40) {
+              matches.push({
+                invite,
+                guest,
+                score
+              });
+            }
+          });
+        });
+
+        // Sort by score (highest first) and return the best match
+        matches.sort((a, b) => {
+          // First sort by score
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+          // If scores are equal, prefer shorter guest names (more specific match)
+          return (a.guest.nome || '').length - (b.guest.nome || '').length;
+        });
+        
+        if (matches.length === 0) {
+          response.json({ success: false, message: "Nenhum convite encontrado" });
+          return;
+        }
+
+        // Return the best match
+        const bestMatch = matches[0];
+        functions.logger.info("Best match found", {
+          searchTerm,
+          matchedGuest: bestMatch.guest.nome,
+          score: bestMatch.score,
+          totalMatches: matches.length
+        });
+
+        response.json({
+          success: true,
+          invite: bestMatch.invite,
+          matchedGuest: bestMatch.guest
+        });
+      } catch (error) {
+        functions.logger.error("Error searching invites", error);
+        response.status(500).json({error: "Failed to search invites"});
       }
     }
 );

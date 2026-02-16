@@ -22,6 +22,16 @@ export interface Invite {
   grupo: string;
   observacao: string;
   guests: Guest[];
+  // Confirmation form fields
+  intoleranciaGluten?: boolean;
+  intoleranciaLactose?: boolean;
+  intoleranciaOutro?: string;
+  aeroportoChegada?: string;
+  dataChegada?: string;
+  horaChegada?: string;
+  transporteAeroportoHotel?: boolean;
+  transporteHotelFesta?: boolean;
+  transporteFestaHotel?: boolean;
 }
 
 interface InviteCardProps {
