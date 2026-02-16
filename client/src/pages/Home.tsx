@@ -11,6 +11,63 @@ const Home: React.FC = () => {
   const ceremonyTextColumnRef = useRef<HTMLDivElement>(null);
   const ceremonyImageRef = useRef<HTMLImageElement>(null);
   const [imageTransform, setImageTransform] = useState(0);
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+
+  // Preload all images and wait for fonts
+  useEffect(() => {
+    const imagePaths = [
+      '/assets/marijoao1.jpg',
+      '/assets/marijoao2.jpg',
+      '/assets/marijoao3.jpg',
+      '/assets/villa_mandacaru2.jpeg',
+      '/assets/hotel.png',
+      '/assets/glass.svg',
+      '/assets/bottom-cerimony.svg',
+      '/assets/background.jpeg'
+    ];
+
+    let imagesLoaded = false;
+    let fontsLoaded = false;
+
+    const checkAllLoaded = () => {
+      if (imagesLoaded && fontsLoaded) {
+        setAssetsLoaded(true);
+      }
+    };
+
+    // Load all images
+    let loadedCount = 0;
+    const totalImages = imagePaths.length;
+
+    const onImageLoad = () => {
+      loadedCount++;
+      if (loadedCount === totalImages) {
+        imagesLoaded = true;
+        checkAllLoaded();
+      }
+    };
+
+    imagePaths.forEach((path) => {
+      const img = new Image();
+      img.onload = onImageLoad;
+      img.onerror = onImageLoad; // Continue even if an image fails to load
+      img.src = path;
+    });
+
+    // Wait for fonts to load
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        fontsLoaded = true;
+        checkAllLoaded();
+      });
+    } else {
+      // Fallback for browsers that don't support document.fonts
+      setTimeout(() => {
+        fontsLoaded = true;
+        checkAllLoaded();
+      }, 1000);
+    }
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -113,6 +170,35 @@ const Home: React.FC = () => {
       }
     };
   }, []);
+
+  // Show loading screen until all assets are loaded
+  if (!assetsLoaded) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: '#faf9f7',
+        fontFamily: 'Glacial Indifference, sans-serif',
+        color: '#2c2c2c'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '50px',
+            height: '50px',
+            border: '4px solid #DCAE9D',
+            borderTop: '4px solid #2c2c2c',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 20px'
+          }}></div>
+          <p style={{ fontSize: '1.2em' }}>Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
