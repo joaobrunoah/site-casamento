@@ -100,11 +100,6 @@ const AttendingForm: React.FC = () => {
     }
   };
 
-  const handleNameInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleNameSearch();
-    }
-  };
 
   const handleConfirmIdentity = () => {
     setFormState('form');
@@ -177,20 +172,38 @@ const AttendingForm: React.FC = () => {
     <div className="attending-form-container">
       {formState === 'search' && (
         <div className="attending-form-search">
-          <label htmlFor="name-input" className="name-label">
-            Digite seu Nome:
-          </label>
-          <input
-            id="name-input"
-            type="text"
-            className="name-input"
-            value={nameInput}
-            onChange={(e) => setNameInput(e.target.value)}
-            onKeyPress={handleNameInputKeyPress}
-            onBlur={handleNameSearch}
-            placeholder="Seu nome completo"
-            autoFocus
-          />
+          <div className="name-input-wrapper">
+            <input
+              id="name-input"
+              type="text"
+              className="name-input"
+              value={nameInput}
+              onChange={(e) => setNameInput(e.target.value)}
+              placeholder="Digite seu nome completo aqui"
+              autoFocus
+            />
+            <button
+              type="button"
+              className="search-button"
+              onClick={handleNameSearch}
+            >
+              <svg
+                className="search-icon"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <span className="search-button-text">Buscar Convite</span>
+            </button>
+          </div>
           {error && <div className="error-message">{error}</div>}
         </div>
       )}
