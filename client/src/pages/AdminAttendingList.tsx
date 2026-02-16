@@ -296,7 +296,6 @@ const AdminAttendingList: React.FC = () => {
         }
         
         setImportedInvites(parsedInvites);
-        setActiveTab('convidados');
         showToast(`Arquivo carregado com sucesso! ${parsedInvites.length} convite(s) encontrado(s).`, 'success');
       } catch (error) {
         console.error('Error parsing Excel file:', error);
@@ -486,6 +485,7 @@ const AdminAttendingList: React.FC = () => {
       })));
 
       setImportedInvites([]);
+      setActiveTab('convidados');
       showToast(`Convites salvos com sucesso! Total: ${savedInvites.length}`, 'success');
     } catch (error) {
       console.error('Error saving invites:', error);
