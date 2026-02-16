@@ -51,6 +51,7 @@ let FirebaseService = class FirebaseService {
     onModuleInit() {
         console.log('🔧 Starting Firebase Admin initialization...');
         console.log(`📋 NODE_ENV: ${process.env.NODE_ENV || 'not set'}`);
+        console.log(`📋 NODE_ENV === 'production': ${process.env.NODE_ENV === 'production'}`);
         console.log(`📋 GCP_PROJECT: ${process.env.GCP_PROJECT || 'not set'}`);
         console.log(`📋 GCLOUD_PROJECT: ${process.env.GCLOUD_PROJECT || 'not set'}`);
         console.log(`📋 GOOGLE_CLOUD_PROJECT: ${process.env.GOOGLE_CLOUD_PROJECT || 'not set'}`);
@@ -58,10 +59,16 @@ let FirebaseService = class FirebaseService {
         console.log(`📋 GOOGLE_APPLICATION_CREDENTIALS: ${process.env.GOOGLE_APPLICATION_CREDENTIALS || 'not set (using ADC)'}`);
         try {
             const isProduction = process.env.NODE_ENV === 'production';
+            console.log(`📋 isProduction: ${isProduction}`);
             if (isProduction && process.env.FIRESTORE_EMULATOR_HOST) {
                 console.warn('⚠️  WARNING: FIRESTORE_EMULATOR_HOST is set in production! This should not happen.');
                 console.warn('⚠️  Unsetting FIRESTORE_EMULATOR_HOST to use production Firestore.');
                 delete process.env.FIRESTORE_EMULATOR_HOST;
+            }
+            if (!isProduction && !process.env.FIRESTORE_EMULATOR_HOST) {
+                const defaultEmulatorHost = 'localhost:8081';
+                console.log(`🔧 Setting FIRESTORE_EMULATOR_HOST to ${defaultEmulatorHost} for local development`);
+                process.env.FIRESTORE_EMULATOR_HOST = defaultEmulatorHost;
             }
             if (!admin.apps.length) {
                 if (isProduction) {
@@ -76,13 +83,12 @@ let FirebaseService = class FirebaseService {
                     console.log(`✅ Initialized Firebase Admin for production with project: ${projectId}`);
                 }
                 else {
-                    if (!process.env.FIRESTORE_EMULATOR_HOST) {
-                        process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8081';
-                    }
+                    const emulatorHost = process.env.FIRESTORE_EMULATOR_HOST || 'localhost:8081';
+                    console.log(`🔧 Initializing Firebase Admin for local development with emulator at ${emulatorHost}`);
                     admin.initializeApp({
                         projectId: 'demo-project',
                     });
-                    console.log(`✅ Initialized Firebase Admin with emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+                    console.log(`✅ Initialized Firebase Admin with emulator at ${emulatorHost}`);
                 }
             }
             else {
@@ -95,6 +101,10 @@ let FirebaseService = class FirebaseService {
             console.log(`✅ Firestore initialized with project ID: ${firestoreProjectId}`);
             if (process.env.FIRESTORE_EMULATOR_HOST) {
                 console.log(`✅ Firestore will use emulator at ${process.env.FIRESTORE_EMULATOR_HOST}`);
+                this.testEmulatorConnection().catch((error) => {
+                    console.warn('⚠️  Could not verify emulator connection:', error instanceof Error ? error.message : String(error));
+                    console.warn('⚠️  This might be normal if the emulator is still starting up.');
+                });
             }
             else {
                 console.log('✅ Firestore will use production database');
@@ -112,6 +122,18 @@ let FirebaseService = class FirebaseService {
             }
             console.warn('⚠️  Continuing without Firebase initialization - some features may not work');
             this.initialized = false;
+        }
+    }
+    async testEmulatorConnection() {
+        if (!this.db)
+            return;
+        try {
+            const testRef = this.db.collection('_test').doc('connection');
+            await testRef.get();
+            console.log('✅ Emulator connection test successful');
+        }
+        catch (error) {
+            console.warn('⚠️  Emulator connection test failed:', error instanceof Error ? error.message : String(error));
         }
     }
     getFirestore() {

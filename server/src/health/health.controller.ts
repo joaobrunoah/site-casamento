@@ -45,4 +45,20 @@ export class HealthController {
       };
     }
   }
+
+  @Get('env')
+  getEnv() {
+    // Return environment info (without sensitive data)
+    return {
+      NODE_ENV: process.env.NODE_ENV || 'not set',
+      isProduction: process.env.NODE_ENV === 'production',
+      FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST || 'not set',
+      ADMIN_USER: process.env.ADMIN_USER ? '***set***' : 'not set',
+      ADMIN_PASSWORD: process.env.ADMIN_PASSWORD ? '***set***' : 'not set',
+      GCP_PROJECT: process.env.GCP_PROJECT || 'not set',
+      GCLOUD_PROJECT: process.env.GCLOUD_PROJECT || 'not set',
+      GOOGLE_CLOUD_PROJECT: process.env.GOOGLE_CLOUD_PROJECT || 'not set',
+      firebaseInitialized: this.firebaseService.isInitialized(),
+    };
+  }
 }

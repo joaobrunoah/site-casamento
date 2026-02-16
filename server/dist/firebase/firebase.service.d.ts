@@ -5,6 +5,7 @@ export declare class FirebaseService implements OnModuleInit {
     private db;
     private initialized;
     onModuleInit(): void;
+    private testEmulatorConnection;
     getFirestore(): admin.firestore.Firestore;
     isInitialized(): boolean;
     getFieldValue(): typeof FieldValue;

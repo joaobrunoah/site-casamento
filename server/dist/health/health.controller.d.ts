@@ -25,4 +25,15 @@ export declare class HealthController {
         message?: undefined;
         invitesCount?: undefined;
     }>;
+    getEnv(): {
+        NODE_ENV: string;
+        isProduction: boolean;
+        FIRESTORE_EMULATOR_HOST: string;
+        ADMIN_USER: string;
+        ADMIN_PASSWORD: string;
+        GCP_PROJECT: string;
+        GCLOUD_PROJECT: string;
+        GOOGLE_CLOUD_PROJECT: string;
+        firebaseInitialized: boolean;
+    };
 }

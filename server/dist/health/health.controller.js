@@ -47,6 +47,19 @@ let HealthController = class HealthController {
             };
         }
     }
+    getEnv() {
+        return {
+            NODE_ENV: process.env.NODE_ENV || 'not set',
+            isProduction: process.env.NODE_ENV === 'production',
+            FIRESTORE_EMULATOR_HOST: process.env.FIRESTORE_EMULATOR_HOST || 'not set',
+            ADMIN_USER: process.env.ADMIN_USER ? '***set***' : 'not set',
+            ADMIN_PASSWORD: process.env.ADMIN_PASSWORD ? '***set***' : 'not set',
+            GCP_PROJECT: process.env.GCP_PROJECT || 'not set',
+            GCLOUD_PROJECT: process.env.GCLOUD_PROJECT || 'not set',
+            GOOGLE_CLOUD_PROJECT: process.env.GOOGLE_CLOUD_PROJECT || 'not set',
+            firebaseInitialized: this.firebaseService.isInitialized(),
+        };
+    }
 };
 exports.HealthController = HealthController;
 __decorate([
@@ -67,6 +80,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], HealthController.prototype, "testFirestore", null);
+__decorate([
+    (0, common_1.Get)('env'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], HealthController.prototype, "getEnv", null);
 exports.HealthController = HealthController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [firebase_service_1.FirebaseService])
