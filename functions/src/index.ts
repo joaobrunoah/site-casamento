@@ -331,30 +331,43 @@ export const updateInvite = functions.https.onRequest(
 
         const currentInvite = inviteDoc.data();
         
-        // Handle guest updates - if guests array is provided, update specific guest fields
+        // Handle guest updates - check if it's a full array replacement or partial updates
         if (updateData.guests && Array.isArray(updateData.guests)) {
-          const updatedGuests = [...(currentInvite?.guests || [])];
+          // Check if this is a full array replacement (guests have nome, genero, etc.)
+          // vs partial updates (guests have index, situacao, mesa)
+          const isFullReplacement = updateData.guests.length > 0 && 
+            (updateData.guests[0].nome !== undefined || 
+             updateData.guests[0].genero !== undefined ||
+             updateData.guests[0].faixaEtaria !== undefined);
           
-          // Update guests based on the provided array
-          updateData.guests.forEach((guestUpdate: any) => {
-            if (guestUpdate.index !== undefined && guestUpdate.index >= 0 && guestUpdate.index < updatedGuests.length) {
-              // Update specific guest fields
-              if (guestUpdate.situacao !== undefined) {
-                updatedGuests[guestUpdate.index] = {
-                  ...updatedGuests[guestUpdate.index],
-                  situacao: guestUpdate.situacao
-                };
+          if (isFullReplacement) {
+            // Full array replacement - use the provided array as-is
+            updateData.guests = updateData.guests;
+          } else {
+            // Partial updates - update specific guest fields by index
+            const updatedGuests = [...(currentInvite?.guests || [])];
+            
+            // Update guests based on the provided array
+            updateData.guests.forEach((guestUpdate: any) => {
+              if (guestUpdate.index !== undefined && guestUpdate.index >= 0 && guestUpdate.index < updatedGuests.length) {
+                // Update specific guest fields
+                if (guestUpdate.situacao !== undefined) {
+                  updatedGuests[guestUpdate.index] = {
+                    ...updatedGuests[guestUpdate.index],
+                    situacao: guestUpdate.situacao
+                  };
+                }
+                if (guestUpdate.mesa !== undefined) {
+                  updatedGuests[guestUpdate.index] = {
+                    ...updatedGuests[guestUpdate.index],
+                    mesa: guestUpdate.mesa
+                  };
+                }
               }
-              if (guestUpdate.mesa !== undefined) {
-                updatedGuests[guestUpdate.index] = {
-                  ...updatedGuests[guestUpdate.index],
-                  mesa: guestUpdate.mesa
-                };
-              }
-            }
-          });
-          
-          updateData.guests = updatedGuests;
+            });
+            
+            updateData.guests = updatedGuests;
+          }
         }
 
         // Prepare update object (exclude id from updateData)
