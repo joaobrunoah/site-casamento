@@ -1,0 +1,22 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from './config/config.module';
+import { AuthModule } from './auth/auth.module';
+import { ConfigController } from './config/config.controller';
+import { InvitesController } from './invites/invites.controller';
+import { GuestsController } from './guests/guests.controller';
+import { SearchController } from './search/search.controller';
+import { HealthController } from './health/health.controller';
+import { FirebaseService } from './firebase/firebase.service';
+
+@Module({
+  imports: [ConfigModule, AuthModule],
+  controllers: [
+    ConfigController,
+    InvitesController,
+    GuestsController,
+    SearchController,
+    HealthController,
+  ],
+  providers: [FirebaseService],
+})
+export class AppModule {}

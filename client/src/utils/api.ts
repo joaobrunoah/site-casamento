@@ -1,42 +1,25 @@
 /**
  * Get the base URL for API requests
- * - In development: uses Firebase Functions emulator URL with project ID and region
- * - In production: uses REACT_APP_API_URL from environment variables
+ * - In development: uses Nest.js server running on localhost:8080
+ * - In production: uses REACT_APP_API_URL from environment variables (Cloud Run URL)
  */
 export const getApiBaseUrl = (): string => {
-  // In development, construct the Firebase Functions emulator URL
-  // Firebase Functions emulator exposes functions at:
-  // http://localhost:5001/{project-id}/{region}/{function-name}
+  // In development, use the Nest.js server running locally
   if (process.env.NODE_ENV === 'development') {
-    const projectId = process.env.REACT_APP_FIREBASE_PROJECT_ID;
-    
-    if (!projectId || projectId === 'your-project-id') {
-      console.warn(
-        '⚠️ REACT_APP_FIREBASE_PROJECT_ID is not set or is using placeholder value.\n' +
-        'Please set it in your client/.env.local file:\n' +
-        'REACT_APP_FIREBASE_PROJECT_ID=your-actual-project-id\n\n' +
-        'You can find your project ID in .firebaserc or Firebase Console.\n' +
-        'Falling back to demo-project for emulator.'
-      );
-      // Fallback to demo-project which is commonly used by Firebase emulators
-      return 'http://localhost:5001/demo-project/us-central1';
-    }
-    
-    const region = 'us-central1'; // Default region for Firebase Functions
-    const baseUrl = `http://localhost:5001/${projectId}/${region}`;
-    console.log(`🔗 Using Firebase Functions emulator: ${baseUrl}`);
+    const baseUrl = 'http://localhost:8080';
+    console.log(`🔗 Using Nest.js server: ${baseUrl}`);
     return baseUrl;
   }
   
   // In production, use the API URL from environment variables
   // This should be set in .env.production and loaded during build
-  // Example: https://us-central1-your-project-id.cloudfunctions.net
+  // Example: https://wedding-api-xxxxx-uc.a.run.app
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
     console.warn('⚠️ REACT_APP_API_URL not set in production build. NODE_ENV:', process.env.NODE_ENV);
     console.warn('⚠️ Available env vars:', Object.keys(process.env).filter(k => k.startsWith('REACT_APP_')));
-    console.warn('⚠️ Falling back to localhost');
-    return 'http://localhost:5001';
+    console.warn('⚠️ Falling back to localhost:8080');
+    return 'http://localhost:8080';
   }
   
   console.log('✅ Using production API URL:', apiUrl);
@@ -45,9 +28,9 @@ export const getApiBaseUrl = (): string => {
 
 /**
  * Get the full URL for a specific API endpoint
- * For Firebase Functions, the endpoint should be just the function name
+ * For Nest.js server, the endpoint is just the path
  * Example: 
- *   - Development: getApiUrl('login') -> 'http://localhost:5001/{project-id}/us-central1/login'
+ *   - Development: getApiUrl('login') -> 'http://localhost:8080/login'
  *   - Production: getApiUrl('login') -> 'https://.../login'
  */
 export const getApiUrl = (endpoint: string): string => {
