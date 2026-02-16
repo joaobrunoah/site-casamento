@@ -49,13 +49,18 @@ fi
 if [ "$HOSTING_ONLY" = true ]; then
     echo "📦 Building React frontend..."
     cd client
-    npm install
-    # Copy .env.prod to .env if it exists for production build
-    if [ -f .env.prod ]; then
-        echo "📋 Using .env.prod for production build..."
-        cp .env.prod .env
+    # Verify .env.production.local exists and has REACT_APP_API_URL
+    if [ -f .env.production.local ]; then
+        if grep -q "REACT_APP_API_URL" .env.production.local; then
+            echo "✅ Found REACT_APP_API_URL in .env.production.local"
+        else
+            echo "⚠️  Warning: .env.production.local exists but REACT_APP_API_URL not found"
+        fi
+    else
+        echo "⚠️  Warning: .env.production.local not found"
     fi
-    npm run build
+    npm install
+    NODE_ENV=production npm run build
     cd ..
     
     echo "📤 Deploying frontend to Firebase Hosting..."
@@ -94,13 +99,18 @@ fi
 # Deploy everything
 echo "📦 Building React frontend..."
 cd client
-npm install
-# Copy .env.prod to .env if it exists for production build
-if [ -f .env.prod ]; then
-    echo "📋 Using .env.prod for production build..."
-    cp .env.prod .env
+# Verify .env.production.local exists and has REACT_APP_API_URL
+if [ -f .env.production.local ]; then
+    if grep -q "REACT_APP_API_URL" .env.production.local; then
+        echo "✅ Found REACT_APP_API_URL in .env.production.local"
+    else
+        echo "⚠️  Warning: .env.production.local exists but REACT_APP_API_URL not found"
+    fi
+else
+    echo "⚠️  Warning: .env.production.local not found"
 fi
-npm run build
+npm install
+NODE_ENV=production npm run build
 cd ..
 
 echo "🔨 Building Firebase Functions..."

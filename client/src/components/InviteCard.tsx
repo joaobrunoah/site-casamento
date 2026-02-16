@@ -5,6 +5,7 @@ import { parsePhoneNumber } from 'react-phone-number-input';
 import { getApiUrl } from '../utils/api';
 
 export interface Guest {
+  id?: string;
   nome: string;
   genero: string;
   faixaEtaria: string;

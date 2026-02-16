@@ -29,14 +29,17 @@ export const getApiBaseUrl = (): string => {
   }
   
   // In production, use the API URL from environment variables
-  // This should be set in .env.prod and loaded during build
+  // This should be set in .env.production and loaded during build
   // Example: https://us-central1-your-project-id.cloudfunctions.net
   const apiUrl = process.env.REACT_APP_API_URL;
   if (!apiUrl) {
-    console.warn('REACT_APP_API_URL not set, falling back to localhost');
+    console.warn('⚠️ REACT_APP_API_URL not set in production build. NODE_ENV:', process.env.NODE_ENV);
+    console.warn('⚠️ Available env vars:', Object.keys(process.env).filter(k => k.startsWith('REACT_APP_')));
+    console.warn('⚠️ Falling back to localhost');
     return 'http://localhost:5001';
   }
   
+  console.log('✅ Using production API URL:', apiUrl);
   return apiUrl;
 };
 

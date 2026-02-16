@@ -93,40 +93,78 @@ const AdminAttendingList: React.FC = () => {
 
     setUpdatingGuest({ inviteId, guestIndex });
     try {
-      const url = getApiUrl(`updateInvite?id=${inviteId}`);
-      
-      // Get current invite to update the specific guest
+      // Get current invite to find the guest
       const invite = invites.find(inv => inv.id === inviteId);
       if (!invite) {
         throw new Error('Convite não encontrado');
       }
 
-      const response = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          guests: [{
-            index: guestIndex,
-            [field]: value
-          }]
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(errorData.error || errorData.details || 'Failed to update guest');
+      const guest = invite.guests[guestIndex];
+      if (!guest) {
+        throw new Error('Convidado não encontrado');
       }
 
-      const updatedInvite = await response.json();
-      
-      // Update local state
-      setInvites(prevInvites => 
-        prevInvites.map(inv => 
-          inv.id === inviteId ? updatedInvite : inv
-        )
-      );
+      // If guest has an ID, use the new guest endpoint
+      if (guest.id) {
+        const url = getApiUrl(`updateGuest?id=${guest.id}`);
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            [field]: value
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errorData.error || errorData.details || 'Failed to update guest');
+        }
+
+        const updatedGuest = await response.json();
+        
+        // Update local state
+        setInvites(prevInvites => 
+          prevInvites.map(inv => 
+            inv.id === inviteId ? {
+              ...inv,
+              guests: inv.guests.map((g, idx) => 
+                idx === guestIndex ? { ...g, ...updatedGuest } : g
+              )
+            } : inv
+          )
+        );
+      } else {
+        // Fallback to old method using updateInvite
+        const url = getApiUrl(`updateInvite?id=${inviteId}`);
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            guests: [{
+              index: guestIndex,
+              [field]: value
+            }]
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(errorData.error || errorData.details || 'Failed to update guest');
+        }
+
+        const updatedInvite = await response.json();
+        
+        // Update local state
+        setInvites(prevInvites => 
+          prevInvites.map(inv => 
+            inv.id === inviteId ? updatedInvite : inv
+          )
+        );
+      }
       
       showToast('Convidado atualizado com sucesso!', 'success');
     } catch (error) {
@@ -718,54 +756,90 @@ const AdminAttendingList: React.FC = () => {
       `Tem certeza que deseja excluir ${selectedCount} convidado(s)?`,
       async () => {
         try {
-          // Group deletions by invite
-          const deletionsByInvite = new Map<string, number[]>();
+          // Collect guest IDs and fallback to index-based deletion
+          const guestsToDelete: Array<{ guestId?: string; inviteId: string; guestIndex: number }> = [];
           
           selectedGuests.forEach(guestKey => {
             const [inviteId, guestIndexStr] = guestKey.split('-');
             const guestIndex = parseInt(guestIndexStr, 10);
+            const invite = invites.find(inv => inv.id === inviteId);
             
-            if (!deletionsByInvite.has(inviteId)) {
-              deletionsByInvite.set(inviteId, []);
+            if (invite && invite.guests[guestIndex]) {
+              const guest = invite.guests[guestIndex];
+              guestsToDelete.push({
+                guestId: guest.id,
+                inviteId: inviteId,
+                guestIndex: guestIndex
+              });
             }
-            deletionsByInvite.get(inviteId)!.push(guestIndex);
           });
 
-          // Delete guests from each invite
-          const deletePromises = Array.from(deletionsByInvite.entries()).map(async ([inviteId, guestIndices]) => {
-            const invite = invites.find(inv => inv.id === inviteId);
-            if (!invite) return;
+          // Try to delete using guest IDs first, fallback to updateInvite
+          const guestsWithIds = guestsToDelete.filter(g => g.guestId);
+          const guestsWithoutIds = guestsToDelete.filter(g => !g.guestId);
 
-            // Sort indices in descending order to avoid index shifting issues
-            const sortedIndices = [...guestIndices].sort((a, b) => b - a);
-            
-            // Create updated guests array without deleted guests
-            let updatedGuests = [...invite.guests];
-            sortedIndices.forEach(index => {
-              updatedGuests.splice(index, 1);
-            });
-
-            // Update invite via PUT
-            const url = getApiUrl(`updateInvite?id=${inviteId}`);
+          // Delete guests with IDs using deleteGuest endpoint
+          const deletePromises = guestsWithIds.map(async ({ guestId }) => {
+            const url = getApiUrl(`deleteGuest?id=${guestId}`);
             const response = await fetch(url, {
-              method: 'PUT',
+              method: 'DELETE',
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({
-                guests: updatedGuests
-              }),
             });
 
             if (!response.ok) {
               const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
-              throw new Error(errorData.error || errorData.details || 'Failed to delete guests');
+              throw new Error(errorData.error || errorData.details || 'Failed to delete guest');
             }
 
-            return await response.json();
+            return guestId;
           });
 
           await Promise.all(deletePromises);
+
+          // For guests without IDs, use updateInvite (group by invite)
+          if (guestsWithoutIds.length > 0) {
+            const deletionsByInvite = new Map<string, number[]>();
+            
+            guestsWithoutIds.forEach(({ inviteId, guestIndex }) => {
+              if (!deletionsByInvite.has(inviteId)) {
+                deletionsByInvite.set(inviteId, []);
+              }
+              deletionsByInvite.get(inviteId)!.push(guestIndex);
+            });
+
+            const updatePromises = Array.from(deletionsByInvite.entries()).map(async ([inviteId, guestIndices]) => {
+              const invite = invites.find(inv => inv.id === inviteId);
+              if (!invite) return;
+
+              const sortedIndices = [...guestIndices].sort((a, b) => b - a);
+              let updatedGuests = [...invite.guests];
+              sortedIndices.forEach(index => {
+                updatedGuests.splice(index, 1);
+              });
+
+              const url = getApiUrl(`updateInvite?id=${inviteId}`);
+              const response = await fetch(url, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  guests: updatedGuests
+                }),
+              });
+
+              if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+                throw new Error(errorData.error || errorData.details || 'Failed to delete guests');
+              }
+
+              return await response.json();
+            });
+
+            await Promise.all(updatePromises);
+          }
 
           // Refresh invites from API
           const url = getApiUrl('listInvites');

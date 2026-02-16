@@ -132,6 +132,18 @@ export const updateConfig = functions.https.onRequest(
     }
 );
 
+// Helper function to fetch guests for an invite
+async function fetchGuestsForInvite(inviteId: string): Promise<any[]> {
+  const guestsSnapshot = await db.collection("guests")
+    .where("inviteId", "==", inviteId)
+    .get();
+  
+  return guestsSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+}
+
 // API: Get all invites
 export const listInvites = functions.https.onRequest(
     async (request, response) => {
@@ -139,10 +151,17 @@ export const listInvites = functions.https.onRequest(
 
       try {
         const snapshot = await db.collection("invites").get();
-        const invites = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+        const invites = await Promise.all(
+          snapshot.docs.map(async (doc) => {
+            const inviteData = doc.data();
+            const guests = await fetchGuestsForInvite(doc.id);
+            return {
+              id: doc.id,
+              ...inviteData,
+              guests: guests.map(({ inviteId, ...guestData }) => guestData), // Keep guest id, remove inviteId
+            };
+          })
+        );
         response.json(invites);
       } catch (error) {
         functions.logger.error("Error fetching invites", error);
@@ -170,7 +189,14 @@ export const getInvite = functions.https.onRequest(
           return;
         }
 
-        response.json({id: inviteDoc.id, ...inviteDoc.data()});
+        const inviteData = inviteDoc.data();
+        const guests = await fetchGuestsForInvite(inviteId);
+        
+        response.json({
+          id: inviteDoc.id,
+          ...inviteData,
+          guests: guests.map(({ inviteId, ...guestData }) => guestData), // Keep guest id, remove inviteId
+        });
       } catch (error) {
         functions.logger.error("Error fetching invite", error);
         response.status(500).json({error: "Failed to fetch invite"});
@@ -225,7 +251,6 @@ export const postInvite = functions.https.onRequest(
           telefone: telefone || "",
           grupo: grupo || "",
           observacao: observacao || "",
-          guests: guests || [],
           updatedAt: FieldValue.serverTimestamp(),
         };
 
@@ -246,9 +271,17 @@ export const postInvite = functions.https.onRequest(
             await inviteRef.set(inviteData, { merge: true });
             inviteId = id;
             functions.logger.info(`Successfully updated invite: ${id}`);
+            
+            // Delete existing guests for this invite
+            const existingGuests = await db.collection("guests")
+              .where("inviteId", "==", inviteId)
+              .get();
+            
+            const deletePromises = existingGuests.docs.map(doc => doc.ref.delete());
+            await Promise.all(deletePromises);
+            functions.logger.info(`Deleted ${existingGuests.size} existing guests for invite ${inviteId}`);
           } else {
             // Create new invite
-            // Note: Collections are created automatically when first document is added
             functions.logger.info("Creating new invite");
             inviteRef = await db.collection("invites").add({
               ...inviteData,
@@ -258,6 +291,23 @@ export const postInvite = functions.https.onRequest(
             functions.logger.info(`Successfully created invite with ID: ${inviteId}`);
           }
 
+          // Save guests to separate collection
+          if (guests && Array.isArray(guests)) {
+            const guestPromises = guests.map(async (guest: any) => {
+              const { id: guestId, ...guestData } = guest;
+              const guestRef = db.collection("guests").doc();
+              await guestRef.set({
+                inviteId: inviteId,
+                ...guestData,
+                createdAt: FieldValue.serverTimestamp(),
+                updatedAt: FieldValue.serverTimestamp(),
+              });
+              return guestRef.id;
+            });
+            await Promise.all(guestPromises);
+            functions.logger.info(`Saved ${guests.length} guests for invite ${inviteId}`);
+          }
+
           const savedDoc = await inviteRef.get();
           
           if (!savedDoc.exists) {
@@ -265,8 +315,15 @@ export const postInvite = functions.https.onRequest(
             throw new Error("Document was not created successfully");
           }
 
+          // Fetch guests to include in response
+          const savedGuests = await fetchGuestsForInvite(inviteId);
+          
           functions.logger.info("Invite saved successfully", { inviteId });
-          response.status(200).json({id: inviteId, ...savedDoc.data()});
+          response.status(200).json({
+            id: inviteId,
+            ...savedDoc.data(),
+            guests: savedGuests.map(({ inviteId, ...guestData }) => guestData), // Keep guest id, remove inviteId
+          });
         } catch (dbError) {
           const errorDetails = {
             message: dbError instanceof Error ? dbError.message : String(dbError),
@@ -329,9 +386,7 @@ export const updateInvite = functions.https.onRequest(
           return;
         }
 
-        const currentInvite = inviteDoc.data();
-        
-        // Handle guest updates - check if it's a full array replacement or partial updates
+        // Handle guest updates
         if (updateData.guests && Array.isArray(updateData.guests)) {
           // Check if this is a full array replacement (guests have nome, genero, etc.)
           // vs partial updates (guests have index, situacao, mesa)
@@ -341,37 +396,54 @@ export const updateInvite = functions.https.onRequest(
              updateData.guests[0].faixaEtaria !== undefined);
           
           if (isFullReplacement) {
-            // Full array replacement - use the provided array as-is
-            updateData.guests = updateData.guests;
+            // Full array replacement - delete existing guests and create new ones
+            const existingGuests = await db.collection("guests")
+              .where("inviteId", "==", inviteId)
+              .get();
+            
+            const deletePromises = existingGuests.docs.map(doc => doc.ref.delete());
+            await Promise.all(deletePromises);
+            
+            // Create new guests
+            const guestPromises = updateData.guests.map(async (guest: any) => {
+              const { id: guestId, ...guestData } = guest;
+              const guestRef = db.collection("guests").doc();
+              await guestRef.set({
+                inviteId: inviteId,
+                ...guestData,
+                createdAt: FieldValue.serverTimestamp(),
+                updatedAt: FieldValue.serverTimestamp(),
+              });
+              return guestRef.id;
+            });
+            await Promise.all(guestPromises);
           } else {
             // Partial updates - update specific guest fields by index
-            const updatedGuests = [...(currentInvite?.guests || [])];
+            const currentGuests = await fetchGuestsForInvite(inviteId);
             
-            // Update guests based on the provided array
             updateData.guests.forEach((guestUpdate: any) => {
-              if (guestUpdate.index !== undefined && guestUpdate.index >= 0 && guestUpdate.index < updatedGuests.length) {
-                // Update specific guest fields
+              if (guestUpdate.index !== undefined && guestUpdate.index >= 0 && guestUpdate.index < currentGuests.length) {
+                const guestId = currentGuests[guestUpdate.index].id;
+                const guestRef = db.collection("guests").doc(guestId);
+                const updateFields: any = {
+                  updatedAt: FieldValue.serverTimestamp(),
+                };
+                
                 if (guestUpdate.situacao !== undefined) {
-                  updatedGuests[guestUpdate.index] = {
-                    ...updatedGuests[guestUpdate.index],
-                    situacao: guestUpdate.situacao
-                  };
+                  updateFields.situacao = guestUpdate.situacao;
                 }
                 if (guestUpdate.mesa !== undefined) {
-                  updatedGuests[guestUpdate.index] = {
-                    ...updatedGuests[guestUpdate.index],
-                    mesa: guestUpdate.mesa
-                  };
+                  updateFields.mesa = guestUpdate.mesa;
                 }
+                
+                guestRef.update(updateFields);
               }
             });
-            
-            updateData.guests = updatedGuests;
           }
         }
 
-        // Prepare update object (exclude id from updateData)
-        const { id, ...fieldsToUpdate } = updateData;
+        // Prepare update object (exclude id and guests from updateData)
+        const { id, guests, ...fieldsToUpdate } = updateData;
         
         // Add updatedAt timestamp
         const finalUpdateData = {
@@ -382,9 +454,14 @@ export const updateInvite = functions.https.onRequest(
         await inviteRef.update(finalUpdateData);
         
         const updatedDoc = await inviteRef.get();
+        const updatedGuests = await fetchGuestsForInvite(inviteId);
         
         functions.logger.info("Invite updated successfully", { inviteId });
-        response.status(200).json({id: inviteId, ...updatedDoc.data()});
+        response.status(200).json({
+          id: inviteId,
+          ...updatedDoc.data(),
+          guests: updatedGuests.map(({ inviteId, ...guestData }) => guestData), // Keep guest id, remove inviteId
+        });
       } catch (error) {
         functions.logger.error("Error updating invite", error);
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -424,6 +501,16 @@ export const deleteInvite = functions.https.onRequest(
           return;
         }
 
+        // Delete all guests associated with this invite
+        const guestsSnapshot = await db.collection("guests")
+          .where("inviteId", "==", inviteId)
+          .get();
+        
+        const deleteGuestPromises = guestsSnapshot.docs.map(doc => doc.ref.delete());
+        await Promise.all(deleteGuestPromises);
+        functions.logger.info(`Deleted ${guestsSnapshot.size} guests for invite ${inviteId}`);
+
+        // Delete the invite
         await inviteRef.delete();
         
         functions.logger.info("Invite deleted successfully", { inviteId });
@@ -433,6 +520,224 @@ export const deleteInvite = functions.https.onRequest(
         const errorMessage = error instanceof Error ? error.message : "Unknown error";
         response.status(500).json({
           error: "Failed to delete invite",
+          details: errorMessage
+        });
+      }
+    }
+);
+
+// API: Get a single guest by ID
+export const getGuest = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      try {
+        const guestId = request.query.id as string;
+        if (!guestId) {
+          response.status(400).json({error: "Guest ID is required"});
+          return;
+        }
+
+        const guestDoc = await db.collection("guests").doc(guestId).get();
+        
+        if (!guestDoc.exists) {
+          response.status(404).json({error: "Guest not found"});
+          return;
+        }
+
+        const guestData = guestDoc.data();
+        const { inviteId, ...guestWithoutInviteId } = guestData!;
+        
+        response.json({
+          id: guestDoc.id,
+          ...guestWithoutInviteId,
+        });
+      } catch (error) {
+        functions.logger.error("Error fetching guest", error);
+        response.status(500).json({error: "Failed to fetch guest"});
+      }
+    }
+);
+
+// API: Create or update a guest
+export const postGuest = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "POST") {
+        response.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      try {
+        const {
+          id,
+          inviteId,
+          nome,
+          genero,
+          faixaEtaria,
+          custo,
+          situacao,
+          mesa
+        } = request.body;
+
+        if (!inviteId) {
+          response.status(400).json({error: "inviteId is required"});
+          return;
+        }
+
+        // Verify invite exists
+        const inviteDoc = await db.collection("invites").doc(inviteId).get();
+        if (!inviteDoc.exists) {
+          response.status(404).json({error: "Invite not found"});
+          return;
+        }
+
+        const guestData = {
+          inviteId: inviteId,
+          nome: nome || "",
+          genero: genero || "",
+          faixaEtaria: faixaEtaria || "",
+          custo: custo || "",
+          situacao: situacao || "",
+          mesa: mesa || "",
+          updatedAt: FieldValue.serverTimestamp(),
+        };
+
+        let guestId: string;
+        let guestRef: admin.firestore.DocumentReference;
+
+        if (id) {
+          // Update existing guest
+          guestRef = db.collection("guests").doc(id);
+          await guestRef.set(guestData, { merge: true });
+          guestId = id;
+        } else {
+          // Create new guest
+          guestRef = await db.collection("guests").add({
+            ...guestData,
+            createdAt: FieldValue.serverTimestamp(),
+          });
+          guestId = guestRef.id;
+        }
+
+        const savedDoc = await guestRef.get();
+        const savedData = savedDoc.data()!;
+        const { inviteId: savedInviteId, ...guestWithoutInviteId } = savedData;
+        
+        response.status(200).json({
+          id: guestId,
+          ...guestWithoutInviteId,
+        });
+      } catch (error) {
+        functions.logger.error("Error saving guest", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        response.status(500).json({
+          error: "Failed to save guest",
+          details: errorMessage
+        });
+      }
+    }
+);
+
+// API: Update guest partially (PUT method)
+export const updateGuest = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "PUT") {
+        response.status(405).json({error: "Method not allowed. Use PUT."});
+        return;
+      }
+
+      try {
+        const guestId = request.query.id as string || request.body.id;
+        
+        if (!guestId) {
+          response.status(400).json({error: "Guest ID is required"});
+          return;
+        }
+
+        const updateData = request.body;
+        
+        if (!updateData || typeof updateData !== "object") {
+          response.status(400).json({error: "Invalid update data"});
+          return;
+        }
+
+        const guestRef = db.collection("guests").doc(guestId);
+        const guestDoc = await guestRef.get();
+
+        if (!guestDoc.exists) {
+          response.status(404).json({error: "Guest not found"});
+          return;
+        }
+
+        // Prepare update object (exclude id and inviteId from updateData)
+        const { id, inviteId, ...fieldsToUpdate } = updateData;
+        
+        // Add updatedAt timestamp
+        const finalUpdateData = {
+          ...fieldsToUpdate,
+          updatedAt: FieldValue.serverTimestamp(),
+        };
+
+        await guestRef.update(finalUpdateData);
+        
+        const updatedDoc = await guestRef.get();
+        const updatedData = updatedDoc.data()!;
+        const { inviteId: updatedInviteId, ...guestWithoutInviteId } = updatedData;
+        
+        response.status(200).json({
+          id: guestId,
+          ...guestWithoutInviteId,
+        });
+      } catch (error) {
+        functions.logger.error("Error updating guest", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        response.status(500).json({
+          error: "Failed to update guest",
+          details: errorMessage
+        });
+      }
+    }
+);
+
+// API: Delete a guest
+export const deleteGuest = functions.https.onRequest(
+    async (request, response) => {
+      if (corsHandler(request, response)) return;
+
+      if (request.method !== "DELETE" && request.method !== "POST") {
+        response.status(405).json({error: "Method not allowed"});
+        return;
+      }
+
+      try {
+        const guestId = request.query.id as string || request.body.id;
+        
+        if (!guestId) {
+          response.status(400).json({error: "Guest ID is required"});
+          return;
+        }
+
+        const guestRef = db.collection("guests").doc(guestId);
+        const guestDoc = await guestRef.get();
+
+        if (!guestDoc.exists) {
+          response.status(404).json({error: "Guest not found"});
+          return;
+        }
+
+        await guestRef.delete();
+        
+        functions.logger.info("Guest deleted successfully", { guestId });
+        response.status(200).json({success: true, message: "Guest deleted successfully", id: guestId});
+      } catch (error) {
+        functions.logger.error("Error deleting guest", error);
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        response.status(500).json({
+          error: "Failed to delete guest",
           details: errorMessage
         });
       }
