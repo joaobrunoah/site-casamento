@@ -1,20 +1,22 @@
 # Site de Casamento
 
-A wedding website built with React.js (TypeScript), Firebase Functions, and Firestore Database.
+A wedding website built with React.js (TypeScript), a Nest.js backend, and Firestore Database.
 
 ## Tech Stack
 
 - **Frontend**: React.js with TypeScript
-- **Backend**: Firebase Functions with TypeScript
+- **Backend**: Nest.js server (TypeScript)
 - **Database**: Firestore Database
-- **Hosting**: Firebase Hosting
+- **Frontend hosting**: Firebase Hosting
+- **Backend hosting**: Google Cloud Run
 
 ## Prerequisites
 
 - Node.js (v22 or higher)
 - npm or yarn
 - Firebase CLI (`npm install -g firebase-tools`)
-- A Firebase project (create one at [Firebase Console](https://console.firebase.google.com/))
+- Google Cloud SDK (gcloud CLI) for backend deployment to Cloud Run
+- A Firebase/Google Cloud project (create one at [Firebase Console](https://console.firebase.google.com/))
 
 ## Setup Instructions
 
@@ -85,7 +87,7 @@ npm run install-all
 
 ### Run Everything Locally
 
-To run the client, functions, and Firestore emulators together:
+To run the client, Nest.js server, and Firestore emulator together:
 
 ```bash
 npm run dev
@@ -95,8 +97,8 @@ npm run dev
 
 This will start:
 - React development server at `http://localhost:3000`
-- Firebase Functions emulator at `http://localhost:5001`
-- Firestore emulator at `localhost:8080`
+- Nest.js API server at `http://localhost:8080`
+- Firestore emulator at `localhost:8081`
 - Firebase Emulator UI at `http://localhost:4000`
 
 Press `Ctrl+C` to stop all services.
@@ -109,17 +111,20 @@ cd client
 npm start
 ```
 
-**Firebase Functions and Firestore emulators only:**
+**Nest.js server only:**
 ```bash
-cd functions
-npm run serve
-# or
-firebase emulators:start --only functions,firestore
+cd server
+npm run start:dev
+```
+
+**Firestore emulator only:**
+```bash
+firebase emulators:start --only firestore
 ```
 
 ## Building
 
-Build the frontend and functions:
+Build the frontend and Nest.js server:
 
 ```bash
 npm run build
@@ -127,9 +132,11 @@ npm run build
 
 ## Deployment
 
+The deployment script deploys the **frontend** to Firebase Hosting, the **backend** (Nest.js server) to **Google Cloud Run**, and **Firestore** rules/indexes to Firebase.
+
 ### Deploy Everything
 
-Deploy frontend, functions, and Firestore rules/indexes:
+Deploy frontend (Firebase Hosting), backend (Cloud Run), and Firestore rules/indexes:
 
 ```bash
 npm run deploy
@@ -141,20 +148,31 @@ Or use the deployment script directly:
 ./deploy.sh
 ```
 
+Ensure you are logged in to both Firebase and Google Cloud:
+
+```bash
+firebase login
+gcloud auth login
+```
+
+For full deployment you need `ADMIN_USER` and `ADMIN_PASSWORD` in `server/.env.prod` (used by the Cloud Run service).
+
 ### Deploy Individual Components
 
-Deploy only the frontend:
+Deploy only the frontend (Firebase Hosting):
 ```bash
 npm run deploy:hosting
 # or
 ./deploy.sh --hosting-only
 ```
 
-Deploy only the functions:
+Deploy only the backend (Nest.js server to Google Cloud Run):
 ```bash
-npm run deploy:functions
+npm run deploy:server
 # or
-./deploy.sh --functions-only
+./deploy.sh --server-only
+# or
+./deploy.sh --cloud-run-only
 ```
 
 Deploy only Firestore rules and indexes:
@@ -176,23 +194,23 @@ site-casamento/
 │   │   └── ...
 │   ├── public/
 │   └── package.json
-├── functions/              # Firebase Functions (TypeScript)
+├── server/                 # Nest.js backend (TypeScript)
 │   ├── src/
-│   │   └── index.ts       # Functions entry point
+│   ├── deploy-cloudrun.sh # Cloud Run deployment script
 │   ├── package.json
 │   └── tsconfig.json
 ├── firebase.json           # Firebase configuration
 ├── .firebaserc            # Firebase project settings
 ├── firestore.rules        # Firestore security rules
 ├── firestore.indexes.json # Firestore indexes
-├── deploy.sh              # Deployment script
+├── deploy.sh              # Deployment script (Hosting + Cloud Run + Firestore)
 ├── run-local.sh           # Local development script
 └── package.json
 ```
 
-## Firebase Functions
+## Nest.js Backend (API)
 
-The functions are located in `functions/src/index.ts`. The following API endpoints are available:
+The backend is a Nest.js server. When deployed, it runs on **Google Cloud Run**. The following API endpoints are available:
 
 ### Confirmações de Presença (Confirmations)
 - `getConfirmacoes`: GET endpoint to fetch all confirmations
@@ -206,7 +224,7 @@ The functions are located in `functions/src/index.ts`. The following API endpoin
   - Requires: `id` (query parameter or in body), `comprado` (boolean in body)
 
 ### Health Check
-- `health`: GET endpoint to check if functions are running
+- `health`: GET endpoint to check if the server is running
 
 All endpoints include CORS support and return JSON responses.
 
@@ -220,19 +238,22 @@ Update these files according to your needs.
 
 ## Environment Variables
 
-### Production API URL
+### Production API URL (frontend)
 
-For production builds, create a `.env.prod` file in the `client` directory with your production API URL:
+For production builds, create a `.env.production.local` file in the `client` directory with your production API URL (your Cloud Run service URL):
 
 ```
-REACT_APP_API_URL=https://us-central1-your-project-id.cloudfunctions.net
+REACT_APP_API_URL=https://your-cloud-run-service-url.run.app
 ```
 
 **Important:** 
-- The `.env.prod` file is gitignored and should not be committed
-- Copy `.env.prod.example` to `.env.prod` and fill in your production API URL
-- During deployment, the deploy script automatically uses `.env.prod` for production builds
-- For local development, the frontend automatically points to `http://localhost:5001`
+- The `.env.production.local` file is gitignored and should not be committed
+- During deployment, the deploy script uses this for production builds
+- For local development, the frontend points to `http://localhost:8080` (Nest.js server)
+
+### Backend (Nest.js / Cloud Run)
+
+The server uses `server/.env.prod` for production (e.g. `ADMIN_USER`, `ADMIN_PASSWORD`). The deploy script reads these when deploying to Cloud Run.
 
 ## Troubleshooting
 
@@ -255,7 +276,7 @@ npm run install-all
 ```
 
 ### TypeScript errors
-Ensure TypeScript is properly installed in both `client` and `functions` directories.
+Ensure TypeScript is properly installed in both `client` and `server` directories.
 
 ## License
 
