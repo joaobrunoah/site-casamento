@@ -107,7 +107,11 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
 
 # Deploy to Cloud Run
 echo "🚀 Deploying to Cloud Run..."
-# First, update environment variables (this adds/updates without removing others)
+# Build env vars: required + optional from server/.env.prod (MERCADOPAGO_ACCESS_TOKEN, FRONTEND_URL)
+ENV_VARS="ADMIN_USER=$ADMIN_USER,ADMIN_PASSWORD=$ADMIN_PASSWORD,GCP_PROJECT=$PROJECT_ID,GCLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,NODE_ENV=production"
+[ -n "$MERCADOPAGO_ACCESS_TOKEN" ] && ENV_VARS="$ENV_VARS,MERCADOPAGO_ACCESS_TOKEN=$MERCADOPAGO_ACCESS_TOKEN"
+[ -n "$FRONTEND_URL" ] && ENV_VARS="$ENV_VARS,FRONTEND_URL=$FRONTEND_URL"
+
 gcloud run deploy "$SERVICE_NAME" \
   --image "$IMAGE_NAME" \
   --platform managed \
@@ -119,7 +123,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --min-instances 0 \
   --max-instances 10 \
   --timeout 300 \
-  --update-env-vars "ADMIN_USER=$ADMIN_USER,ADMIN_PASSWORD=$ADMIN_PASSWORD,GCP_PROJECT=$PROJECT_ID,GCLOUD_PROJECT=$PROJECT_ID,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,NODE_ENV=production" \
+  --update-env-vars "$ENV_VARS" \
   --service-account "$SERVICE_ACCOUNT_EMAIL" \
   --project "$PROJECT_ID" \
   --quiet

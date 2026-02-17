@@ -226,8 +226,7 @@ PROJECT_ID=$(jq -r '.projects.default' .firebaserc 2>/dev/null || echo "your-pro
 REGION="us-central1"
 
 if [ "$PROJECT_ID" != "your-project-id" ]; then
-    cd server
-    # Load admin credentials from .env.prod or environment variables
+    # Load credentials from server/.env.prod (must run from project root so path resolves)
     if [ -z "$ADMIN_USER" ] || [ -z "$ADMIN_PASSWORD" ]; then
         if ! load_admin_credentials; then
             echo "⚠️  ADMIN_USER and ADMIN_PASSWORD not found in server/.env.prod or environment"
@@ -235,14 +234,15 @@ if [ "$PROJECT_ID" != "your-project-id" ]; then
             echo "   Set them in server/.env.prod or as environment variables."
         fi
     fi
-    
+
     if [ -n "$ADMIN_USER" ] && [ -n "$ADMIN_PASSWORD" ]; then
+        cd server
         chmod +x deploy-cloudrun.sh
         ./deploy-cloudrun.sh "$PROJECT_ID" "$REGION" "$ADMIN_USER" "$ADMIN_PASSWORD"
+        cd ..
     else
         echo "❌ Cannot deploy to Cloud Run without ADMIN_USER and ADMIN_PASSWORD"
     fi
-    cd ..
 else
     echo "⚠️  Could not determine project ID. Skipping Cloud Run deployment."
     echo "   Run with --cloud-run-only to deploy manually."
