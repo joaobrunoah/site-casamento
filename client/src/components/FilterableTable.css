@@ -1,0 +1,116 @@
+.filterable-table-section {
+  margin-top: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+.filterable-table-actions {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.bulk-delete-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.bulk-delete-link:hover:not(:disabled) {
+  color: #4caf50;
+}
+
+.bulk-delete-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.filterable-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.95rem;
+}
+
+.filterable-table thead {
+  background-color: #f9f9f9;
+}
+
+.filterable-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  white-space: nowrap;
+}
+
+.filterable-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #666;
+}
+
+.filterable-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.table-row-clickable {
+  cursor: pointer;
+}
+
+.table-row-clickable:hover {
+  background-color: #f5f5f5;
+}
+
+.row-selected {
+  background-color: #e3f2fd !important;
+}
+
+/* Checkbox */
+.checkbox-header,
+.checkbox-cell {
+  width: 50px;
+  text-align: center;
+}
+
+.checkbox-input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Filter Header */
+.filter-header {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+.filter-header:hover {
+  background-color: #f0f0f0;
+}
+
+.filter-indicator {
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
+.empty-message {
+  text-align: center;
+  padding: 40px !important;
+  color: #999;
+  font-style: italic;
+}

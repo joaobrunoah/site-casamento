@@ -3,6 +3,7 @@ import { useConfig } from '../contexts/ConfigContext';
 import * as XLSX from 'xlsx-js-style';
 import InviteCard, { Invite, Guest } from '../components/InviteCard';
 import FilterPopup from '../components/FilterPopup';
+import FilterableTable, { TableColumn } from '../components/FilterableTable';
 import { getApiUrl, getAuthHeaders } from '../utils/api';
 import './AdminAttendingList.css';
 
@@ -1291,157 +1292,110 @@ const AdminAttendingList: React.FC = () => {
                 <span className="button-icon">📥</span>
                 Exportar para Excel
               </button>
-              {!bulkDeleteMode ? (
-                <button
-                  type="button"
-                  onClick={handleToggleBulkDeleteMode}
-                  className="bulk-delete-button"
-                  style={{ marginLeft: '10px' }}
-                >
-                  <span className="button-icon">✓</span>
-                  Marcar para Exclusão
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleCancelBulkDelete}
-                    className="bulk-delete-cancel-button"
-                    style={{ marginLeft: '10px' }}
-                  >
-                    Cancelar Exclusão
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleBulkDeleteGuests}
-                    className="bulk-delete-confirm-button"
-                    disabled={selectedGuests.size === 0}
-                    style={{ marginLeft: '10px' }}
-                  >
-                    <span className="button-icon">🗑️</span>
-                    Excluir ({selectedGuests.size})
-                  </button>
-                </>
-              )}
             </div>
-            <div className="guests-table-section">
-              <table className="guests-list-table">
-                <thead>
-                  <tr>
-                    {bulkDeleteMode && (
-                      <th className="checkbox-header">
-                        <input
-                          type="checkbox"
-                          checked={selectedGuests.size > 0 && selectedGuests.size === getAllGuests().length}
-                          onChange={handleSelectAllGuests}
-                          className="checkbox-input"
-                        />
-                      </th>
-                    )}
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convidados', 'nomeDoConvite', e)}
-                    >
-                      <span>Nome do Convite</span>
-                      {hasActiveFilter('convidados', 'nomeDoConvite') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convidados', 'grupo', e)}
-                    >
-                      <span>Grupo</span>
-                      {hasActiveFilter('convidados', 'grupo') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convidados', 'nome', e)}
-                    >
-                      <span>Nome</span>
-                      {hasActiveFilter('convidados', 'nome') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convidados', 'telefone', e)}
-                    >
-                      <span>Telefone</span>
-                      {hasActiveFilter('convidados', 'telefone') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convidados', 'situacao', e)}
-                    >
-                      <span>Situação</span>
-                      {hasActiveFilter('convidados', 'situacao') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convidados', 'mesa', e)}
-                    >
-                      <span>Mesa</span>
-                      {hasActiveFilter('convidados', 'mesa') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getAllGuests().map((guest, index) => {
-                    const isUpdating = updatingGuest?.inviteId === guest.inviteId && updatingGuest?.guestIndex === guest.guestIndex;
+            <FilterableTable
+              columns={[
+                {
+                  id: 'nomeDoConvite',
+                  label: 'Nome do Convite',
+                  filterable: true,
+                  render: (guest: any) => {
                     const invite = invites.find(inv => inv.id === guest.inviteId);
-                    const isSelected = selectedGuests.has(guest.guestKey);
-                    
                     return (
-                      <tr key={`${guest.inviteId}-${index}`} className={isSelected ? 'row-selected' : ''}>
-                        {bulkDeleteMode && (
-                          <td className="checkbox-cell">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => handleToggleGuestSelection(guest.guestKey)}
-                              className="checkbox-input"
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                          </td>
-                        )}
-                        <td>
-                          <button
-                            className="invite-name-link"
-                            onClick={() => handleInviteClick(invite!)}
-                            disabled={bulkDeleteMode}
-                          >
-                            {guest.inviteNome}
-                          </button>
-                        </td>
-                        <td>{guest.grupo || ''}</td>
-                        <td>{guest.nome}</td>
-                        <td>{guest.telefone}</td>
-                        <td>
-                          <select
-                            className="guest-field-select"
-                            value={guest.situacao || ''}
-                            onChange={(e) => updateGuestField(guest.inviteId, guest.guestIndex, 'situacao', e.target.value)}
-                            disabled={isUpdating || !guest.inviteId || bulkDeleteMode}
-                          >
-                            <option value="">Selecione</option>
-                            <option value="Pendente">Pendente</option>
-                            <option value="Confirmado">Confirmado</option>
-                            <option value="Não comparecerá">Não comparecerá</option>
-                          </select>
-                        </td>
-                        <td>
-                          <input
-                            type="number"
-                            className="guest-field-input"
-                            value={guest.mesa || ''}
-                            onBlur={(e) => updateGuestField(guest.inviteId, guest.guestIndex, 'mesa', e.target.value)}
-                            disabled={isUpdating || !guest.inviteId || bulkDeleteMode}
-                            placeholder="Número da mesa"
-                          />
-                        </td>
-                      </tr>
+                      <button
+                        className="invite-name-link"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!bulkDeleteMode) handleInviteClick(invite!);
+                        }}
+                        disabled={bulkDeleteMode}
+                      >
+                        {guest.inviteNome}
+                      </button>
                     );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                  },
+                },
+                {
+                  id: 'grupo',
+                  label: 'Grupo',
+                  filterable: true,
+                  render: (guest: any) => guest.grupo || '',
+                },
+                {
+                  id: 'nome',
+                  label: 'Nome',
+                  filterable: true,
+                  render: (guest: any) => guest.nome,
+                },
+                {
+                  id: 'telefone',
+                  label: 'Telefone',
+                  filterable: true,
+                  render: (guest: any) => guest.telefone,
+                },
+                {
+                  id: 'situacao',
+                  label: 'Situação',
+                  filterable: true,
+                  render: (guest: any) => {
+                    const isUpdating = updatingGuest?.inviteId === guest.inviteId && updatingGuest?.guestIndex === guest.guestIndex;
+                    return (
+                      <select
+                        className="guest-field-select"
+                        value={guest.situacao || ''}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          updateGuestField(guest.inviteId, guest.guestIndex, 'situacao', e.target.value);
+                        }}
+                        disabled={isUpdating || !guest.inviteId || bulkDeleteMode}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <option value="">Selecione</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Confirmado">Confirmado</option>
+                        <option value="Não comparecerá">Não comparecerá</option>
+                      </select>
+                    );
+                  },
+                },
+                {
+                  id: 'mesa',
+                  label: 'Mesa',
+                  filterable: true,
+                  render: (guest: any) => {
+                    const isUpdating = updatingGuest?.inviteId === guest.inviteId && updatingGuest?.guestIndex === guest.guestIndex;
+                    return (
+                      <input
+                        type="number"
+                        className="guest-field-input"
+                        value={guest.mesa || ''}
+                        onBlur={(e) => {
+                          e.stopPropagation();
+                          updateGuestField(guest.inviteId, guest.guestIndex, 'mesa', e.target.value);
+                        }}
+                        disabled={isUpdating || !guest.inviteId || bulkDeleteMode}
+                        placeholder="Número da mesa"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    );
+                  },
+                },
+              ]}
+              data={getAllGuests()}
+              bulkDeleteMode={bulkDeleteMode}
+              selectedItems={selectedGuests}
+              onRowClick={bulkDeleteMode ? undefined : () => {}}
+              onFilterClick={(columnId, e) => handleOpenFilterPopup('convidados', columnId, e)}
+              onSelectAll={handleSelectAllGuests}
+              onToggleSelect={handleToggleGuestSelection}
+              getRowId={(guest: any) => guest.guestKey}
+              hasActiveFilter={(columnId) => hasActiveFilter('convidados', columnId)}
+              onToggleBulkDelete={handleToggleBulkDeleteMode}
+              onCancelBulkDelete={handleCancelBulkDelete}
+              onConfirmBulkDelete={handleBulkDeleteGuests}
+              className="guests-table-section"
+              tableClassName="guests-list-table"
+            />
           </>
         )}
 
@@ -1506,127 +1460,53 @@ const AdminAttendingList: React.FC = () => {
                 <span className="button-icon">📥</span>
                 Exportar para Excel
               </button>
-              {!bulkDeleteMode ? (
-                <button
-                  type="button"
-                  onClick={handleToggleBulkDeleteMode}
-                  className="bulk-delete-button"
-                  style={{ marginLeft: '10px' }}
-                >
-                  <span className="button-icon">✓</span>
-                  Marcar para Exclusão
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleCancelBulkDelete}
-                    className="bulk-delete-cancel-button"
-                    style={{ marginLeft: '10px' }}
-                  >
-                    Cancelar Exclusão
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleBulkDeleteInvites}
-                    className="bulk-delete-confirm-button"
-                    disabled={selectedInvites.size === 0}
-                    style={{ marginLeft: '10px' }}
-                  >
-                    <span className="button-icon">🗑️</span>
-                    Excluir ({selectedInvites.size})
-                  </button>
-                </>
-              )}
             </div>
-            <div className="invites-table-section">
-              <table className="invites-list-table">
-                <thead>
-                  <tr>
-                    {bulkDeleteMode && (
-                      <th className="checkbox-header">
-                        <input
-                          type="checkbox"
-                          checked={selectedInvites.size > 0 && selectedInvites.size === getSortedInvites().filter(inv => inv.id).length}
-                          onChange={handleSelectAllInvites}
-                          className="checkbox-input"
-                        />
-                      </th>
-                    )}
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convites', 'nomeDoConvite', e)}
-                    >
-                      <span>Nome do Convite</span>
-                      {hasActiveFilter('convites', 'nomeDoConvite') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convites', 'telefone', e)}
-                    >
-                      <span>Telefone</span>
-                      {hasActiveFilter('convites', 'telefone') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convites', 'grupo', e)}
-                    >
-                      <span>Grupo</span>
-                      {hasActiveFilter('convites', 'grupo') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('convites', 'observacao', e)}
-                    >
-                      <span>Observação</span>
-                      {hasActiveFilter('convites', 'observacao') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    {!bulkDeleteMode && <th>Excluir</th>}
-                  </tr>
-                </thead>
-                <tbody>
-                  {getSortedInvites().map((invite) => {
-                    const isSelected = invite.id ? selectedInvites.has(invite.id) : false;
-                    return (
-                      <tr
-                        key={invite.id || invite.nomeDoConvite}
-                        onClick={() => !bulkDeleteMode && handleInviteClick(invite)}
-                        className={`invite-row-clickable ${isSelected ? 'row-selected' : ''}`}
-                      >
-                        {bulkDeleteMode && (
-                          <td className="checkbox-cell">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => invite.id && handleToggleInviteSelection(invite.id)}
-                              className="checkbox-input"
-                              onClick={(e) => e.stopPropagation()}
-                              disabled={!invite.id}
-                            />
-                          </td>
-                        )}
-                        <td>{invite.nomeDoConvite || 'Sem nome'}</td>
-                        <td>{invite.ddi && invite.telefone ? `${invite.ddi} ${invite.telefone}` : (invite.telefone || 'Não informado')}</td>
-                        <td>{invite.grupo || 'Não informado'}</td>
-                        <td className="observacao-cell">{invite.observacao || 'Sem observação'}</td>
-                        {!bulkDeleteMode && (
-                          <td className="delete-action-cell">
-                            <button
-                              className="delete-invite-button"
-                              onClick={(e) => handleDeleteInvite(invite, e)}
-                              title="Excluir convite"
-                            >
-                              <span className="button-icon">🗑️</span>
-                              <span>Excluir</span>
-                            </button>
-                          </td>
-                        )}
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <FilterableTable
+              columns={[
+                {
+                  id: 'nomeDoConvite',
+                  label: 'Nome do Convite',
+                  filterable: true,
+                  render: (invite: Invite) => invite.nomeDoConvite || 'Sem nome',
+                },
+                {
+                  id: 'telefone',
+                  label: 'Telefone',
+                  filterable: true,
+                  render: (invite: Invite) => invite.ddi && invite.telefone ? `${invite.ddi} ${invite.telefone}` : (invite.telefone || 'Não informado'),
+                },
+                {
+                  id: 'grupo',
+                  label: 'Grupo',
+                  filterable: true,
+                  render: (invite: Invite) => invite.grupo || 'Não informado',
+                },
+                {
+                  id: 'observacao',
+                  label: 'Observação',
+                  filterable: true,
+                  className: 'observacao-cell',
+                  render: (invite: Invite) => invite.observacao || 'Sem observação',
+                },
+              ]}
+              data={getSortedInvites()}
+              bulkDeleteMode={bulkDeleteMode}
+              selectedItems={selectedInvites}
+              onRowClick={bulkDeleteMode ? undefined : (invite) => handleInviteClick(invite)}
+              onFilterClick={(columnId, e) => handleOpenFilterPopup('convites', columnId, e)}
+              onSelectAll={handleSelectAllInvites}
+              onToggleSelect={(inviteId) => {
+                const invite = invites.find(inv => inv.id === inviteId);
+                if (invite?.id) handleToggleInviteSelection(invite.id);
+              }}
+              getRowId={(invite: Invite) => invite.id || invite.nomeDoConvite || ''}
+              hasActiveFilter={(columnId) => hasActiveFilter('convites', columnId)}
+              onToggleBulkDelete={handleToggleBulkDeleteMode}
+              onCancelBulkDelete={handleCancelBulkDelete}
+              onConfirmBulkDelete={handleBulkDeleteInvites}
+              className="invites-table-section"
+              tableClassName="invites-list-table"
+            />
           </>
         )}
 

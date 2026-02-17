@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
 import FilterPopup from '../components/FilterPopup';
+import FilterableTable, { TableColumn } from '../components/FilterableTable';
 import { getApiUrl, getAuthHeaders } from '../utils/api';
 import './AdminGifts.css';
 
@@ -450,122 +451,65 @@ const AdminGifts: React.FC = () => {
                 <span className="button-icon">+</span>
                 Presente
               </button>
-              {!bulkDeleteMode ? (
-                <button
-                  type="button"
-                  onClick={handleToggleBulkDeleteMode}
-                  className="bulk-delete-button"
-                  style={{ marginLeft: '10px' }}
-                >
-                  <span className="button-icon">✓</span>
-                  Marcar para Remoção
-                </button>
-              ) : (
-                <>
-                  <button
-                    type="button"
-                    onClick={handleCancelBulkDelete}
-                    className="bulk-delete-cancel-button"
-                    style={{ marginLeft: '10px' }}
-                  >
-                    Cancelar Exclusão
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleBulkDeleteGifts}
-                    className="bulk-delete-confirm-button"
-                    disabled={selectedGifts.size === 0}
-                    style={{ marginLeft: '10px' }}
-                  >
-                    <span className="button-icon">🗑️</span>
-                    Excluir ({selectedGifts.size})
-                  </button>
-                </>
-              )}
             </div>
-            <div className="gifts-table-section">
-              <table className="gifts-list-table">
-                <thead>
-                  <tr>
-                    {bulkDeleteMode && (
-                      <th className="checkbox-header">
-                        <input
-                          type="checkbox"
-                          checked={selectedGifts.size > 0 && selectedGifts.size === getSortedGifts().filter(g => g.id).length}
-                          onChange={handleSelectAllGifts}
-                          className="checkbox-input"
-                        />
-                      </th>
-                    )}
-                    <th>Imagem</th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('nome', e)}
-                    >
-                      <span>Nome</span>
-                      {hasActiveFilter('nome') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('descricao', e)}
-                    >
-                      <span>Descrição</span>
-                      {hasActiveFilter('descricao') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('preco', e)}
-                    >
-                      <span>Preço (R$)</span>
-                      {hasActiveFilter('preco') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                    <th 
-                      className="filter-header"
-                      onClick={(e) => handleOpenFilterPopup('estoque', e)}
-                    >
-                      <span>Estoque</span>
-                      {hasActiveFilter('estoque') && <span className="filter-indicator">🔽</span>}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {getSortedGifts().map((gift) => {
-                    const isSelected = gift.id ? selectedGifts.has(gift.id) : false;
-                    return (
-                      <tr
-                        key={gift.id || gift.nome}
-                        onClick={() => !bulkDeleteMode && handleEditGift(gift)}
-                        className={`gift-row-clickable ${isSelected ? 'row-selected' : ''}`}
-                      >
-                        {bulkDeleteMode && (
-                          <td className="checkbox-cell">
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => gift.id && handleToggleGiftSelection(gift.id)}
-                              className="checkbox-input"
-                              onClick={(e) => e.stopPropagation()}
-                              disabled={!gift.id}
-                            />
-                          </td>
-                        )}
-                        <td>
-                          {gift.imagem ? (
-                            <img src={gift.imagem} alt={gift.nome} className="gift-image" />
-                          ) : (
-                            <div className="gift-image-placeholder">Sem imagem</div>
-                          )}
-                        </td>
-                        <td>{gift.nome || 'Sem nome'}</td>
-                        <td className="descricao-cell">{gift.descricao || 'Sem descrição'}</td>
-                        <td>R$ {gift.preco?.toFixed(2) || '0.00'}</td>
-                        <td>{gift.estoque || 0}</td>
-                      </tr>
+            <FilterableTable
+              columns={[
+                {
+                  id: 'imagem',
+                  label: 'Imagem',
+                  filterable: false,
+                  render: (gift: Gift) => {
+                    return gift.imagem ? (
+                      <img src={gift.imagem} alt={gift.nome} className="gift-image" />
+                    ) : (
+                      <div className="gift-image-placeholder">Sem imagem</div>
                     );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                  },
+                },
+                {
+                  id: 'nome',
+                  label: 'Nome',
+                  filterable: true,
+                  render: (gift: Gift) => gift.nome || 'Sem nome',
+                },
+                {
+                  id: 'descricao',
+                  label: 'Descrição',
+                  filterable: true,
+                  className: 'descricao-cell',
+                  render: (gift: Gift) => gift.descricao || 'Sem descrição',
+                },
+                {
+                  id: 'preco',
+                  label: 'Preço (R$)',
+                  filterable: true,
+                  render: (gift: Gift) => `R$ ${gift.preco?.toFixed(2) || '0.00'}`,
+                },
+                {
+                  id: 'estoque',
+                  label: 'Estoque',
+                  filterable: true,
+                  render: (gift: Gift) => gift.estoque || 0,
+                },
+              ]}
+              data={getSortedGifts()}
+              bulkDeleteMode={bulkDeleteMode}
+              selectedItems={selectedGifts}
+              onRowClick={bulkDeleteMode ? undefined : (gift) => handleEditGift(gift)}
+              onFilterClick={(columnId, e) => handleOpenFilterPopup(columnId, e)}
+              onSelectAll={handleSelectAllGifts}
+              onToggleSelect={(giftId) => {
+                const gift = gifts.find(g => g.id === giftId);
+                if (gift?.id) handleToggleGiftSelection(gift.id);
+              }}
+              getRowId={(gift: Gift) => gift.id || gift.nome || ''}
+              hasActiveFilter={hasActiveFilter}
+              onToggleBulkDelete={handleToggleBulkDeleteMode}
+              onCancelBulkDelete={handleCancelBulkDelete}
+              onConfirmBulkDelete={handleBulkDeleteGifts}
+              className="gifts-table-section"
+              tableClassName="gifts-list-table"
+            />
           </>
         )}
 
@@ -588,8 +532,8 @@ const AdminGifts: React.FC = () => {
 
       {/* Gift Popup */}
       {showGiftPopup && selectedGift && (
-        <div className="popup-overlay" onClick={handleClosePopup}>
-          <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+        <div className="popup-overlay">
+          <div className="popup-content">
             <div className="popup-header">
               <h2>{selectedGift.id ? 'Editar Presente' : 'Novo Presente'}</h2>
               <button className="popup-close" onClick={handleClosePopup}>×</button>
