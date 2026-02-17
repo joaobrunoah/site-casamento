@@ -50,38 +50,36 @@ Or manually update `.firebaserc` with your project ID:
 }
 ```
 
-### 4. Install Dependencies
+### 4. Install and initialize gcloud CLI
+
+The gcloud CLI is required to deploy the backend to Google Cloud Run.
+
+**Install:** See [Install the gcloud CLI](https://cloud.google.com/sdk/docs/install) for your platform. On macOS with Homebrew:
+
+```bash
+brew install --cask google-cloud-sdk
+```
+
+**Initialize and log in:**
+
+```bash
+gcloud init
+gcloud auth login
+```
+
+Set the project to match your Firebase project (same project ID as in `.firebaserc`):
+
+```bash
+gcloud config set project YOUR_PROJECT_ID
+```
+
+### 5. Install Dependencies
 
 Install all dependencies for the project:
 
 ```bash
 npm run install-all
 ```
-
-### 5. Configure Firebase
-
-1. Create a `.env` file in the `client` directory:
-   ```bash
-   touch client/.env
-   ```
-
-2. Get your Firebase configuration from Firebase Console:
-   - Go to Project Settings > General
-   - Scroll down to "Your apps" section
-   - Click on the web app icon (</>) or create a new web app
-   - Copy the configuration values
-
-3. Add your Firebase configuration to `client/.env`:
-   ```
-   REACT_APP_FIREBASE_API_KEY=your-api-key
-   REACT_APP_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
-   REACT_APP_FIREBASE_PROJECT_ID=your-project-id
-   REACT_APP_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
-   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-   REACT_APP_FIREBASE_APP_ID=your-app-id
-   ```
-
-   **Note:** The `firebase.ts` file is already configured to use these environment variables. If you don't set up the `.env` file, you'll need to update `client/src/firebase.ts` directly with your configuration.
 
 ## Development
 
@@ -194,9 +192,10 @@ site-casamento/
 │   │   └── ...
 │   ├── public/
 │   └── package.json
-├── server/                 # Nest.js backend (TypeScript)
+├── server/                 # Nest.js backend (TypeScript). API docs: server/README.md
 │   ├── src/
 │   ├── deploy-cloudrun.sh # Cloud Run deployment script
+│   ├── README.md          # API endpoints and authentication
 │   ├── package.json
 │   └── tsconfig.json
 ├── firebase.json           # Firebase configuration
@@ -208,25 +207,7 @@ site-casamento/
 └── package.json
 ```
 
-## Nest.js Backend (API)
-
-The backend is a Nest.js server. When deployed, it runs on **Google Cloud Run**. The following API endpoints are available:
-
-### Confirmações de Presença (Confirmations)
-- `getConfirmacoes`: GET endpoint to fetch all confirmations
-- `createConfirmacao`: POST endpoint to create a new confirmation
-  - Required fields: `nome`, `email`, `quantidadePessoas`
-  - Optional fields: `telefone`, `mensagem`
-
-### Lista de Presentes (Gifts)
-- `getPresentes`: GET endpoint to fetch all gifts
-- `updatePresente`: PUT endpoint to update a gift (e.g., mark as purchased)
-  - Requires: `id` (query parameter or in body), `comprado` (boolean in body)
-
-### Health Check
-- `health`: GET endpoint to check if the server is running
-
-All endpoints include CORS support and return JSON responses.
+For **API documentation** (endpoints, request/response shapes, and authentication), see **[server/README.md](server/README.md)**.
 
 ## Firestore Database
 
@@ -238,22 +219,35 @@ Update these files according to your needs.
 
 ## Environment Variables
 
-### Production API URL (frontend)
+Copy the `.env.example` file in each directory to create your local env file (e.g. `.env`, `.env.local`, or `.env.production.local`). Do not commit real env files—they are gitignored.
 
-For production builds, create a `.env.production.local` file in the `client` directory with your production API URL (your Cloud Run service URL):
+### Client (`client/`)
 
-```
-REACT_APP_API_URL=https://your-cloud-run-service-url.run.app
-```
+| Variable | Required | When | Description |
+|----------|----------|------|-------------|
+| `REACT_APP_API_URL` | **Production only** | Production builds | Base URL of the Nest.js API (your Cloud Run service URL). Not needed for local dev—the app uses `http://localhost:8080` in development. |
+| `REACT_APP_STRIPE_PUBLISHABLE_KEY` | No | When using Stripe | Stripe publishable key for client-side payment UI (e.g. Checkout, Elements). |
+| `REACT_APP_FIREBASE_PROJECT_ID` | No | Local development | Firebase/GCP project ID. Used when running the app locally (e.g. for Firebase features). |
 
-**Important:** 
-- The `.env.production.local` file is gitignored and should not be committed
-- During deployment, the deploy script uses this for production builds
-- For local development, the frontend points to `http://localhost:8080` (Nest.js server)
+**Files:**
+- **Local development:** Optional. Create `client/.env` or `client/.env.local` if you need `REACT_APP_FIREBASE_PROJECT_ID` or Stripe; otherwise the app defaults to `http://localhost:8080` for the API.
+- **Production build:** Create `client/.env.production.local` with `REACT_APP_API_URL` (and `REACT_APP_STRIPE_PUBLISHABLE_KEY` if needed). See `client/.env.example`.
 
-### Backend (Nest.js / Cloud Run)
+### Server (`server/`)
 
-The server uses `server/.env.prod` for production (e.g. `ADMIN_USER`, `ADMIN_PASSWORD`). The deploy script reads these when deploying to Cloud Run.
+| Variable | Required | When | Description |
+|----------|----------|------|-------------|
+| `ADMIN_USER` | Yes | Local and production | Username for admin/basic-auth endpoints. |
+| `ADMIN_PASSWORD` | Yes | Local and production | Password for admin/basic-auth endpoints. |
+| `STRIPE_SECRET_KEY` | No | When using Stripe | Stripe secret key for server-side payment operations (e.g. creating PaymentIntents, handling webhooks). |
+| `FRONTEND_URL` | No | Production | Full URL of the deployed frontend (e.g. for CORS or redirects). Used in production. |
+| `PORT` | No | Optional | Port the server listens on (default: 8080). Cloud Run sets this in production. |
+| `FIRESTORE_EMULATOR_HOST` | No | Local only | Set by `run-local.sh` when using the Firestore emulator (e.g. `localhost:8081`). Do not set in production. |
+| `GCP_PROJECT` / `GCLOUD_PROJECT` / `GOOGLE_CLOUD_PROJECT` | No | Optional | Firebase/GCP project ID. On Cloud Run this is set automatically. For local dev with real Firestore, set one of these. |
+
+**Files:**
+- **Local development:** Create `server/.env` or `server/.env.local` with `ADMIN_USER` and `ADMIN_PASSWORD` (and `STRIPE_SECRET_KEY` if using Stripe). See `server/.env.example`.
+- **Production (Cloud Run):** Create `server/.env.prod` with `ADMIN_USER`, `ADMIN_PASSWORD`, and optionally `STRIPE_SECRET_KEY` and `FRONTEND_URL`. The deploy script reads this when deploying to Cloud Run.
 
 ## Troubleshooting
 
@@ -280,4 +274,4 @@ Ensure TypeScript is properly installed in both `client` and `server` directorie
 
 ## License
 
-ISC
+This project is licensed under the [ISC License](https://opensource.org/licenses/ISC).
