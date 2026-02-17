@@ -13,6 +13,7 @@ const auth_module_1 = require("./auth/auth.module");
 const config_controller_1 = require("./config/config.controller");
 const invites_controller_1 = require("./invites/invites.controller");
 const guests_controller_1 = require("./guests/guests.controller");
+const gifts_controller_1 = require("./gifts/gifts.controller");
 const search_controller_1 = require("./search/search.controller");
 const health_controller_1 = require("./health/health.controller");
 const firebase_service_1 = require("./firebase/firebase.service");
@@ -26,6 +27,7 @@ exports.AppModule = AppModule = __decorate([
             config_controller_1.ConfigController,
             invites_controller_1.InvitesController,
             guests_controller_1.GuestsController,
+            gifts_controller_1.GiftsController,
             search_controller_1.SearchController,
             health_controller_1.HealthController,
         ],

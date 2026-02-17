@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
 import * as XLSX from 'xlsx-js-style';
 import InviteCard, { Invite, Guest } from '../components/InviteCard';
+import FilterPopup from '../components/FilterPopup';
 import { getApiUrl, getAuthHeaders } from '../utils/api';
 import './AdminAttendingList.css';
 
@@ -533,17 +534,6 @@ const AdminAttendingList: React.FC = () => {
     fetchInvites();
   }, []);
 
-  // Close filter popup on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && filterPopup) {
-        setFilterPopup(null);
-      }
-    };
-    
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
-  }, [filterPopup]);
 
   // Save all imported invites to database
   const handleSaveImportedInvites = async () => {
@@ -1119,73 +1109,57 @@ const AdminAttendingList: React.FC = () => {
     });
   };
 
+  const getColumnLabel = (column: string): string => {
+    const labels: { [key: string]: string } = {
+      nomeDoConvite: 'Nome do Convite',
+      grupo: 'Grupo',
+      nome: 'Nome',
+      telefone: 'Telefone',
+      situacao: 'Situação',
+      mesa: 'Mesa',
+      observacao: 'Observação',
+    };
+    return labels[column] || column;
+  };
+
   const handleCloseFilterPopup = () => {
     setFilterPopup(null);
   };
 
-  const handleToggleFilterValue = (value: string) => {
-    if (!filterPopup) return;
-    
-    const newSelected = new Set(filterPopup.selectedValues);
-    if (newSelected.has(value)) {
-      newSelected.delete(value);
-    } else {
-      newSelected.add(value);
-    }
-    
-    setFilterPopup({
-      ...filterPopup,
-      selectedValues: newSelected
-    });
-  };
-
-  const handleToggleSelectAllFilter = () => {
-    if (!filterPopup) return;
-    
-    if (filterPopup.selectedValues.size === filterPopup.values.length) {
-      setFilterPopup({
-        ...filterPopup,
-        selectedValues: new Set()
-      });
-    } else {
-      setFilterPopup({
-        ...filterPopup,
-        selectedValues: new Set(filterPopup.values)
-      });
-    }
-  };
-
-  const handleApplyFilter = () => {
+  const handleApplyFilter = (selectedValues: Set<string>) => {
     if (!filterPopup) return;
     
     if (filterPopup.tableType === 'convidados') {
       setGuestsFilters(prev => ({
         ...prev,
-        [filterPopup.column]: filterPopup.selectedValues
+        [filterPopup.column]: selectedValues
       }));
     } else {
       setInvitesFilters(prev => ({
         ...prev,
-        [filterPopup.column]: filterPopup.selectedValues
+        [filterPopup.column]: selectedValues
       }));
     }
     
     setFilterPopup(null);
   };
 
-  const handleClearFilter = (tableType: 'convidados' | 'convites', column: string) => {
-    if (tableType === 'convidados') {
+  const handleClearFilter = () => {
+    if (!filterPopup) return;
+    
+    if (filterPopup.tableType === 'convidados') {
       setGuestsFilters(prev => ({
         ...prev,
-        [column]: new Set()
+        [filterPopup.column]: new Set()
       }));
     } else {
       setInvitesFilters(prev => ({
         ...prev,
-        [column]: new Set()
+        [filterPopup.column]: new Set()
       }));
     }
   };
+
 
   const hasActiveFilter = (tableType: 'convidados' | 'convites', column: string): boolean => {
     if (tableType === 'convidados') {
@@ -1807,74 +1781,16 @@ const AdminAttendingList: React.FC = () => {
 
       {/* Filter Popup */}
       {filterPopup && (
-        <>
-          <div className="filter-popup-overlay" onClick={handleCloseFilterPopup}></div>
-          <div 
-            className="filter-popup"
-            style={{
-              top: `${filterPopup.position.top}px`,
-              left: `${filterPopup.position.left}px`
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="filter-popup-header">
-              <h3>Filtrar por {filterPopup.column === 'nomeDoConvite' ? 'Nome do Convite' : 
-                          filterPopup.column === 'grupo' ? 'Grupo' :
-                          filterPopup.column === 'nome' ? 'Nome' :
-                          filterPopup.column === 'telefone' ? 'Telefone' :
-                          filterPopup.column === 'situacao' ? 'Situação' :
-                          filterPopup.column === 'mesa' ? 'Mesa' :
-                          filterPopup.column === 'observacao' ? 'Observação' : filterPopup.column}</h3>
-              <button className="filter-popup-close" onClick={handleCloseFilterPopup}>×</button>
-            </div>
-            <div className="filter-popup-content">
-              <div className="filter-select-all">
-                <label className="filter-checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={filterPopup.selectedValues.size === filterPopup.values.length && filterPopup.values.length > 0}
-                    onChange={handleToggleSelectAllFilter}
-                    className="filter-checkbox"
-                  />
-                  <span>Selecionar todos</span>
-                </label>
-              </div>
-              <div className="filter-values-list">
-                {filterPopup.values.map((value) => (
-                  <label key={value} className="filter-checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={filterPopup.selectedValues.has(value)}
-                      onChange={() => handleToggleFilterValue(value)}
-                      className="filter-checkbox"
-                    />
-                    <span>{value || '(vazio)'}</span>
-                  </label>
-                ))}
-                {filterPopup.values.length === 0 && (
-                  <div className="filter-no-values">Nenhum valor disponível</div>
-                )}
-              </div>
-            </div>
-            <div className="filter-popup-footer">
-              <button 
-                className="filter-button filter-clear-button"
-                onClick={() => {
-                  handleClearFilter(filterPopup.tableType, filterPopup.column);
-                  setFilterPopup(null);
-                }}
-              >
-                Limpar
-              </button>
-              <button 
-                className="filter-button filter-apply-button"
-                onClick={handleApplyFilter}
-              >
-                Aplicar
-              </button>
-            </div>
-          </div>
-        </>
+        <FilterPopup
+          column={filterPopup.column}
+          columnLabel={getColumnLabel(filterPopup.column)}
+          values={filterPopup.values}
+          selectedValues={filterPopup.selectedValues}
+          position={filterPopup.position}
+          onClose={handleCloseFilterPopup}
+          onApply={handleApplyFilter}
+          onClear={handleClearFilter}
+        />
       )}
     </div>
   );
