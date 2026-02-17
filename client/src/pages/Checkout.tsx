@@ -5,6 +5,7 @@ import './Checkout.css';
 
 const Checkout: React.FC = () => {
   const { cart, removeFromCart, totalPrice } = useCart();
+  const [fromName, setFromName] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const navigate = useNavigate();
 
@@ -74,6 +75,21 @@ const Checkout: React.FC = () => {
           <span className="checkout-total-price">R$ {totalPrice.toFixed(2)}</span>
         </div>
 
+        {/* From Name Field */}
+        <div className="checkout-from">
+          <label htmlFor="fromName" className="checkout-from-label">
+            De
+          </label>
+          <input
+            id="fromName"
+            type="text"
+            className="checkout-from-input"
+            value={fromName}
+            onChange={(e) => setFromName(e.target.value)}
+            placeholder="Seu nome"
+          />
+        </div>
+
         {/* Message Textarea */}
         <div className="checkout-message">
           <label htmlFor="message" className="checkout-message-label">
@@ -89,10 +105,23 @@ const Checkout: React.FC = () => {
           />
         </div>
 
-        {/* Payment Not Available Message */}
-        <div className="checkout-payment-unavailable">
-          <h2 className="checkout-section-title">Pagamento Indisponível</h2>
-          <p>O sistema de pagamento está temporariamente indisponível. Por favor, entre em contato com os noivos para outras formas de contribuição.</p>
+        {/* Payment Button */}
+        <div className="checkout-actions">
+          <button
+            className="proceed-payment-button"
+            onClick={() => {
+              navigate('/payment', {
+                state: {
+                  fromName,
+                  message,
+                  cart,
+                  totalPrice,
+                },
+              });
+            }}
+          >
+            Ir para o pagamento
+          </button>
         </div>
       </div>
     </div>

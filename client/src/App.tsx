@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import AttendingForm from './pages/AttendingForm';
 import Gifts from './pages/Gifts';
 import Checkout from './pages/Checkout';
+import Payment from './pages/Payment';
 import PaymentSuccess from './pages/PaymentSuccess';
 import AdminLogin from './pages/AdminLogin';
 import AdminAttendingList from './pages/AdminAttendingList';
@@ -28,6 +29,7 @@ function App(): JSX.Element {
                   <Route path="/attending-form" element={<AttendingForm />} />
                   <Route path="/gifts" element={<Gifts />} />
                   <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/payment" element={<Payment />} />
                   <Route path="/checkout/success" element={<PaymentSuccess />} />
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route path="/admin/attending-list" element={<AdminAttendingList />} />

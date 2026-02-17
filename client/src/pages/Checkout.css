@@ -176,6 +176,40 @@
   color: #2c2c2c;
 }
 
+.checkout-from {
+  margin-bottom: 40px;
+}
+
+.checkout-from-label {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.3em;
+  font-weight: 500;
+  color: #2c2c2c;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.checkout-from-input {
+  width: 100%;
+  padding: 15px;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+.checkout-from-input:focus {
+  outline: none;
+  border-color: #DCAE9D;
+}
+
+.checkout-from-input::placeholder {
+  color: #999;
+}
+
 .checkout-message {
   margin-bottom: 40px;
 }

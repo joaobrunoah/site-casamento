@@ -10,6 +10,7 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_module_1 = require("./config/config.module");
 const auth_module_1 = require("./auth/auth.module");
+const payment_module_1 = require("./payment/payment.module");
 const config_controller_1 = require("./config/config.controller");
 const invites_controller_1 = require("./invites/invites.controller");
 const guests_controller_1 = require("./guests/guests.controller");
@@ -22,7 +23,7 @@ let AppModule = class AppModule {
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [config_module_1.ConfigModule, auth_module_1.AuthModule],
+        imports: [config_module_1.ConfigModule, auth_module_1.AuthModule, payment_module_1.PaymentModule],
         controllers: [
             config_controller_1.ConfigController,
             invites_controller_1.InvitesController,

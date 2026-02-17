@@ -1,0 +1,296 @@
+.payment-page {
+  min-height: 100vh;
+  padding: 60px 20px 100px 20px;
+  background-color: #faf9f7;
+}
+
+.payment-container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.payment-title {
+  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 3em;
+  font-weight: bold;
+  text-align: center;
+  color: #2c2c2c;
+  margin-bottom: 40px;
+}
+
+.payment-info {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.payment-info-text {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+}
+
+.payment-form {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 30px;
+}
+
+.payment-element-container {
+  margin-bottom: 30px;
+}
+
+.payment-error {
+  background-color: #fff5f5;
+  border: 2px solid #fc8181;
+  border-radius: 0;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.payment-error p {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #c53030;
+  margin: 0;
+}
+
+.payment-summary {
+  border-top: 2px solid #FAE3D7;
+  padding-top: 20px;
+  margin-bottom: 30px;
+}
+
+.payment-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment-summary-label {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.3em;
+  color: #2c2c2c;
+  font-weight: 500;
+}
+
+.payment-summary-price {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.payment-submit-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 15px 40px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+  width: 100%;
+}
+
+.payment-submit-button:hover:not(:disabled) {
+  background-color: #c99d8a;
+}
+
+.payment-submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.payment-loading {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.payment-loading p {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+.payment-error-container {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.payment-error-title {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin-bottom: 20px;
+}
+
+.payment-error-message {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.payment-back-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 12px 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+}
+
+.payment-back-button:hover {
+  background-color: #c99d8a;
+}
+
+.payment-methods-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.payment-method-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  font-weight: 500;
+  color: #2c2c2c;
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  padding: 30px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  min-height: 150px;
+  justify-content: center;
+}
+
+.payment-method-button:hover {
+  border-color: #DCAE9D;
+  background-color: #faf9f7;
+  transform: translateY(-2px);
+}
+
+.payment-method-icon {
+  font-size: 3em;
+  line-height: 1;
+}
+
+.payment-method-label {
+  font-size: 1em;
+  text-align: center;
+}
+
+.payment-summary-preview {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 25px;
+  margin-top: 30px;
+}
+
+.payment-method-header {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 20px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.payment-back-method-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.95em;
+  font-weight: 500;
+  color: #2c2c2c;
+  background: none;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+  text-decoration: none;
+}
+
+.payment-back-method-button:hover {
+  color: #DCAE9D;
+}
+
+.payment-method-selected {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .payment-title {
+    font-size: 2em;
+  }
+
+  .payment-form {
+    padding: 20px;
+  }
+
+  .payment-summary-price {
+    font-size: 1.5em;
+  }
+
+  .payment-methods-selection {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .payment-method-button {
+    min-height: 120px;
+    padding: 20px 15px;
+  }
+
+  .payment-method-icon {
+    font-size: 2.5em;
+  }
+
+  .payment-method-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .payment-method-selected {
+    font-size: 1.1em;
+  }
+}
