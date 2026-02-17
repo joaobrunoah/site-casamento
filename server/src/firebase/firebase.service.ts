@@ -95,6 +95,14 @@ export class FirebaseService implements OnModuleInit {
           console.warn('⚠️  Could not verify emulator connection:', error instanceof Error ? error.message : String(error));
           console.warn('⚠️  This might be normal if the emulator is still starting up.');
         });
+
+        // Seed gifts for local development (only if using emulator)
+        // Wait a bit for Firestore to be fully ready
+        setTimeout(() => {
+          this.seedGifts().catch((error) => {
+            console.warn('⚠️  Could not seed gifts:', error instanceof Error ? error.message : String(error));
+          });
+        }, 2000);
       } else {
         console.log('✅ Firestore will use production database');
       }
@@ -132,6 +140,144 @@ export class FirebaseService implements OnModuleInit {
     }
   }
 
+  /**
+   * Seed the gifts collection with sample Greece travel gifts (local development only)
+   */
+  private async seedGifts(): Promise<void> {
+    if (!this.db) {
+      console.warn('⚠️  Cannot seed gifts: Firestore not initialized');
+      return;
+    }
+
+    try {
+      // Check if gifts already exist
+      const giftsSnapshot = await this.db.collection('gifts').limit(1).get();
+      
+      if (!giftsSnapshot.empty) {
+        console.log('📦 Gifts collection already has data, skipping seed');
+        return;
+      }
+
+      console.log('🌴 Seeding gifts collection with Greece travel gifts...');
+
+      const FieldValue = this.getFieldValue();
+      const gifts = [
+        {
+          nome: 'Hotel em Santorini',
+          descricao: '3 noites em um hotel boutique com vista para o pôr do sol em Santorini. Inclui café da manhã e traslado do aeroporto.',
+          preco: 450.00,
+          estoque: 1,
+          imagem: 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Curso de Mergulho em Mykonos',
+          descricao: 'Curso de mergulho certificado PADI para iniciantes. Inclui equipamento completo, instrutor certificado e certificado digital.',
+          preco: 280.00,
+          estoque: 2,
+          imagem: 'https://images.unsplash.com/photo-1583212292454-2fe62f3f3dd6?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Jantar Romântico em Atenas',
+          descricao: 'Jantar para dois em restaurante tradicional grego no centro histórico de Atenas. Inclui entrada, prato principal, sobremesa e vinho grego.',
+          preco: 120.00,
+          estoque: 3,
+          imagem: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Passagens Aéreas para Grécia',
+          descricao: 'Passagens aéreas ida e volta para Atenas em classe econômica. Válido para voos diretos ou com conexão.',
+          preco: 850.00,
+          estoque: 1,
+          imagem: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Tour pelas Ilhas Gregas',
+          descricao: 'Cruzeiro de 1 dia visitando as ilhas de Mykonos, Delos e Paros. Inclui almoço a bordo, guia turístico e transporte.',
+          preco: 180.00,
+          estoque: 2,
+          imagem: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Spa e Relaxamento em Mykonos',
+          descricao: 'Pacote de spa de 2 horas incluindo massagem relaxante, banho turco e tratamento facial. Perfeito para relaxar após os passeios.',
+          preco: 150.00,
+          estoque: 2,
+          imagem: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Aluguel de Carro por 5 Dias',
+          descricao: 'Aluguel de carro compacto por 5 dias com seguro completo. Inclui GPS e quilometragem ilimitada. Retirada e devolução no aeroporto.',
+          preco: 220.00,
+          estoque: 1,
+          imagem: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Tour Gastronômico em Atenas',
+          descricao: 'Tour guiado de 3 horas pelos melhores restaurantes e tavernas de Atenas. Inclui degustação de pratos tradicionais e vinhos gregos.',
+          preco: 95.00,
+          estoque: 2,
+          imagem: 'https://images.unsplash.com/photo-1555939594-58d7cb561b1d?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Hospedagem em Mykonos',
+          descricao: '4 noites em hotel 4 estrelas em Mykonos, próximo às praias mais famosas. Inclui café da manhã e Wi-Fi gratuito.',
+          preco: 520.00,
+          estoque: 1,
+          imagem: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Aula de Culinária Grega',
+          descricao: 'Aula de culinária tradicional grega de 4 horas. Aprenda a preparar moussaka, souvlaki e baklava. Inclui almoço e receitas.',
+          preco: 110.00,
+          estoque: 2,
+          imagem: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Presente de Teste',
+          descricao: 'Presente de teste para validação de pagamento.',
+          preco: 0.10,
+          estoque: 10,
+          imagem: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&q=80',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+      ];
+
+      // Add all gifts to Firestore
+      const batch = this.db.batch();
+      gifts.forEach((gift) => {
+        const giftRef = this.db!.collection('gifts').doc();
+        batch.set(giftRef, gift);
+      });
+
+      await batch.commit();
+      console.log(`✅ Successfully seeded ${gifts.length} gifts to the collection`);
+    } catch (error) {
+      console.error('❌ Error seeding gifts:', error);
+      // Don't throw - this is just a convenience feature
+    }
+  }
+
   getFirestore(): admin.firestore.Firestore {
     if (!this.db) {
       throw new Error('Firebase Admin not initialized. Check logs for initialization errors.');
@@ -145,5 +291,76 @@ export class FirebaseService implements OnModuleInit {
 
   getFieldValue(): typeof FieldValue {
     return FieldValue;
+  }
+
+  getStorage(): admin.storage.Storage {
+    if (!this.initialized) {
+      throw new Error('Firebase Admin not initialized. Check logs for initialization errors.');
+    }
+    return admin.storage();
+  }
+
+  /**
+   * Download an image from a URL and upload it to Firebase Storage
+   * @param imageUrl The URL of the image to download
+   * @param destinationPath The path in Firebase Storage where the image should be stored
+   * @returns The download URL of the uploaded image
+   */
+  async downloadAndUploadImage(
+    imageUrl: string,
+    destinationPath: string,
+  ): Promise<string> {
+    try {
+      // Validate URL
+      if (!imageUrl || !imageUrl.startsWith('http')) {
+        throw new Error('Invalid image URL');
+      }
+
+      console.log(`📥 Downloading image from: ${imageUrl}`);
+
+      // Download the image
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download image: ${response.statusText}`);
+      }
+
+      // Get the image as a buffer
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+
+      // Get content type from response or default to image/jpeg
+      const contentType =
+        response.headers.get('content-type') || 'image/jpeg';
+
+      console.log(`📤 Uploading image to Firebase Storage: ${destinationPath}`);
+
+      // Upload to Firebase Storage
+      const storage = this.getStorage();
+      const bucket = storage.bucket();
+      const file = bucket.file(destinationPath);
+
+      // Upload the buffer
+      await file.save(buffer, {
+        metadata: {
+          contentType: contentType,
+        },
+        public: true, // Make the file publicly accessible
+      });
+
+      // Get the public URL
+      const [url] = await file.getSignedUrl({
+        action: 'read',
+        expires: '03-09-2491', // Far future date
+      });
+
+      // For public files, we can also use the public URL directly
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${destinationPath}`;
+
+      console.log(`✅ Image uploaded successfully: ${publicUrl}`);
+      return publicUrl;
+    } catch (error) {
+      console.error('❌ Error downloading/uploading image:', error);
+      throw error;
+    }
   }
 }

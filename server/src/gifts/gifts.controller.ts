@@ -80,12 +80,38 @@ export class GiftsController {
       const db = this.firebaseService.getFirestore();
       const FieldValue = this.firebaseService.getFieldValue();
 
+      // Process image: if it's a URL (not already a Firebase Storage URL), download and upload to Storage
+      let finalImageUrl = imagem || '';
+      
+      // Determine giftId first (for existing gifts) or use a temporary identifier
+      const giftIdForPath = id || `temp-${Date.now()}`;
+      
+      if (imagem && imagem.startsWith('http') && !imagem.includes('storage.googleapis.com') && !imagem.includes('firebasestorage.googleapis.com')) {
+        try {
+          // Generate a unique path for the image in Storage
+          const timestamp = Date.now();
+          const sanitizedNome = nome.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50);
+          const fileExtension = imagem.split('.').pop()?.split('?')[0] || 'jpg';
+          const destinationPath = `gifts/${giftIdForPath}-${sanitizedNome}-${timestamp}.${fileExtension}`;
+          
+          // Download and upload to Firebase Storage
+          finalImageUrl = await this.firebaseService.downloadAndUploadImage(
+            imagem,
+            destinationPath,
+          );
+        } catch (imageError) {
+          console.error('Error processing image, using original URL:', imageError);
+          // If image processing fails, keep the original URL
+          // This allows the gift to be saved even if image download fails
+        }
+      }
+
       const giftData = {
         nome: nome.trim(),
         descricao: descricao || '',
         preco: preco || 0,
         estoque: estoque || 0,
-        imagem: imagem || '',
+        imagem: finalImageUrl,
         updatedAt: FieldValue.serverTimestamp(),
       };
 

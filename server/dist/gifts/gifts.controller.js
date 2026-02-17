@@ -66,12 +66,26 @@ let GiftsController = class GiftsController {
             }
             const db = this.firebaseService.getFirestore();
             const FieldValue = this.firebaseService.getFieldValue();
+            let finalImageUrl = imagem || '';
+            const giftIdForPath = id || `temp-${Date.now()}`;
+            if (imagem && imagem.startsWith('http') && !imagem.includes('storage.googleapis.com') && !imagem.includes('firebasestorage.googleapis.com')) {
+                try {
+                    const timestamp = Date.now();
+                    const sanitizedNome = nome.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').substring(0, 50);
+                    const fileExtension = imagem.split('.').pop()?.split('?')[0] || 'jpg';
+                    const destinationPath = `gifts/${giftIdForPath}-${sanitizedNome}-${timestamp}.${fileExtension}`;
+                    finalImageUrl = await this.firebaseService.downloadAndUploadImage(imagem, destinationPath);
+                }
+                catch (imageError) {
+                    console.error('Error processing image, using original URL:', imageError);
+                }
+            }
             const giftData = {
                 nome: nome.trim(),
                 descricao: descricao || '',
                 preco: preco || 0,
                 estoque: estoque || 0,
-                imagem: imagem || '',
+                imagem: finalImageUrl,
                 updatedAt: FieldValue.serverTimestamp(),
             };
             let giftId;

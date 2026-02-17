@@ -1,0 +1,121 @@
+.payment-success-page {
+  min-height: 100vh;
+  padding: 60px 20px 100px 20px;
+  background-color: #faf9f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-success-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 60px 40px;
+}
+
+.payment-success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  color: #ffffff;
+  font-size: 3em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+  font-weight: bold;
+}
+
+.payment-success-title {
+  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #2c2c2c;
+  margin-bottom: 20px;
+}
+
+.payment-success-message {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 1.6;
+}
+
+.payment-success-id {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.9em;
+  color: #888;
+  margin-bottom: 30px;
+  word-break: break-all;
+}
+
+.payment-success-user-message {
+  background-color: #faf9f7;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: left;
+}
+
+.payment-success-user-message-label {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin-bottom: 10px;
+}
+
+.payment-success-user-message-text {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.payment-success-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 15px 40px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+  min-width: 250px;
+}
+
+.payment-success-button:hover {
+  background-color: #c99d8a;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .payment-success-container {
+    padding: 40px 20px;
+  }
+
+  .payment-success-title {
+    font-size: 2em;
+  }
+
+  .payment-success-message {
+    font-size: 1em;
+  }
+
+  .payment-success-button {
+    width: 100%;
+    min-width: auto;
+  }
+}

@@ -1,0 +1,279 @@
+.gifts-page {
+  min-height: 100vh;
+  padding: 60px 20px 100px 20px;
+  background-color: #faf9f7;
+}
+
+.gifts-loading {
+  text-align: center;
+  padding: 60px 20px;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  color: #2c2c2c;
+}
+
+.gifts-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.gifts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  padding: 20px 0;
+}
+
+.gift-card {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gift-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.gift-image-container {
+  width: 100%;
+  height: 300px;
+  overflow: hidden;
+  background-color: #f5f3f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gift-image {
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+.gift-content {
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.gift-name {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #2c2c2c;
+  margin: 0 0 15px 0;
+  line-height: 1.3;
+}
+
+.gift-description {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+  flex-grow: 1;
+}
+
+.gift-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: auto;
+}
+
+.gift-price {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.5em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.add-to-cart-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+}
+
+.add-to-cart-button:hover:not(:disabled) {
+  background-color: #c99d8a;
+}
+
+.add-to-cart-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.remove-from-cart-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #8b6f5e;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+}
+
+.remove-from-cart-button:hover {
+  background-color: #6b5546;
+}
+
+/* Small screens - 2 items per row */
+@media (min-width: 600px) {
+  .gifts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large screens - 3 items per row */
+@media (min-width: 992px) {
+  .gifts-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .gift-image-container {
+    height: 350px;
+  }
+}
+
+/* Cart Footer */
+.cart-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #ffffff;
+  border-top: 2px solid #DCAE9D;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding: 15px 20px;
+}
+
+.cart-footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.cart-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-icon {
+  width: 28px;
+  height: 28px;
+  color: #2c2c2c;
+}
+
+.cart-item-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #DCAE9D;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+.cart-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-grow: 1;
+}
+
+.cart-total-label {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #555;
+}
+
+.cart-total-price {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.5em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.continue-shopping-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 12px 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+  white-space: nowrap;
+}
+
+.continue-shopping-button:hover {
+  background-color: #c99d8a;
+}
+
+/* Mobile adjustments for cart footer */
+@media (max-width: 768px) {
+  .cart-footer {
+    padding: 12px 15px;
+  }
+
+  .cart-footer-content {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .cart-info {
+    order: 3;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .continue-shopping-button {
+    padding: 10px 20px;
+    font-size: 0.95em;
+  }
+
+  .gifts-page {
+    padding-bottom: 120px;
+  }
+}

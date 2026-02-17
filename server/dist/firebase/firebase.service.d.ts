@@ -6,7 +6,10 @@ export declare class FirebaseService implements OnModuleInit {
     private initialized;
     onModuleInit(): void;
     private testEmulatorConnection;
+    private seedGifts;
     getFirestore(): admin.firestore.Firestore;
     isInitialized(): boolean;
     getFieldValue(): typeof FieldValue;
+    getStorage(): admin.storage.Storage;
+    downloadAndUploadImage(imageUrl: string, destinationPath: string): Promise<string>;
 }

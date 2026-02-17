@@ -1,0 +1,408 @@
+.checkout-page {
+  min-height: 100vh;
+  padding: 60px 20px 100px 20px;
+  background-color: #faf9f7;
+}
+
+.checkout-empty {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.checkout-empty h2 {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 2em;
+  color: #2c2c2c;
+  margin-bottom: 30px;
+}
+
+.back-to-gifts-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 12px 30px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+}
+
+.back-to-gifts-button:hover {
+  background-color: #c99d8a;
+}
+
+.checkout-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.checkout-title {
+  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 3em;
+  font-weight: bold;
+  text-align: center;
+  color: #2c2c2c;
+  margin-bottom: 40px;
+}
+
+.checkout-section-title {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.8em;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin-bottom: 25px;
+}
+
+/* Payment Brick section title - ensure it uses default font */
+.checkout-payment-bricks .checkout-section-title {
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.checkout-items {
+  margin-bottom: 40px;
+}
+
+.cart-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cart-item {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  position: relative;
+}
+
+.cart-item-image {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: #f5f3f0;
+}
+
+.cart-item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cart-item-details {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cart-item-name {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.4em;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+.cart-item-description {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.95em;
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.cart-item-price {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+.cart-item-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #8b6f5e;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cart-item-remove:hover {
+  color: #6b5546;
+}
+
+.cart-item-remove svg {
+  width: 24px;
+  height: 24px;
+}
+
+.checkout-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px;
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  margin-bottom: 40px;
+}
+
+.checkout-total-label {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.5em;
+  color: #2c2c2c;
+  font-weight: 500;
+}
+
+.checkout-total-price {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 2em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.checkout-message {
+  margin-bottom: 40px;
+}
+
+.checkout-message-label {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.3em;
+  font-weight: 500;
+  color: #2c2c2c;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.checkout-message-textarea {
+  width: 100%;
+  padding: 15px;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  background-color: #ffffff;
+  resize: vertical;
+  min-height: 120px;
+  box-sizing: border-box;
+}
+
+.checkout-message-textarea:focus {
+  outline: none;
+  border-color: #DCAE9D;
+}
+
+.checkout-message-textarea::placeholder {
+  color: #999;
+}
+
+.checkout-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.proceed-payment-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 15px 40px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+  min-width: 250px;
+}
+
+.proceed-payment-button:hover {
+  background-color: #c99d8a;
+}
+
+/* Payment Methods Selection */
+.checkout-payment-methods {
+  margin-bottom: 40px;
+}
+
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.payment-method-button {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  font-weight: 500;
+  color: #2c2c2c;
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-height: 100px;
+}
+
+.payment-method-button:hover {
+  border-color: #DCAE9D;
+  background-color: #faf9f7;
+}
+
+.payment-method-button.active {
+  border-color: #DCAE9D;
+  background-color: #FAE3D7;
+  color: #2c2c2c;
+}
+
+.payment-method-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.payment-method-icon {
+  font-size: 2em;
+}
+
+.payment-method-label {
+  font-size: 1em;
+}
+
+/* Payment Bricks Container */
+.checkout-payment-bricks {
+  margin-bottom: 40px;
+}
+
+.payment-brick-container {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 30px;
+  min-height: 400px;
+  width: 100%;
+  position: relative;
+}
+
+/* Payment Unavailable Message */
+.checkout-payment-unavailable {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  padding: 30px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.checkout-payment-unavailable p {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Error Message */
+.checkout-error {
+  background-color: #fff5f5;
+  border: 2px solid #fc8181;
+  border-radius: 0;
+  padding: 15px 20px;
+  margin-bottom: 20px;
+}
+
+.checkout-error p {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #c53030;
+  margin: 0;
+}
+
+/* Loading State */
+.checkout-loading {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  border-radius: 0;
+  margin-bottom: 40px;
+}
+
+.checkout-loading p {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.2em;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .checkout-title {
+    font-size: 2em;
+  }
+
+  .checkout-section-title {
+    font-size: 1.5em;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .cart-item-image {
+    width: 100%;
+    height: 200px;
+  }
+
+  .checkout-total {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .checkout-total-price {
+    font-size: 1.8em;
+  }
+
+  .proceed-payment-button {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .payment-methods-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .payment-method-button {
+    min-height: 80px;
+    padding: 15px;
+  }
+
+  .payment-brick-container {
+    padding: 20px;
+  }
+}
