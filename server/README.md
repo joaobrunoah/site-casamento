@@ -102,6 +102,16 @@ Any route marked **Auth required** below must include the `X-Auth-Hash` header. 
 
 ---
 
+### Payment
+
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/payment/create-preference` | No | Body: `items` (array of `title`, `quantity`, `unit_price`, `description?`), `external_reference?`. Creates Mercado Pago checkout preference. Returns `{ init_point, preference_id }`. |
+| POST | `/payment/save-purchase` | No | Body: `fromName`, `message?`, `gifts` (array of `id?`, `nome`, `descricao`, `preco`, `quantidade`), `totalPrice`, `paymentId?`. Saves a confirmed purchase to Firestore. Returns `{ id }`. |
+| GET | `/payment/list-purchases` | **Yes** | Returns all purchases from Firestore (admin view). |
+
+---
+
 ### Search
 
 | Method | Path | Auth | Description |

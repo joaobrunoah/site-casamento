@@ -78,7 +78,7 @@ const Checkout: React.FC = () => {
         {/* From Name Field */}
         <div className="checkout-from">
           <label htmlFor="fromName" className="checkout-from-label">
-            De
+            De <span className="checkout-required">*</span>
           </label>
           <input
             id="fromName"
@@ -87,13 +87,14 @@ const Checkout: React.FC = () => {
             value={fromName}
             onChange={(e) => setFromName(e.target.value)}
             placeholder="Seu nome"
+            required
           />
         </div>
 
         {/* Message Textarea */}
         <div className="checkout-message">
           <label htmlFor="message" className="checkout-message-label">
-            Deixe aqui uma mensagem para os noivos
+            Deixe aqui uma mensagem para os noivos <span className="checkout-optional">(Opcional)</span>
           </label>
           <textarea
             id="message"
@@ -110,15 +111,18 @@ const Checkout: React.FC = () => {
           <button
             className="proceed-payment-button"
             onClick={() => {
+              const trimmedName = fromName.trim();
+              if (!trimmedName) return;
               navigate('/payment', {
                 state: {
-                  fromName,
+                  fromName: trimmedName,
                   message,
                   cart,
                   totalPrice,
                 },
               });
             }}
+            disabled={!fromName.trim()}
           >
             Ir para o pagamento
           </button>

@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useConfig } from '../contexts/ConfigContext';
 import FilterPopup from '../components/FilterPopup';
-import FilterableTable, { TableColumn } from '../components/FilterableTable';
+import FilterableTable from '../components/FilterableTable';
 import { getApiUrl, getAuthHeaders } from '../utils/api';
 import './AdminGifts.css';
 
-type TabType = 'cadastrar' | 'configuracoes';
+type TabType = 'cadastrar' | 'comprados' | 'configuracoes';
 
 interface Gift {
   id?: string;
@@ -14,6 +14,15 @@ interface Gift {
   preco: number;
   estoque: number;
   imagem: string;
+}
+
+interface Purchase {
+  id: string;
+  fromName: string;
+  message: string;
+  gifts: Array<{ nome: string; quantidade: number }>;
+  totalPrice: number;
+  paymentId: string | null;
 }
 
 interface Toast {
@@ -28,7 +37,8 @@ interface ConfirmationDialog {
   onCancel?: () => void;
 }
 
-interface FilterPopup {
+interface FilterPopupState {
+  tableType: 'gifts' | 'purchases';
   column: string;
   values: string[];
   selectedValues: Set<string>;
@@ -41,13 +51,16 @@ const AdminGifts: React.FC = () => {
   const [updating, setUpdating] = useState<boolean>(false);
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [loadingGifts, setLoadingGifts] = useState<boolean>(true);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [loadingPurchases, setLoadingPurchases] = useState<boolean>(false);
+  const [statsExpanded, setStatsExpanded] = useState<boolean>(true);
   const [showGiftPopup, setShowGiftPopup] = useState<boolean>(false);
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null);
   const [bulkDeleteMode, setBulkDeleteMode] = useState<boolean>(false);
   const [selectedGifts, setSelectedGifts] = useState<Set<string>>(new Set());
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmationDialog, setConfirmationDialog] = useState<ConfirmationDialog | null>(null);
-  const [filterPopup, setFilterPopup] = useState<FilterPopup | null>(null);
+  const [filterPopup, setFilterPopup] = useState<FilterPopupState | null>(null);
   const toastIdCounter = useRef<number>(0);
 
   // Filter states
@@ -61,6 +74,18 @@ const AdminGifts: React.FC = () => {
     descricao: new Set(),
     preco: new Set(),
     estoque: new Set(),
+  });
+
+  const [purchasesFilters, setPurchasesFilters] = useState<{
+    fromName: Set<string>;
+    listaPresentes: Set<string>;
+    total: Set<string>;
+    message: Set<string>;
+  }>({
+    fromName: new Set(),
+    listaPresentes: new Set(),
+    total: new Set(),
+    message: new Set(),
   });
 
   // Show toast notification
@@ -128,15 +153,70 @@ const AdminGifts: React.FC = () => {
     fetchGifts();
   }, []);
 
+  // Fetch purchases when Comprados tab is active
+  useEffect(() => {
+    if (activeTab !== 'comprados') return;
+    const fetchPurchases = async () => {
+      setLoadingPurchases(true);
+      try {
+        const response = await fetch(getApiUrl('payment/list-purchases'), {
+          headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error('Failed to fetch purchases');
+        const data = await response.json();
+        setPurchases(data);
+      } catch (error) {
+        console.error('Error fetching purchases:', error);
+        showToast('Erro ao carregar compras.', 'error');
+      } finally {
+        setLoadingPurchases(false);
+      }
+    };
+    fetchPurchases();
+  }, [activeTab]);
+
   const getColumnLabel = (column: string): string => {
     const labels: { [key: string]: string } = {
       nome: 'Nome',
       descricao: 'Descrição',
       preco: 'Preço',
       estoque: 'Estoque',
+      fromName: 'De',
+      listaPresentes: 'Lista de Presentes',
+      total: 'Total',
+      message: 'Mensagem aos noivos',
     };
     return labels[column] || column;
   };
+
+  // Get gift names as comma-separated string for a purchase
+  const getPurchaseGiftNames = (p: Purchase): string =>
+    p.gifts
+      .flatMap((g) => Array(g.quantidade || 1).fill(g.nome))
+      .join(', ');
+
+  const getSortedPurchases = (): Purchase[] => {
+    let filtered = [...purchases];
+    if (purchasesFilters.fromName.size > 0) {
+      filtered = filtered.filter((p) => purchasesFilters.fromName.has(p.fromName || ''));
+    }
+    if (purchasesFilters.listaPresentes.size > 0) {
+      filtered = filtered.filter((p) =>
+        p.gifts.some((g) => purchasesFilters.listaPresentes.has(g.nome || ''))
+      );
+    }
+    if (purchasesFilters.total.size > 0) {
+      filtered = filtered.filter((p) =>
+        purchasesFilters.total.has(String(p.totalPrice?.toFixed(2) ?? '0.00'))
+      );
+    }
+    if (purchasesFilters.message.size > 0) {
+      filtered = filtered.filter((p) => purchasesFilters.message.has(p.message || ''));
+    }
+    return filtered;
+  };
+
+  const totalPurchased = purchases.reduce((sum, p) => sum + (p.totalPrice || 0), 0);
 
   // Handle open popup for new gift
   const handleAddGift = () => {
@@ -326,29 +406,58 @@ const AdminGifts: React.FC = () => {
   };
 
   // Filter popup handlers
-  const handleOpenFilterPopup = (column: string, event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenFilterPopup = (
+    tableType: 'gifts' | 'purchases',
+    column: string,
+    event: React.MouseEvent<HTMLElement>
+  ) => {
     event.stopPropagation();
     
     let values: string[] = [];
     let selectedValues: Set<string> = new Set();
     
-    switch (column) {
-      case 'nome':
-        values = Array.from(new Set(gifts.map(g => g.nome || '').filter(v => v !== ''))).sort();
-        selectedValues = new Set(giftsFilters.nome);
-        break;
-      case 'descricao':
-        values = Array.from(new Set(gifts.map(g => g.descricao || '').filter(v => v !== ''))).sort();
-        selectedValues = new Set(giftsFilters.descricao);
-        break;
-      case 'preco':
-        values = Array.from(new Set(gifts.map(g => String(g.preco || 0)).filter(v => v !== ''))).sort();
-        selectedValues = new Set(giftsFilters.preco);
-        break;
-      case 'estoque':
-        values = Array.from(new Set(gifts.map(g => String(g.estoque || 0)).filter(v => v !== ''))).sort();
-        selectedValues = new Set(giftsFilters.estoque);
-        break;
+    if (tableType === 'gifts') {
+      switch (column) {
+        case 'nome':
+          values = Array.from(new Set(gifts.map(g => g.nome || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(giftsFilters.nome);
+          break;
+        case 'descricao':
+          values = Array.from(new Set(gifts.map(g => g.descricao || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(giftsFilters.descricao);
+          break;
+        case 'preco':
+          values = Array.from(new Set(gifts.map(g => String(g.preco || 0)).filter(v => v !== ''))).sort();
+          selectedValues = new Set(giftsFilters.preco);
+          break;
+        case 'estoque':
+          values = Array.from(new Set(gifts.map(g => String(g.estoque || 0)).filter(v => v !== ''))).sort();
+          selectedValues = new Set(giftsFilters.estoque);
+          break;
+      }
+    } else {
+      switch (column) {
+        case 'fromName':
+          values = Array.from(new Set(purchases.map(p => p.fromName || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(purchasesFilters.fromName);
+          break;
+        case 'listaPresentes':
+          values = Array.from(
+            new Set(purchases.flatMap(p => p.gifts.map(g => g.nome || '').filter(v => v !== '')))
+          ).sort();
+          selectedValues = new Set(purchasesFilters.listaPresentes);
+          break;
+        case 'total':
+          values = Array.from(
+            new Set(purchases.map(p => (p.totalPrice ?? 0).toFixed(2)))
+          ).sort();
+          selectedValues = new Set(purchasesFilters.total);
+          break;
+        case 'message':
+          values = Array.from(new Set(purchases.map(p => p.message || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(purchasesFilters.message);
+          break;
+      }
     }
     
     const rect = event.currentTarget.getBoundingClientRect();
@@ -371,6 +480,7 @@ const AdminGifts: React.FC = () => {
     }
     
     setFilterPopup({
+      tableType,
       column,
       values,
       selectedValues: new Set(selectedValues),
@@ -385,10 +495,17 @@ const AdminGifts: React.FC = () => {
   const handleApplyFilter = (selectedValues: Set<string>) => {
     if (!filterPopup) return;
     
-    setGiftsFilters(prev => ({
-      ...prev,
-      [filterPopup.column]: selectedValues
-    }));
+    if (filterPopup.tableType === 'gifts') {
+      setGiftsFilters(prev => ({
+        ...prev,
+        [filterPopup.column]: selectedValues
+      }));
+    } else {
+      setPurchasesFilters(prev => ({
+        ...prev,
+        [filterPopup.column]: selectedValues
+      }));
+    }
     
     setFilterPopup(null);
   };
@@ -396,14 +513,24 @@ const AdminGifts: React.FC = () => {
   const handleClearFilter = () => {
     if (!filterPopup) return;
     
-    setGiftsFilters(prev => ({
-      ...prev,
-      [filterPopup.column]: new Set()
-    }));
+    if (filterPopup.tableType === 'gifts') {
+      setGiftsFilters(prev => ({
+        ...prev,
+        [filterPopup.column]: new Set()
+      }));
+    } else {
+      setPurchasesFilters(prev => ({
+        ...prev,
+        [filterPopup.column]: new Set()
+      }));
+    }
   };
 
-  const hasActiveFilter = (column: string): boolean => {
-    return giftsFilters[column as keyof typeof giftsFilters].size > 0;
+  const hasActiveFilter = (tableType: 'gifts' | 'purchases', column: string): boolean => {
+    if (tableType === 'gifts') {
+      return giftsFilters[column as keyof typeof giftsFilters]?.size > 0 ?? false;
+    }
+    return purchasesFilters[column as keyof typeof purchasesFilters]?.size > 0 ?? false;
   };
 
   if (loadingGifts) {
@@ -427,6 +554,12 @@ const AdminGifts: React.FC = () => {
           }}
         >
           Cadastrar Presentes
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'comprados' ? 'active' : ''}`}
+          onClick={() => setActiveTab('comprados')}
+        >
+          Comprados
         </button>
         <button
           className={`tab-button ${activeTab === 'configuracoes' ? 'active' : ''}`}
@@ -496,20 +629,95 @@ const AdminGifts: React.FC = () => {
               bulkDeleteMode={bulkDeleteMode}
               selectedItems={selectedGifts}
               onRowClick={bulkDeleteMode ? undefined : (gift) => handleEditGift(gift)}
-              onFilterClick={(columnId, e) => handleOpenFilterPopup(columnId, e)}
+              onFilterClick={(columnId, e) => handleOpenFilterPopup('gifts', columnId, e)}
               onSelectAll={handleSelectAllGifts}
               onToggleSelect={(giftId) => {
                 const gift = gifts.find(g => g.id === giftId);
                 if (gift?.id) handleToggleGiftSelection(gift.id);
               }}
               getRowId={(gift: Gift) => gift.id || gift.nome || ''}
-              hasActiveFilter={hasActiveFilter}
+              hasActiveFilter={(col) => hasActiveFilter('gifts', col)}
               onToggleBulkDelete={handleToggleBulkDeleteMode}
               onCancelBulkDelete={handleCancelBulkDelete}
               onConfirmBulkDelete={handleBulkDeleteGifts}
               className="gifts-table-section"
               tableClassName="gifts-list-table"
             />
+          </>
+        )}
+
+        {/* Tab Comprados */}
+        {activeTab === 'comprados' && (
+          <>
+            {loadingPurchases ? (
+              <div style={{ padding: '20px', textAlign: 'center' }}>Carregando compras...</div>
+            ) : (
+              <>
+                {purchases.length > 0 && (
+                  <div className={`stats-section ${statsExpanded ? 'expanded' : 'collapsed'}`}>
+                    <div
+                      className="stats-header"
+                      onClick={() => setStatsExpanded(!statsExpanded)}
+                    >
+                      <div className="stats-header-title">Estatísticas</div>
+                      <div className="stats-header-icon">
+                        {statsExpanded ? '▼' : '▶'}
+                      </div>
+                    </div>
+                    {statsExpanded && (
+                      <div className="stats-row">
+                        <div className="stat-item">
+                          <div className="stat-label">R$ Comprados</div>
+                          <div className="stat-value">
+                            R$ {totalPurchased.toFixed(2)}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <FilterableTable
+                  columns={[
+                    {
+                      id: 'fromName',
+                      label: 'De',
+                      filterable: true,
+                      render: (p: Purchase) => p.fromName || '—',
+                    },
+                    {
+                      id: 'listaPresentes',
+                      label: 'Lista de Presentes',
+                      filterable: true,
+                      className: 'lista-presentes-cell',
+                      render: (p: Purchase) => getPurchaseGiftNames(p) || '—',
+                    },
+                    {
+                      id: 'total',
+                      label: 'Total',
+                      filterable: true,
+                      render: (p: Purchase) =>
+                        `R$ ${(p.totalPrice ?? 0).toFixed(2)}`,
+                    },
+                    {
+                      id: 'message',
+                      label: 'Mensagem aos noivos',
+                      filterable: true,
+                      className: 'message-cell',
+                      render: (p: Purchase) => p.message || '—',
+                    },
+                  ]}
+                  data={getSortedPurchases()}
+                  onFilterClick={(columnId, e) =>
+                    handleOpenFilterPopup('purchases', columnId, e)
+                  }
+                  getRowId={(p: Purchase) => p.id || ''}
+                  hasActiveFilter={(col) => hasActiveFilter('purchases', col)}
+                  className="purchases-table-section"
+                  tableClassName="purchases-list-table"
+                  emptyMessage="Nenhuma compra encontrada"
+                />
+              </>
+            )}
           </>
         )}
 

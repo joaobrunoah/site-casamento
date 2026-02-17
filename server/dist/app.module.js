@@ -11,19 +11,19 @@ const common_1 = require("@nestjs/common");
 const config_module_1 = require("./config/config.module");
 const auth_module_1 = require("./auth/auth.module");
 const payment_module_1 = require("./payment/payment.module");
+const firebase_module_1 = require("./firebase/firebase.module");
 const config_controller_1 = require("./config/config.controller");
 const invites_controller_1 = require("./invites/invites.controller");
 const guests_controller_1 = require("./guests/guests.controller");
 const gifts_controller_1 = require("./gifts/gifts.controller");
 const search_controller_1 = require("./search/search.controller");
 const health_controller_1 = require("./health/health.controller");
-const firebase_service_1 = require("./firebase/firebase.service");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [config_module_1.ConfigModule, auth_module_1.AuthModule, payment_module_1.PaymentModule],
+        imports: [firebase_module_1.FirebaseModule, config_module_1.ConfigModule, auth_module_1.AuthModule, payment_module_1.PaymentModule],
         controllers: [
             config_controller_1.ConfigController,
             invites_controller_1.InvitesController,
@@ -32,7 +32,6 @@ exports.AppModule = AppModule = __decorate([
             search_controller_1.SearchController,
             health_controller_1.HealthController,
         ],
-        providers: [firebase_service_1.FirebaseService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

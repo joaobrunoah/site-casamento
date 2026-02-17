@@ -55,6 +55,23 @@
   word-break: break-all;
 }
 
+.payment-success-saving {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.payment-success-error {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #c53030;
+  margin-bottom: 20px;
+  background-color: #fff5f5;
+  padding: 10px 15px;
+  border: 1px solid #fc8181;
+}
+
 .payment-success-user-message {
   background-color: #faf9f7;
   border: 2px solid #FAE3D7;

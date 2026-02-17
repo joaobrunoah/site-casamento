@@ -7,6 +7,7 @@ A wedding website built with React.js (TypeScript), a Nest.js backend, and Fires
 - **Frontend**: React.js with TypeScript
 - **Backend**: Nest.js server (TypeScript)
 - **Database**: Firestore Database
+- **Payment**: Mercado Pago (Checkout Pro)
 - **Frontend hosting**: Firebase Hosting
 - **Backend hosting**: Google Cloud Run
 
@@ -94,6 +95,7 @@ npm run dev
 ```
 
 This will start:
+
 - React development server at `http://localhost:3000`
 - Nest.js API server at `http://localhost:8080`
 - Firestore emulator at `localhost:8081`
@@ -104,18 +106,21 @@ Press `Ctrl+C` to stop all services.
 ### Run Services Individually
 
 **Frontend only:**
+
 ```bash
 cd client
 npm start
 ```
 
 **Nest.js server only:**
+
 ```bash
 cd server
 npm run start:dev
 ```
 
 **Firestore emulator only:**
+
 ```bash
 firebase emulators:start --only firestore
 ```
@@ -153,11 +158,12 @@ firebase login
 gcloud auth login
 ```
 
-For full deployment you need `ADMIN_USER` and `ADMIN_PASSWORD` in `server/.env.prod` (used by the Cloud Run service).
+For full deployment you need `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, and `FRONTEND_URL` in `server/.env.prod` (used by the Cloud Run service).
 
 ### Deploy Individual Components
 
 Deploy only the frontend (Firebase Hosting):
+
 ```bash
 npm run deploy:hosting
 # or
@@ -165,6 +171,7 @@ npm run deploy:hosting
 ```
 
 Deploy only the backend (Nest.js server to Google Cloud Run):
+
 ```bash
 npm run deploy:server
 # or
@@ -174,6 +181,7 @@ npm run deploy:server
 ```
 
 Deploy only Firestore rules and indexes:
+
 ```bash
 npm run deploy:firestore
 # or
@@ -212,6 +220,7 @@ For **API documentation** (endpoints, request/response shapes, and authenticatio
 ## Firestore Database
 
 The Firestore database is configured with:
+
 - Security rules in `firestore.rules`
 - Indexes in `firestore.indexes.json`
 
@@ -223,53 +232,61 @@ Copy the `.env.example` file in each directory to create your local env file (e.
 
 ### Client (`client/`)
 
-| Variable | Required | When | Description |
-|----------|----------|------|-------------|
-| `REACT_APP_API_URL` | **Production only** | Production builds | Base URL of the Nest.js API (your Cloud Run service URL). Not needed for local dev—the app uses `http://localhost:8080` in development. |
-| `REACT_APP_STRIPE_PUBLISHABLE_KEY` | No | When using Stripe | Stripe publishable key for client-side payment UI (e.g. Checkout, Elements). |
-| `REACT_APP_FIREBASE_PROJECT_ID` | No | Local development | Firebase/GCP project ID. Used when running the app locally (e.g. for Firebase features). |
+| Variable                        | Required            | When              | Description                                                                                                                             |
+| ------------------------------- | ------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `REACT_APP_API_URL`             | **Production only** | Production builds | Base URL of the Nest.js API (your Cloud Run service URL). Not needed for local dev—the app uses `http://localhost:8080` in development. |
+| `REACT_APP_FIREBASE_PROJECT_ID` | No                  | Local development | Firebase/GCP project ID. Used when running the app locally (e.g. for Firebase features).                                                |
 
 **Files:**
-- **Local development:** Optional. Create `client/.env` or `client/.env.local` if you need `REACT_APP_FIREBASE_PROJECT_ID` or Stripe; otherwise the app defaults to `http://localhost:8080` for the API.
-- **Production build:** Create `client/.env.production.local` with `REACT_APP_API_URL` (and `REACT_APP_STRIPE_PUBLISHABLE_KEY` if needed). See `client/.env.example`.
+
+- **Local development:** Optional. Create `client/.env` or `client/.env.local` if you need `REACT_APP_FIREBASE_PROJECT_ID`; otherwise the app defaults to `http://localhost:8080` for the API.
+- **Production build:** Create `client/.env.production.local` with `REACT_APP_API_URL`. See `client/.env.example`.
 
 ### Server (`server/`)
 
-| Variable | Required | When | Description |
-|----------|----------|------|-------------|
-| `ADMIN_USER` | Yes | Local and production | Username for admin/basic-auth endpoints. |
-| `ADMIN_PASSWORD` | Yes | Local and production | Password for admin/basic-auth endpoints. |
-| `STRIPE_SECRET_KEY` | No | When using Stripe | Stripe secret key for server-side payment operations (e.g. creating PaymentIntents, handling webhooks). |
-| `FRONTEND_URL` | No | Production | Full URL of the deployed frontend (e.g. for CORS or redirects). Used in production. |
-| `PORT` | No | Optional | Port the server listens on (default: 8080). Cloud Run sets this in production. |
-| `FIRESTORE_EMULATOR_HOST` | No | Local only | Set by `run-local.sh` when using the Firestore emulator (e.g. `localhost:8081`). Do not set in production. |
-| `GCP_PROJECT` / `GCLOUD_PROJECT` / `GOOGLE_CLOUD_PROJECT` | No | Optional | Firebase/GCP project ID. On Cloud Run this is set automatically. For local dev with real Firestore, set one of these. |
+| Variable                                                  | Required | When                 | Description                                                                                                                                 |
+| --------------------------------------------------------- | -------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_USER`                                              | Yes      | Local and production | Username for admin/basic-auth endpoints.                                                                                                    |
+| `ADMIN_PASSWORD`                                          | Yes      | Local and production | Password for admin/basic-auth endpoints.                                                                                                    |
+| `MERCADOPAGO_ACCESS_TOKEN`                                | Yes      | Payment feature      | Mercado Pago API access token for Checkout Pro. Get it from [Mercado Pago Developers](https://www.mercadopago.com.br/developers/panel/app).  |
+| `FRONTEND_URL`                                            | Yes      | Payment feature      | Full URL of the frontend (e.g. `http://localhost:3000` for local, `https://your-site.com` for production). Required for Mercado Pago return URLs. |
+| `PORT`                                                    | No       | Optional             | Port the server listens on (default: 8080). Cloud Run sets this in production.                                                              |
+| `FIRESTORE_EMULATOR_HOST`                                 | No       | Local only           | Set by `run-local.sh` when using the Firestore emulator (e.g. `localhost:8081`). Do not set in production.                                  |
+| `GCP_PROJECT` / `GCLOUD_PROJECT` / `GOOGLE_CLOUD_PROJECT` | No       | Optional             | Firebase/GCP project ID. On Cloud Run this is set automatically. For local dev with real Firestore, set one of these.                       |
 
 **Files:**
-- **Local development:** Create `server/.env` or `server/.env.local` with `ADMIN_USER` and `ADMIN_PASSWORD` (and `STRIPE_SECRET_KEY` if using Stripe). See `server/.env.example`.
-- **Production (Cloud Run):** Create `server/.env.prod` with `ADMIN_USER`, `ADMIN_PASSWORD`, and optionally `STRIPE_SECRET_KEY` and `FRONTEND_URL`. The deploy script reads this when deploying to Cloud Run.
+
+- **Local development:** Create `server/.env` or `server/.env.local` with `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, and `FRONTEND_URL` (e.g. `http://localhost:3000`). See `server/.env.example`.
+- **Production (Cloud Run):** Create `server/.env.prod` with `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, and `FRONTEND_URL`. The deploy script reads this when deploying to Cloud Run.
 
 ## Troubleshooting
 
 ### Firebase CLI not found
+
 Make sure Firebase CLI is installed globally:
+
 ```bash
 npm install -g firebase-tools
 ```
 
 ### Not logged in
+
 Login to Firebase:
+
 ```bash
 firebase login
 ```
 
 ### Build errors
+
 Make sure all dependencies are installed:
+
 ```bash
 npm run install-all
 ```
 
 ### TypeScript errors
+
 Ensure TypeScript is properly installed in both `client` and `server` directories.
 
 ## License

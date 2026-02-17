@@ -1,68 +1,88 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
+  Get,
+  HttpCode,
   HttpException,
   HttpStatus,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
-import { PaymentService } from './payment.service';
+import { AuthGuard } from '../auth/auth.guard';
+import { PaymentService, CreatePreferenceItem } from './payment.service';
 
-interface CreatePaymentIntentDto {
-  amount: number;
-  currency: string;
-  cart: Array<{
-    giftId?: string;
-    giftName: string;
-    price: number;
+class CreatePreferenceDto {
+  items: Array<{
+    title: string;
     quantity: number;
+    unit_price: number;
+    description?: string;
   }>;
+  external_reference?: string;
+}
+
+class SavePurchaseDto {
   fromName: string;
-  message: string;
-  paymentMethodType?: 'card' | 'pix' | 'boleto';
+  message?: string;
+  gifts: Array<{
+    id?: string;
+    nome: string;
+    descricao: string;
+    preco: number;
+    quantidade: number;
+  }>;
+  totalPrice: number;
+  paymentId?: string;
 }
 
 @Controller('payment')
 export class PaymentController {
-  constructor(private paymentService: PaymentService) {}
+  constructor(private readonly paymentService: PaymentService) {}
 
-  @Post('create-intent')
-  async createPaymentIntent(@Body() dto: CreatePaymentIntentDto) {
-    try {
-      if (!dto.amount || dto.amount <= 0) {
-        throw new HttpException(
-          'Amount must be greater than 0',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      if (!dto.currency) {
-        throw new HttpException('Currency is required', HttpStatus.BAD_REQUEST);
-      }
-
-      if (!dto.cart || dto.cart.length === 0) {
-        throw new HttpException('Cart cannot be empty', HttpStatus.BAD_REQUEST);
-      }
-
-      const result = await this.paymentService.createPaymentIntent(
-        dto.amount,
-        dto.currency,
-        dto.cart,
-        dto.fromName || '',
-        dto.message || '',
-        dto.paymentMethodType,
-      );
-
-      return result;
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
-      }
-      console.error('Error in createPaymentIntent controller:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      throw new HttpException(
-        `Failed to create payment intent: ${errorMessage}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+  @Post('create-preference')
+  @HttpCode(HttpStatus.OK)
+  async createPreference(@Body() dto: CreatePreferenceDto): Promise<{ init_point: string; preference_id: string }> {
+    if (!dto?.items?.length) {
+      throw new HttpException('items array is required and must not be empty', HttpStatus.BAD_REQUEST);
     }
+    const items: CreatePreferenceItem[] = dto.items.map((i) => ({
+      title: i.title,
+      quantity: i.quantity,
+      unit_price: i.unit_price,
+      description: i.description,
+    }));
+    const result = await this.paymentService.createCheckoutPreference({
+      items,
+      external_reference: dto.external_reference,
+    });
+    return {
+      init_point: result.init_point,
+      preference_id: result.id,
+    };
+  }
+
+  @Get('list-purchases')
+  @UseGuards(AuthGuard)
+  async listPurchases() {
+    return this.paymentService.listPurchases();
+  }
+
+  @Post('save-purchase')
+  @HttpCode(HttpStatus.CREATED)
+  async savePurchase(@Body() dto: SavePurchaseDto): Promise<{ id: string }> {
+    if (!dto?.fromName?.trim()) {
+      throw new HttpException('fromName is required', HttpStatus.BAD_REQUEST);
+    }
+    if (!Array.isArray(dto.gifts) || dto.gifts.length === 0) {
+      throw new HttpException('gifts array is required and must not be empty', HttpStatus.BAD_REQUEST);
+    }
+    const id = await this.paymentService.savePurchase({
+      fromName: dto.fromName.trim(),
+      message: dto.message?.trim() || '',
+      gifts: dto.gifts,
+      totalPrice: Number(dto.totalPrice),
+      paymentId: dto.paymentId,
+    });
+    return { id };
   }
 }

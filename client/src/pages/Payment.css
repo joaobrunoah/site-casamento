@@ -9,35 +9,22 @@
   margin: 0 auto;
 }
 
-.payment-title {
-  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
-  font-size: 3em;
+.payment-section-heading {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1.35em;
   font-weight: bold;
-  text-align: center;
   color: #2c2c2c;
-  margin-bottom: 40px;
+  text-align: left;
+  margin: 0 0 20px 0;
 }
 
-.payment-info {
-  background-color: #ffffff;
-  border: 2px solid #FAE3D7;
-  border-radius: 0;
-  padding: 20px;
-  margin-bottom: 30px;
-}
-
-.payment-info-text {
-  font-family: 'Glacial Indifference', sans-serif;
-  font-size: 1em;
-  color: #2c2c2c;
-  line-height: 1.6;
-  margin: 0;
-  text-align: center;
+.payment-summary-top {
+  margin-bottom: 28px;
 }
 
 .payment-form {
   background-color: #ffffff;
-  border: 2px solid #FAE3D7;
+  border: 2px solid #fae3d7;
   border-radius: 0;
   padding: 30px;
 }
@@ -55,14 +42,14 @@
 }
 
 .payment-error p {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1em;
   color: #c53030;
   margin: 0;
 }
 
 .payment-summary {
-  border-top: 2px solid #FAE3D7;
+  border-top: 2px solid #fae3d7;
   padding-top: 20px;
   margin-bottom: 30px;
 }
@@ -74,25 +61,25 @@
 }
 
 .payment-summary-label {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.3em;
   color: #2c2c2c;
   font-weight: 500;
 }
 
 .payment-summary-price {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.8em;
   font-weight: 600;
   color: #2c2c2c;
 }
 
 .payment-submit-button {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.2em;
   font-weight: 500;
   color: #ffffff;
-  background-color: #DCAE9D;
+  background-color: #dcae9d;
   border: none;
   padding: 15px 40px;
   cursor: pointer;
@@ -113,14 +100,14 @@
 
 .payment-loading {
   background-color: #ffffff;
-  border: 2px solid #FAE3D7;
+  border: 2px solid #fae3d7;
   border-radius: 0;
   padding: 40px 20px;
   text-align: center;
 }
 
 .payment-loading p {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.2em;
   color: #2c2c2c;
   margin: 0;
@@ -128,14 +115,14 @@
 
 .payment-error-container {
   background-color: #ffffff;
-  border: 2px solid #FAE3D7;
+  border: 2px solid #fae3d7;
   border-radius: 0;
   padding: 40px 20px;
   text-align: center;
 }
 
 .payment-error-title {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.8em;
   font-weight: 600;
   color: #2c2c2c;
@@ -143,7 +130,7 @@
 }
 
 .payment-error-message {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.1em;
   color: #2c2c2c;
   line-height: 1.6;
@@ -151,11 +138,11 @@
 }
 
 .payment-back-button {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1em;
   font-weight: 500;
   color: #ffffff;
-  background-color: #DCAE9D;
+  background-color: #dcae9d;
   border: none;
   padding: 12px 30px;
   cursor: pointer;
@@ -176,12 +163,12 @@
 }
 
 .payment-method-button {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.1em;
   font-weight: 500;
   color: #2c2c2c;
   background-color: #ffffff;
-  border: 2px solid #FAE3D7;
+  border: 2px solid #fae3d7;
   padding: 30px 20px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -196,7 +183,7 @@
 }
 
 .payment-method-button:hover {
-  border-color: #DCAE9D;
+  border-color: #dcae9d;
   background-color: #faf9f7;
   transform: translateY(-2px);
 }
@@ -206,6 +193,22 @@
   line-height: 1;
 }
 
+.payment-method-icon-svg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  font-size: 3em;
+}
+
+.payment-method-icon-svg svg {
+  width: 100%;
+  height: 100%;
+  max-width: 48px;
+  max-height: 48px;
+}
+
 .payment-method-label {
   font-size: 1em;
   text-align: center;
@@ -213,15 +216,70 @@
 
 .payment-summary-preview {
   background-color: #ffffff;
-  border: 2px solid #FAE3D7;
+  border: 2px solid #fae3d7;
   border-radius: 0;
   padding: 25px;
-  margin-top: 30px;
+}
+
+.payment-coming-soon {
+  background-color: #ffffff;
+  border: 2px solid #fae3d7;
+  border-radius: 0;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.payment-coming-soon p {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1.1em;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+.payment-mp-description {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1.05em;
+  color: #2c2c2c;
+  line-height: 1.5;
+  margin: 0 0 24px 0;
+}
+
+.payment-mp-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.payment-return-message {
+  padding: 20px;
+  margin-bottom: 24px;
+  border-radius: 0;
+  text-align: center;
+}
+
+.payment-return-message p {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1.1em;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.payment-return-failure {
+  background-color: #fff5f5;
+  border: 2px solid #fc8181;
+  color: #c53030;
+}
+
+.payment-return-pending {
+  background-color: #fefcbf;
+  border: 2px solid #ecc94b;
+  color: #744210;
 }
 
 .payment-method-header {
   background-color: #ffffff;
-  border: 2px solid #FAE3D7;
+  border: 2px solid #fae3d7;
   border-radius: 0;
   padding: 20px;
   margin-bottom: 30px;
@@ -231,7 +289,7 @@
 }
 
 .payment-back-method-button {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 0.95em;
   font-weight: 500;
   color: #2c2c2c;
@@ -246,11 +304,11 @@
 }
 
 .payment-back-method-button:hover {
-  color: #DCAE9D;
+  color: #dcae9d;
 }
 
 .payment-method-selected {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.2em;
   font-weight: 600;
   color: #2c2c2c;

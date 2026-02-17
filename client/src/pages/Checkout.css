@@ -210,6 +210,16 @@
   color: #999;
 }
 
+.checkout-required {
+  color: #c53030;
+}
+
+.checkout-optional {
+  font-weight: 400;
+  color: #888;
+  font-size: 0.9em;
+}
+
 .checkout-message {
   margin-bottom: 40px;
 }
@@ -268,6 +278,16 @@
 
 .proceed-payment-button:hover {
   background-color: #c99d8a;
+}
+
+.proceed-payment-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #b8a090;
+}
+
+.proceed-payment-button:disabled:hover {
+  background-color: #b8a090;
 }
 
 /* Payment Methods Selection */

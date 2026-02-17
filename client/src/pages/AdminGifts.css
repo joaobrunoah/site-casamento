@@ -43,6 +43,90 @@
   margin-top: 24px;
 }
 
+/* Stats section (Comprados tab) */
+.stats-section {
+  margin: 0 0 40px 0;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.stats-section.collapsed {
+  padding: 16px 24px;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin: -8px -12px;
+  user-select: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+.stats-header:hover {
+  background-color: #f5f5f5;
+}
+
+.stats-header-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.stats-header-icon {
+  font-size: 0.9rem;
+  color: #666;
+  transition: transform 0.3s ease;
+}
+
+.stats-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  flex: 1;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Purchases table cells */
+.lista-presentes-cell,
+.message-cell {
+  max-width: 300px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
 .config-section {
   margin: 40px 0;
   padding: 20px;
