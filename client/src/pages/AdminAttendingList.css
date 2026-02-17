@@ -152,22 +152,28 @@
 }
 
 .upload-button {
-  padding: 12px 24px;
-  background-color: #4caf50;
-  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  padding: 12px 24px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
 }
 
 .upload-button:hover {
-  background-color: #45a049;
+  background-color: #c99d8a;
 }
 
 .upload-button:active {
-  background-color: #3d8b40;
+  background-color: #c99d8a;
 }
 
 .invites-section {
@@ -663,8 +669,8 @@ select.guest-input:focus {
 }
 
 .tab-button.active {
-  color: #4caf50;
-  border-bottom-color: #4caf50;
+  color: #DCAE9D;
+  border-bottom-color: #DCAE9D;
   font-weight: 600;
 }
 
@@ -763,25 +769,30 @@ select.guest-input:focus {
 /* Invites List Table */
 .export-section {
   margin-bottom: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .export-button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 24px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
   font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #DCAE9D;
+  border: none;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  text-transform: none;
+  border-radius: 0;
 }
 
 .export-button:hover {
-  background-color: #45a049;
+  background-color: #c99d8a;
 }
 
 .invites-table-section {
@@ -864,8 +875,8 @@ select.guest-input:focus {
   font-size: 0.9rem;
 }
 
-/* Popup */
-.popup-overlay {
+/* Popup - scoped so AdminGifts.css doesn't override with its .popup-content */
+.admin-attending-list .popup-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -879,12 +890,13 @@ select.guest-input:focus {
   padding: 20px;
 }
 
-.popup-content {
+.admin-attending-list .popup-content {
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  max-width: 900px;
-  width: 100%;
+  width: 80vw !important;
+  min-width: 80vw;
+  max-width: 1400px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
@@ -970,14 +982,15 @@ select.guest-input:focus {
 }
 
 .confirmation-button {
-  padding: 10px 24px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 0;
+  font-size: 1em;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease;
   font-family: 'Glacial Indifference', sans-serif;
+  text-transform: none;
 }
 
 .confirmation-button.cancel-button {

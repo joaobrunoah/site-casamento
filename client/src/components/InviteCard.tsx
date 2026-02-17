@@ -53,7 +53,8 @@ const InviteCard: React.FC<InviteCardProps> = ({
   onInviteDeleted,
   disableApiSave = false
 }) => {
-  const [isEditing, setIsEditing] = useState<boolean>(false);
+  // New invites (no id) start in edit mode
+  const [isEditing, setIsEditing] = useState<boolean>(!invite.id);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [originalInvite, setOriginalInvite] = useState<Invite>({ ...invite });
   const [editedInvite, setEditedInvite] = useState<Invite>({ ...invite });
@@ -103,26 +104,25 @@ const InviteCard: React.FC<InviteCardProps> = ({
       return;
     }
 
-    if (!invite.id) {
-      alert('Erro: Convite não possui ID. Não é possível salvar.');
-      return;
-    }
-
     setIsSaving(true);
     try {
       const url = getApiUrl('postInvite');
+      const body: Record<string, unknown> = {
+        nomeDoConvite: editedInvite.nomeDoConvite,
+        ddi: editedInvite.ddi,
+        telefone: editedInvite.telefone,
+        grupo: editedInvite.grupo,
+        observacao: editedInvite.observacao,
+        guests: editedInvite.guests || []
+      };
+      if (invite.id) {
+        body.id = invite.id;
+      }
+
       const response = await fetch(url, {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify({
-          id: invite.id,
-          nomeDoConvite: editedInvite.nomeDoConvite,
-          ddi: editedInvite.ddi,
-          telefone: editedInvite.telefone,
-          grupo: editedInvite.grupo,
-          observacao: editedInvite.observacao,
-          guests: editedInvite.guests || []
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!response.ok) {
@@ -130,17 +130,8 @@ const InviteCard: React.FC<InviteCardProps> = ({
         throw new Error(errorData.error || errorData.details || 'Failed to save invite');
       }
 
-      // After saving, fetch the updated invite
-      const getUrl = getApiUrl(`getInvite?id=${invite.id}`);
-      const getResponse = await fetch(getUrl);
-      
-      if (!getResponse.ok) {
-        throw new Error('Failed to fetch updated invite');
-      }
-
-      const savedInvite = await getResponse.json();
-      
-      // Update original invite with saved data
+      const savedInvite = await response.json();
+      // Server returns full invite on create/update
       const updatedInvite: Invite = {
         id: savedInvite.id,
         nomeDoConvite: savedInvite.nomeDoConvite || '',
@@ -322,15 +313,17 @@ const InviteCard: React.FC<InviteCardProps> = ({
                 <span className="button-icon">✏️</span>
                 <span>Editar</span>
               </button>
-              <button
-                type="button"
-                onClick={handleDeleteInvite}
-                className="invite-action-button delete-button"
-                disabled={isDisabled}
-              >
-                <span className="button-icon">🗑️</span>
-                <span>Excluir</span>
-              </button>
+              {invite.id && (
+                <button
+                  type="button"
+                  onClick={handleDeleteInvite}
+                  className="invite-action-button delete-button"
+                  disabled={isDisabled}
+                >
+                  <span className="button-icon">🗑️</span>
+                  <span>Excluir</span>
+                </button>
+              )}
             </>
           ) : (
             <>

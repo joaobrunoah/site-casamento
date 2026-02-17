@@ -34,8 +34,8 @@
 }
 
 .tab-button.active {
-  color: #4caf50;
-  border-bottom-color: #4caf50;
+  color: #DCAE9D;
+  border-bottom-color: #DCAE9D;
   font-weight: 600;
 }
 
@@ -113,23 +113,25 @@
 .bulk-delete-confirm-button {
   padding: 12px 24px;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 0;
+  font-size: 1em;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
   font-family: 'Glacial Indifference', sans-serif;
   display: flex;
   align-items: center;
   gap: 8px;
+  text-transform: none;
 }
 
 .add-gift-button {
-  background-color: #4caf50;
-  color: white;
+  color: #ffffff;
+  background-color: #DCAE9D;
 }
 
 .add-gift-button:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: #c99d8a;
 }
 
 .add-gift-button:disabled {
@@ -138,12 +140,12 @@
 }
 
 .bulk-delete-button {
-  background-color: #ff9800;
-  color: white;
+  color: #ffffff;
+  background-color: #8b6f5e;
 }
 
 .bulk-delete-button:hover {
-  background-color: #f57c00;
+  background-color: #6b5546;
 }
 
 .bulk-delete-cancel-button {
@@ -156,8 +158,8 @@
 }
 
 .bulk-delete-confirm-button {
-  background-color: #f44336;
   color: white;
+  background-color: #f44336;
 }
 
 .bulk-delete-confirm-button:hover:not(:disabled) {
@@ -426,12 +428,13 @@
 .form-button {
   padding: 12px 24px;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 0;
+  font-size: 1em;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
   font-family: 'Glacial Indifference', sans-serif;
+  text-transform: none;
 }
 
 .form-button.cancel-button {
@@ -444,12 +447,12 @@
 }
 
 .form-button.save-button {
-  background-color: #4caf50;
-  color: white;
+  color: #ffffff;
+  background-color: #DCAE9D;
 }
 
 .form-button.save-button:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: #c99d8a;
 }
 
 .form-button.save-button:disabled {
@@ -497,12 +500,13 @@
 .confirmation-button {
   padding: 12px 24px;
   border: none;
-  border-radius: 6px;
-  font-size: 1rem;
+  border-radius: 0;
+  font-size: 1em;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.3s ease;
   font-family: 'Glacial Indifference', sans-serif;
+  text-transform: none;
 }
 
 .confirmation-button.cancel-button {

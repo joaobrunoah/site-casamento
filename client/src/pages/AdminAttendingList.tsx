@@ -715,8 +715,22 @@ const AdminAttendingList: React.FC = () => {
     return filtered;
   };
 
+  const getEmptyInvite = (): Invite => ({
+    nomeDoConvite: '',
+    ddi: '',
+    telefone: '',
+    grupo: '',
+    observacao: '',
+    guests: [],
+  });
+
   const handleInviteClick = (invite: Invite) => {
     setSelectedInvite(invite);
+    setShowInvitePopup(true);
+  };
+
+  const handleOpenNewInvitePopup = () => {
+    setSelectedInvite(getEmptyInvite());
     setShowInvitePopup(true);
   };
 
@@ -725,46 +739,59 @@ const AdminAttendingList: React.FC = () => {
     setSelectedInvite(null);
   };
 
-  // Handle invite saved in popup - reload invite from API
+  // Handle invite saved in popup - reload invite from API or add new to list
   const handleInviteSavedInPopup = async (inviteIndex: number, savedInvite: Invite) => {
     if (!savedInvite.id) {
       showToast('Erro: Convite salvo mas não possui ID.', 'error');
       return;
     }
 
+    const wasNewInvite = !selectedInvite?.id;
+
     try {
-      // Fetch the updated invite from API
+      // Fetch the updated invite from API for full data
       const url = getApiUrl(`getInvite?id=${savedInvite.id}`);
       const response = await fetch(url);
-      
+
       if (!response.ok) {
         throw new Error('Failed to fetch updated invite');
       }
 
       const updatedInvite = await response.json();
-      
+
       // Update the selected invite in popup
       setSelectedInvite(updatedInvite);
-      
-      // Update the invite in the invites list
-      setInvites(prevInvites => 
-        prevInvites.map(inv => 
-          inv.id === updatedInvite.id ? updatedInvite : inv
-        )
-      );
-      
-      showToast('Convite atualizado com sucesso!', 'success');
+
+      if (wasNewInvite) {
+        setInvites(prevInvites => [...prevInvites, updatedInvite]);
+      } else {
+        setInvites(prevInvites =>
+          prevInvites.map(inv =>
+            inv.id === updatedInvite.id ? updatedInvite : inv
+          )
+        );
+      }
+
+      showToast(wasNewInvite ? 'Convite criado com sucesso!' : 'Convite atualizado com sucesso!', 'success');
     } catch (error) {
       console.error('Error fetching updated invite:', error);
       showToast('Erro ao recarregar convite atualizado.', 'error');
-      // Still update with the saved invite data we have
       setSelectedInvite(savedInvite);
-      setInvites(prevInvites => 
-        prevInvites.map(inv => 
-          inv.id === savedInvite.id ? savedInvite : inv
-        )
-      );
+      if (wasNewInvite) {
+        setInvites(prevInvites => [...prevInvites, savedInvite]);
+      } else {
+        setInvites(prevInvites =>
+          prevInvites.map(inv =>
+            inv.id === savedInvite.id ? savedInvite : inv
+          )
+        );
+      }
     }
+  };
+
+  const handleInviteDeletedInPopup = (inviteIndex: number, inviteId: string) => {
+    setInvites(prev => prev.filter(inv => inv.id !== inviteId));
+    handleClosePopup();
   };
 
   const handleDeleteInvite = async (invite: Invite, event: React.MouseEvent) => {
@@ -1286,6 +1313,14 @@ const AdminAttendingList: React.FC = () => {
             <div className="export-section">
               <button
                 type="button"
+                onClick={handleOpenNewInvitePopup}
+                className="export-button add-invite-button"
+              >
+                <span className="button-icon">➕</span>
+                Convite
+              </button>
+              <button
+                type="button"
                 onClick={handleExportToExcel}
                 className="export-button"
               >
@@ -1454,6 +1489,14 @@ const AdminAttendingList: React.FC = () => {
             <div className="export-section">
               <button
                 type="button"
+                onClick={handleOpenNewInvitePopup}
+                className="export-button add-invite-button"
+              >
+                <span className="button-icon">➕</span>
+                Convite
+              </button>
+              <button
+                type="button"
                 onClick={handleExportToExcel}
                 className="export-button"
               >
@@ -1520,6 +1563,7 @@ const AdminAttendingList: React.FC = () => {
                   onClick={handleUploadClick}
                   className="upload-button"
                 >
+                  <span className="button-icon">📤</span>
                   Carregar Arquivo Excel
                 </button>
                 <input
@@ -1539,6 +1583,7 @@ const AdminAttendingList: React.FC = () => {
                     className="upload-button"
                     disabled={savingInvites}
                   >
+                    <span className="button-icon">💾</span>
                     {savingInvites ? 'Salvando...' : 'Salvar Convites'}
                   </button>
                 </div>
@@ -1613,7 +1658,7 @@ const AdminAttendingList: React.FC = () => {
         <div className="popup-overlay" onClick={handleClosePopup}>
           <div className="popup-content" onClick={(e) => e.stopPropagation()}>
             <div className="popup-header">
-              <h2>Detalhes do Convite</h2>
+              <h2>{selectedInvite.id ? 'Detalhes do Convite' : 'Novo Convite'}</h2>
               <button className="popup-close" onClick={handleClosePopup}>×</button>
             </div>
             <div className="popup-body">
@@ -1623,6 +1668,7 @@ const AdminAttendingList: React.FC = () => {
                 onInviteUpdate={() => {}}
                 onGuestUpdate={() => {}}
                 onInviteSaved={handleInviteSavedInPopup}
+                onInviteDeleted={handleInviteDeletedInPopup}
               />
             </div>
           </div>
