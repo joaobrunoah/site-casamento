@@ -463,7 +463,7 @@
 
 /* Dress code section - same background as pre wedding (cerimony-details) */
 #dresscode {
-  padding: 0 0 60px 20px; /* no top/right padding so image goes to viewport edge */
+  padding: 0 0 0 20px; /* no top/right/bottom padding so image goes to viewport edge */
 }
 
 .dresscode-container {
@@ -539,7 +539,7 @@
 
 @media (max-width: 768px) {
   #dresscode {
-    padding: 0 20px 40px 20px;
+    padding: 0 20px 0 20px;
   }
 
   .dresscode-container {
