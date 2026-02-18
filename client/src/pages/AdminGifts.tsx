@@ -19,10 +19,12 @@ interface Gift {
 interface Purchase {
   id: string;
   fromName: string;
+  email: string;
   message: string;
   gifts: Array<{ nome: string; quantidade: number }>;
   totalPrice: number;
   paymentId: string | null;
+  status?: 'pending' | 'approved' | 'rejected';
 }
 
 interface Toast {
@@ -78,11 +80,13 @@ const AdminGifts: React.FC = () => {
 
   const [purchasesFilters, setPurchasesFilters] = useState<{
     fromName: Set<string>;
+    email: Set<string>;
     listaPresentes: Set<string>;
     total: Set<string>;
     message: Set<string>;
   }>({
     fromName: new Set(),
+    email: new Set(),
     listaPresentes: new Set(),
     total: new Set(),
     message: new Set(),
@@ -182,6 +186,7 @@ const AdminGifts: React.FC = () => {
       preco: 'Preço',
       estoque: 'Estoque',
       fromName: 'De',
+      email: 'E-mail',
       listaPresentes: 'Lista de Presentes',
       total: 'Total',
       message: 'Mensagem aos noivos',
@@ -199,6 +204,9 @@ const AdminGifts: React.FC = () => {
     let filtered = [...purchases];
     if (purchasesFilters.fromName.size > 0) {
       filtered = filtered.filter((p) => purchasesFilters.fromName.has(p.fromName || ''));
+    }
+    if (purchasesFilters.email.size > 0) {
+      filtered = filtered.filter((p) => purchasesFilters.email.has(p.email || ''));
     }
     if (purchasesFilters.listaPresentes.size > 0) {
       filtered = filtered.filter((p) =>
@@ -440,6 +448,10 @@ const AdminGifts: React.FC = () => {
         case 'fromName':
           values = Array.from(new Set(purchases.map(p => p.fromName || '').filter(v => v !== ''))).sort();
           selectedValues = new Set(purchasesFilters.fromName);
+          break;
+        case 'email':
+          values = Array.from(new Set(purchases.map(p => p.email || '').filter(v => v !== ''))).sort();
+          selectedValues = new Set(purchasesFilters.email);
           break;
         case 'listaPresentes':
           values = Array.from(
@@ -685,6 +697,12 @@ const AdminGifts: React.FC = () => {
                       render: (p: Purchase) => p.fromName || '—',
                     },
                     {
+                      id: 'email',
+                      label: 'E-mail',
+                      filterable: true,
+                      render: (p: Purchase) => p.email || '—',
+                    },
+                    {
                       id: 'listaPresentes',
                       label: 'Lista de Presentes',
                       filterable: true,
@@ -697,6 +715,15 @@ const AdminGifts: React.FC = () => {
                       filterable: true,
                       render: (p: Purchase) =>
                         `R$ ${(p.totalPrice ?? 0).toFixed(2)}`,
+                    },
+                    {
+                      id: 'status',
+                      label: 'Status pagamento',
+                      filterable: false,
+                      render: (p: Purchase) => {
+                        const s = p.status || 'pending';
+                        return s === 'approved' ? 'Aprovado' : s === 'rejected' ? 'Recusado' : 'Pendente';
+                      },
                     },
                     {
                       id: 'message',

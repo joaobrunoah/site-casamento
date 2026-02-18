@@ -277,6 +277,71 @@
   color: #744210;
 }
 
+.payment-details-loading {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 0.95em;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.payment-purchase-details {
+  background-color: #faf9f7;
+  border: 2px solid #fae3d7;
+  border-radius: 0;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.payment-details-title {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin: 0 0 16px 0;
+}
+
+.payment-details-row {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  color: #555;
+  margin: 0 0 8px 0;
+}
+
+.payment-details-total {
+  margin-top: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.payment-details-items {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 0.95em;
+  color: #555;
+}
+
+.payment-details-items li {
+  margin-bottom: 6px;
+}
+
+.payment-details-message {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #fae3d7;
+}
+
+.payment-details-message p {
+  margin: 8px 0 0 0;
+  white-space: pre-wrap;
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 0.95em;
+  color: #555;
+}
+
 .payment-method-header {
   background-color: #ffffff;
   border: 2px solid #fae3d7;

@@ -2,11 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getApiUrl } from '../utils/api';
 import { useCart, Gift } from '../contexts/CartContext';
+import { LAST_PURCHASE_ID_KEY } from './Payment';
+import type { PurchaseDetails } from '../types/purchase';
 import './Gifts.css';
 
 const Gifts: React.FC = () => {
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [lastPurchase, setLastPurchase] = useState<PurchaseDetails | null>(null);
+  const [lastPurchaseLoading, setLastPurchaseLoading] = useState(true);
+  const [lastPurchaseDismissed, setLastPurchaseDismissed] = useState(false);
   const { cart, addToCart, removeFromCart, isInCart, totalItems, totalPrice } = useCart();
   const navigate = useNavigate();
 
@@ -32,6 +37,26 @@ const Gifts: React.FC = () => {
     fetchGifts();
   }, []);
 
+  // Fetch last purchase by id from localStorage (so refresh still shows status)
+  useEffect(() => {
+    const purchaseId = localStorage.getItem(LAST_PURCHASE_ID_KEY);
+    if (!purchaseId) {
+      setLastPurchaseLoading(false);
+      return;
+    }
+    let cancelled = false;
+    fetch(getApiUrl(`payment/purchase/${purchaseId}`))
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data) setLastPurchase(data as PurchaseDetails);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLastPurchaseLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   // Handle continue shopping button
   const handleContinueShopping = () => {
     navigate('/checkout');
@@ -45,8 +70,62 @@ const Gifts: React.FC = () => {
     );
   }
 
+  const showSuccess = lastPurchase?.status === 'approved';
+  const showPending = lastPurchase?.status === 'pending';
+  const showError = lastPurchase?.status === 'rejected';
+  const showLastPurchaseBanner = !lastPurchaseLoading && lastPurchase && !lastPurchaseDismissed;
+
   return (
     <div className="gifts-page">
+      {showLastPurchaseBanner && (
+        <div
+          className={`gifts-last-purchase ${
+            showSuccess ? 'gifts-last-purchase-success' : showPending ? 'gifts-last-purchase-pending' : 'gifts-last-purchase-error'
+          }`}
+        >
+          <div className="gifts-last-purchase-inner">
+            <h2 className="gifts-last-purchase-title">
+              {showSuccess && '✓ Pagamento aprovado'}
+              {showPending && '⏳ Pagamento em análise'}
+              {showError && '✕ Pagamento recusado ou cancelado'}
+            </h2>
+            <p className="gifts-last-purchase-message">
+              {showSuccess && 'Sua compra foi confirmada. Obrigado pelo presente!'}
+              {showPending && 'Assim que o pagamento for aprovado, sua compra será confirmada.'}
+              {showError && 'Você pode tentar novamente escolhendo os presentes abaixo e indo ao pagamento.'}
+            </p>
+            <div className="gifts-last-purchase-details">
+              <p><strong>De:</strong> {lastPurchase.fromName}</p>
+              <p><strong>E-mail:</strong> {lastPurchase.email}</p>
+              {lastPurchase.gifts?.length > 0 && (
+                <ul>
+                  {lastPurchase.gifts.map((g, i) => (
+                    <li key={i}>{g.nome} × {g.quantidade} — R$ {(g.preco * g.quantidade).toFixed(2)}</li>
+                  ))}
+                </ul>
+              )}
+              <p className="gifts-last-purchase-total"><strong>Total:</strong> R$ {lastPurchase.totalPrice.toFixed(2)}</p>
+              {lastPurchase.message && (
+                <div className="gifts-last-purchase-user-message">
+                  <strong>Mensagem:</strong>
+                  <p>{lastPurchase.message}</p>
+                </div>
+              )}
+            </div>
+            <div className="gifts-last-purchase-actions">
+              {showSuccess && (
+                <button type="button" className="gifts-last-purchase-btn" onClick={() => navigate('/checkout/success?purchase_id=' + lastPurchase.id)}>
+                  Ver resumo da compra
+                </button>
+              )}
+              <button type="button" className="gifts-last-purchase-btn gifts-last-purchase-btn-secondary" onClick={() => setLastPurchaseDismissed(true)}>
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="gifts-container">
         <div className="gifts-grid">
           {gifts.map((gift) => (

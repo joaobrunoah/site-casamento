@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -19,10 +21,13 @@ class CreatePreferenceDto {
     description?: string;
   }>;
   external_reference?: string;
+  /** Email do comprador (recomendado pelo Mercado Pago para habilitar o botão Pagar) */
+  payer_email?: string;
 }
 
 class SavePurchaseDto {
   fromName: string;
+  email?: string;
   message?: string;
   gifts: Array<{
     id?: string;
@@ -45,6 +50,10 @@ export class PaymentController {
     if (!dto?.items?.length) {
       throw new HttpException('items array is required and must not be empty', HttpStatus.BAD_REQUEST);
     }
+    const payerEmail = dto.payer_email?.trim();
+    if (payerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payerEmail)) {
+      throw new HttpException('payer_email must be a valid email address', HttpStatus.BAD_REQUEST);
+    }
     const items: CreatePreferenceItem[] = dto.items.map((i) => ({
       title: i.title,
       quantity: i.quantity,
@@ -54,6 +63,7 @@ export class PaymentController {
     const result = await this.paymentService.createCheckoutPreference({
       items,
       external_reference: dto.external_reference,
+      payer_email: payerEmail || undefined,
     });
     return {
       init_point: result.init_point,
@@ -78,11 +88,64 @@ export class PaymentController {
     }
     const id = await this.paymentService.savePurchase({
       fromName: dto.fromName.trim(),
+      email: dto.email?.trim() || undefined,
       message: dto.message?.trim() || '',
       gifts: dto.gifts,
       totalPrice: Number(dto.totalPrice),
       paymentId: dto.paymentId,
     });
     return { id };
+  }
+
+  @Get('purchase/:id')
+  async getPurchase(@Param('id') id: string) {
+    if (!id?.trim()) {
+      throw new HttpException('Purchase id is required', HttpStatus.BAD_REQUEST);
+    }
+    const purchase = await this.paymentService.getPurchase(id.trim());
+    if (!purchase) {
+      throw new HttpException('Purchase not found', HttpStatus.NOT_FOUND);
+    }
+    return purchase;
+  }
+
+  @Post('webhook')
+  @HttpCode(HttpStatus.OK)
+  async webhook(
+    @Headers('x-signature') xSignature: string | undefined,
+    @Headers('x-request-id') xRequestId: string | undefined,
+    @Body()
+    body: {
+      type?: string;
+      data?: { id?: string };
+    },
+  ): Promise<{ ok: boolean }> {
+    const dataId = body?.data?.id;
+    const paymentId = dataId;
+    if (body?.type !== 'payment' || !paymentId) {
+      return { ok: true };
+    }
+    const secret = (process.env.MERCADO_PAGO_SECRET_SIGNATURE || '').trim();
+    if (!secret) {
+      throw new HttpException(
+        'Webhook signature verification not configured (MERCADO_PAGO_SECRET_SIGNATURE missing)',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+    const isValid = this.paymentService.verifyWebhookSignature(
+      xSignature,
+      xRequestId,
+      dataId,
+    );
+    if (!isValid) {
+      throw new HttpException(
+        'Invalid webhook signature',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    this.paymentService.handleWebhookNotification(String(paymentId)).catch((err) => {
+      console.error('[Webhook] Error processing notification:', err);
+    });
+    return { ok: true };
   }
 }

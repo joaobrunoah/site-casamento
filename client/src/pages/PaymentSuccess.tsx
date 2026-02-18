@@ -2,69 +2,47 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { getApiUrl } from '../utils/api';
+import { LAST_PURCHASE_ID_KEY } from './Payment';
+import type { PurchaseDetails } from '../types/purchase';
 import './PaymentSuccess.css';
-
-const PENDING_PURCHASE_KEY = 'wedding_pending_purchase';
 
 const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { clearCart } = useCart();
-  const [message, setMessage] = useState<string | null>(null);
-  const [saving, setSaving] = useState(true);
-  const [saveError, setSaveError] = useState<string | null>(null);
+  const [purchase, setPurchase] = useState<PurchaseDetails | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
-  const paymentId = searchParams.get('payment_id') || searchParams.get('collection_id');
-  const status = searchParams.get('status') || searchParams.get('collection_status');
+  const purchaseIdFromUrl = searchParams.get('purchase_id');
+  const purchaseId = purchaseIdFromUrl || localStorage.getItem(LAST_PURCHASE_ID_KEY);
 
   useEffect(() => {
-    const pendingJson = localStorage.getItem(PENDING_PURCHASE_KEY);
-    if (!pendingJson || status !== 'approved') {
-      setSaving(false);
+    if (!purchaseId) {
+      setLoading(false);
       return;
     }
+    let cancelled = false;
+    fetch(getApiUrl(`payment/purchase/${purchaseId}`))
+      .then((res) => {
+        if (!res.ok) throw new Error('Compra não encontrada');
+        return res.json();
+      })
+      .then((data) => {
+        if (!cancelled) setPurchase(data as PurchaseDetails);
+      })
+      .catch((e) => {
+        if (!cancelled) setFetchError(e instanceof Error ? e.message : 'Erro ao carregar compra.');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [purchaseId]);
 
-    let parsed: { fromName?: string; message?: string; gifts?: unknown[]; totalPrice?: number };
-    try {
-      parsed = JSON.parse(pendingJson);
-    } catch {
-      setSaving(false);
-      return;
-    }
-
-    const savePurchase = async () => {
-      try {
-        const response = await fetch(getApiUrl('payment/save-purchase'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            fromName: parsed.fromName || '',
-            message: parsed.message || '',
-            gifts: parsed.gifts || [],
-            totalPrice: parsed.totalPrice || 0,
-            paymentId: paymentId || undefined,
-          }),
-        });
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.message || 'Falha ao salvar compra.');
-        }
-
-        if (parsed.message) {
-          setMessage(parsed.message);
-        }
-        localStorage.removeItem(PENDING_PURCHASE_KEY);
-        clearCart();
-      } catch (e) {
-        setSaveError(e instanceof Error ? e.message : 'Erro ao salvar compra.');
-      } finally {
-        setSaving(false);
-      }
-    };
-
-    savePurchase();
-  }, [status, paymentId, clearCart]);
+  useEffect(() => {
+    if (purchase) clearCart();
+  }, [purchase, clearCart]);
 
   return (
     <div className="payment-success-page">
@@ -74,27 +52,40 @@ const PaymentSuccess: React.FC = () => {
         <p className="payment-success-message">
           Obrigado pelo seu presente! Seu pagamento foi processado com sucesso.
         </p>
-        {saving && (
-          <p className="payment-success-saving">Salvando sua compra...</p>
+        {loading && <p className="payment-success-saving">Carregando detalhes da compra...</p>}
+        {fetchError && (
+          <p className="payment-success-error">Aviso: {fetchError}</p>
         )}
-        {saveError && (
-          <p className="payment-success-error">Aviso: {saveError}</p>
-        )}
-        {!saving && paymentId && (
-          <p className="payment-success-id">
-            ID do pagamento: {paymentId}
-          </p>
-        )}
-        {message && (
-          <div className="payment-success-user-message">
-            <p className="payment-success-user-message-label">Sua mensagem:</p>
-            <p className="payment-success-user-message-text">{message}</p>
+        {!loading && purchase && (
+          <div className="payment-success-details">
+            <h3 className="payment-success-details-title">Resumo da compra</h3>
+            <p className="payment-success-details-row"><strong>De:</strong> {purchase.fromName}</p>
+            <p className="payment-success-details-row"><strong>E-mail:</strong> {purchase.email}</p>
+            {purchase.gifts?.length > 0 && (
+              <ul className="payment-success-details-items">
+                {purchase.gifts.map((g, i) => (
+                  <li key={i}>{g.nome} × {g.quantidade} — R$ {(g.preco * g.quantidade).toFixed(2)}</li>
+                ))}
+              </ul>
+            )}
+            <p className="payment-success-details-row payment-success-details-total">
+              <strong>Total:</strong> R$ {purchase.totalPrice.toFixed(2)}
+            </p>
+            {purchase.paymentId && (
+              <p className="payment-success-id">ID do pagamento: {purchase.paymentId}</p>
+            )}
+            {purchase.message && (
+              <div className="payment-success-user-message">
+                <p className="payment-success-user-message-label">Sua mensagem:</p>
+                <p className="payment-success-user-message-text">{purchase.message}</p>
+              </div>
+            )}
           </div>
         )}
         <button
           className="payment-success-button"
           onClick={() => navigate('/gifts')}
-          disabled={saving}
+          disabled={loading}
         >
           Voltar para Lista de Presentes
         </button>

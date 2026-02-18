@@ -1,10 +1,15 @@
+import { createHmac } from 'crypto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.service';
 
 const MERCADOPAGO_PREFERENCES_URL = 'https://api.mercadopago.com/checkout/preferences';
+const MERCADOPAGO_PAYMENTS_URL = 'https://api.mercadopago.com/v1/payments';
+
+export type PurchaseStatus = 'pending' | 'approved' | 'rejected';
 
 export interface SavePurchaseInput {
   fromName: string;
+  email?: string;
   message: string;
   gifts: Array<{
     id?: string;
@@ -27,6 +32,7 @@ export interface CreatePreferenceItem {
 export interface CreatePreferenceBody {
   items: CreatePreferenceItem[];
   external_reference?: string;
+  payer_email?: string;
 }
 
 export interface MercadoPagoPreferenceResponse {
@@ -38,6 +44,49 @@ export interface MercadoPagoPreferenceResponse {
 @Injectable()
 export class PaymentService {
   constructor(private readonly firebaseService: FirebaseService) {}
+
+  /**
+   * Verifies the Mercado Pago webhook x-signature using MERCADO_PAGO_SECRET_SIGNATURE.
+   * See: https://www.mercadopago.com.ar/developers/en/docs/your-integrations/notifications/webhooks
+   */
+  verifyWebhookSignature(
+    xSignature: string | undefined,
+    xRequestId: string | undefined,
+    dataId: string | undefined,
+  ): boolean {
+    const secret = (process.env.MERCADO_PAGO_SECRET_SIGNATURE || '').trim();
+    if (!secret) {
+      return false;
+    }
+    if (!xSignature || dataId === undefined || dataId === null) {
+      return false;
+    }
+    const parts = xSignature.split(',');
+    let ts: string | null = null;
+    let receivedHash: string | null = null;
+    for (const part of parts) {
+      const eq = part.indexOf('=');
+      if (eq === -1) continue;
+      const key = part.slice(0, eq).trim();
+      const value = part.slice(eq + 1).trim();
+      if (key === 'ts') ts = value;
+      else if (key === 'v1') receivedHash = value;
+    }
+    if (!ts || !receivedHash) {
+      return false;
+    }
+    const dataIdStr = String(dataId);
+    const manifestId =
+      /^[a-zA-Z0-9]+$/.test(dataIdStr) ? dataIdStr.toLowerCase() : dataIdStr;
+    const partsManifest: string[] = [`id:${manifestId}`];
+    if (xRequestId != null && xRequestId !== '') {
+      partsManifest.push(`request-id:${xRequestId}`);
+    }
+    partsManifest.push(`ts:${ts}`);
+    const manifest = partsManifest.join(';') + ';';
+    const computed = createHmac('sha256', secret).update(manifest).digest('hex');
+    return computed === receivedHash;
+  }
 
   async createCheckoutPreference(body: CreatePreferenceBody): Promise<MercadoPagoPreferenceResponse> {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
@@ -63,9 +112,18 @@ export class PaymentService {
     }
     const frontendUrl = rawFrontend;
 
-    const successUrl = `${frontendUrl}/checkout/success`;
-    const failureUrl = `${frontendUrl}/payment?status=failure`;
-    const pendingUrl = `${frontendUrl}/payment?status=pending`;
+    const successUrl =
+      body.external_reference != null && body.external_reference !== ''
+        ? `${frontendUrl}/checkout/success?purchase_id=${encodeURIComponent(body.external_reference)}`
+        : `${frontendUrl}/checkout/success`;
+    const failureUrl =
+      body.external_reference != null && body.external_reference !== ''
+        ? `${frontendUrl}/payment?status=failure&purchase_id=${encodeURIComponent(body.external_reference)}`
+        : `${frontendUrl}/payment?status=failure`;
+    const pendingUrl =
+      body.external_reference != null && body.external_reference !== ''
+        ? `${frontendUrl}/payment?status=pending&purchase_id=${encodeURIComponent(body.external_reference)}`
+        : `${frontendUrl}/payment?status=pending`;
 
     if (!successUrl.startsWith('http://') && !successUrl.startsWith('https://')) {
       throw new HttpException(
@@ -98,10 +156,22 @@ export class PaymentService {
         pending: pendingUrl,
       },
       ...(body.external_reference && { external_reference: body.external_reference }),
+      ...(body.payer_email && {
+        payer: {
+          email: body.payer_email,
+        },
+      }),
     };
     if (isHttps) {
       payload.auto_return = 'approved';
     }
+    const notificationUrl = (process.env.NOTIFICATION_URL || '').trim();
+    if (notificationUrl && notificationUrl.startsWith('http')) {
+      payload.notification_url = notificationUrl;
+    }
+
+    // Debug: log payload and response (remover em produção se quiser)
+    console.log('[Mercado Pago] Creating preference with payload:', JSON.stringify(payload, null, 2));
 
     const response = await fetch(MERCADOPAGO_PREFERENCES_URL, {
       method: 'POST',
@@ -129,7 +199,18 @@ export class PaymentService {
     }
 
     const data = JSON.parse(responseText) as MercadoPagoPreferenceResponse;
-    return data;
+
+    // Usar sandbox_init_point quando o token é de teste (Checkout Pro em modo sandbox)
+    const isTestToken = accessToken.startsWith('TEST-');
+    const initPoint = isTestToken && data.sandbox_init_point ? data.sandbox_init_point : data.init_point;
+
+    console.log('[Mercado Pago] Preference created:', {
+      id: data.id,
+      init_point: initPoint,
+      isTestToken,
+    });
+
+    return { ...data, init_point: initPoint };
   }
 
   async savePurchase(input: SavePurchaseInput): Promise<string> {
@@ -138,10 +219,12 @@ export class PaymentService {
 
     const purchase = {
       fromName: input.fromName,
+      email: input.email || '',
       message: input.message || '',
       gifts: input.gifts,
       totalPrice: input.totalPrice,
       paymentId: input.paymentId || null,
+      status: (input as { status?: PurchaseStatus }).status || 'pending',
       createdAt: FieldValue.serverTimestamp(),
     };
 
@@ -149,14 +232,110 @@ export class PaymentService {
     return docRef.id;
   }
 
+  async getPurchase(id: string): Promise<{
+    id: string;
+    fromName: string;
+    email: string;
+    message: string;
+    gifts: Array<{ id?: string; nome: string; descricao?: string; preco: number; quantidade: number }>;
+    totalPrice: number;
+    paymentId: string | null;
+    status: PurchaseStatus;
+    createdAt: unknown;
+  } | null> {
+    const db = this.firebaseService.getFirestore();
+    const doc = await db.collection('purchases').doc(id).get();
+    if (!doc.exists) return null;
+    const data = doc.data()!;
+    const gifts = (data.gifts || []) as Array<{
+      id?: string;
+      nome?: string;
+      descricao?: string;
+      preco?: number;
+      quantidade?: number;
+    }>;
+    return {
+      id: doc.id,
+      fromName: data.fromName || '',
+      email: data.email || '',
+      message: data.message || '',
+      gifts: gifts.map((g) => ({
+        id: g.id,
+        nome: g.nome || '',
+        descricao: g.descricao,
+        preco: Number(g.preco) || 0,
+        quantidade: g.quantidade ?? 1,
+      })),
+      totalPrice: data.totalPrice ?? 0,
+      paymentId: data.paymentId ?? null,
+      status: (data.status as PurchaseStatus) || 'pending',
+      createdAt: data.createdAt,
+    };
+  }
+
+  async updatePurchaseStatus(
+    purchaseId: string,
+    status: PurchaseStatus,
+    paymentId: string | null,
+  ): Promise<void> {
+    const db = this.firebaseService.getFirestore();
+    await db.collection('purchases').doc(purchaseId).update({
+      status,
+      ...(paymentId != null && { paymentId }),
+    });
+  }
+
+  async handleWebhookNotification(paymentId: string): Promise<void> {
+    const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
+    if (!accessToken) {
+      console.error('[Webhook] MERCADOPAGO_ACCESS_TOKEN not set');
+      return;
+    }
+    const response = await fetch(`${MERCADOPAGO_PAYMENTS_URL}/${paymentId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    if (!response.ok) {
+      console.error('[Webhook] Failed to fetch payment from Mercado Pago:', response.status, await response.text());
+      return;
+    }
+    const payment = (await response.json()) as {
+      status?: string;
+      external_reference?: string | null;
+      id?: number | string;
+    };
+    const externalRef = payment.external_reference ?? null;
+    if (!externalRef) {
+      console.warn('[Webhook] Payment has no external_reference, skipping:', paymentId);
+      return;
+    }
+    const statusMap: Record<string, PurchaseStatus> = {
+      approved: 'approved',
+      rejected: 'rejected',
+      cancelled: 'rejected',
+      refunded: 'rejected',
+      charged_back: 'rejected',
+      in_process: 'pending',
+      pending: 'pending',
+      in_mediation: 'pending',
+    };
+    const purchaseStatus = statusMap[payment.status ?? ''] ?? 'pending';
+    await this.updatePurchaseStatus(externalRef, purchaseStatus, String(payment.id ?? paymentId));
+    console.log('[Webhook] Updated purchase', externalRef, 'to status', purchaseStatus, 'payment', paymentId);
+  }
+
   async listPurchases(): Promise<
     Array<{
       id: string;
       fromName: string;
+      email: string;
       message: string;
       gifts: Array<{ nome: string; quantidade: number }>;
       totalPrice: number;
       paymentId: string | null;
+      status: PurchaseStatus;
       createdAt: unknown;
     }>
   > {
@@ -174,6 +353,7 @@ export class PaymentService {
       return {
         id: doc.id,
         fromName: data.fromName || '',
+        email: data.email || '',
         message: data.message || '',
         gifts: gifts.map((g) => ({
           nome: g.nome || '',
@@ -181,6 +361,7 @@ export class PaymentService {
         })),
         totalPrice: data.totalPrice ?? 0,
         paymentId: data.paymentId ?? null,
+        status: (data.status as PurchaseStatus) || 'pending',
         createdAt: data.createdAt,
       };
     });

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import { isValidEmail } from '../utils/validation';
 import './Checkout.css';
 
 const Checkout: React.FC = () => {
   const { cart, removeFromCart, totalPrice } = useCart();
   const [fromName, setFromName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
   const [message, setMessage] = useState<string>('');
   const navigate = useNavigate();
 
@@ -25,8 +27,6 @@ const Checkout: React.FC = () => {
   return (
     <div className="checkout-page">
       <div className="checkout-container">
-        <h1 className="checkout-title">Finalizar Compra</h1>
-
         {/* Cart Items List */}
         <div className="checkout-items">
           <h2 className="checkout-section-title">Itens Selecionados</h2>
@@ -91,6 +91,26 @@ const Checkout: React.FC = () => {
           />
         </div>
 
+        {/* Email Field (recomendado pelo Mercado Pago para o botão Pagar funcionar) */}
+        <div className="checkout-from">
+          <label htmlFor="email" className="checkout-from-label">
+            E-mail <span className="checkout-required">*</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            className={`checkout-from-input${email && !isValidEmail(email) ? ' checkout-input-invalid' : ''}`}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="seu@email.com"
+            required
+            aria-invalid={email ? !isValidEmail(email) : undefined}
+          />
+          {email && !isValidEmail(email) && (
+            <span className="checkout-field-error">Digite um e-mail válido</span>
+          )}
+        </div>
+
         {/* Message Textarea */}
         <div className="checkout-message">
           <label htmlFor="message" className="checkout-message-label">
@@ -112,17 +132,19 @@ const Checkout: React.FC = () => {
             className="proceed-payment-button"
             onClick={() => {
               const trimmedName = fromName.trim();
-              if (!trimmedName) return;
+              const trimmedEmail = email.trim();
+              if (!trimmedName || !trimmedEmail || !isValidEmail(trimmedEmail)) return;
               navigate('/payment', {
                 state: {
                   fromName: trimmedName,
+                  email: trimmedEmail,
                   message,
                   cart,
                   totalPrice,
                 },
               });
             }}
-            disabled={!fromName.trim()}
+            disabled={!fromName.trim() || !email.trim() || !isValidEmail(email.trim())}
           >
             Ir para o pagamento
           </button>

@@ -158,7 +158,7 @@ firebase login
 gcloud auth login
 ```
 
-For full deployment you need `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, and `FRONTEND_URL` in `server/.env.prod` (used by the Cloud Run service).
+For full deployment you need `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADO_PAGO_SECRET_SIGNATURE`, and `FRONTEND_URL` in `server/.env.prod` (used by the Cloud Run service).
 
 ### Deploy Individual Components
 
@@ -249,6 +249,7 @@ Copy the `.env.example` file in each directory to create your local env file (e.
 | `ADMIN_USER`                                              | Yes      | Local and production | Username for admin/basic-auth endpoints.                                                                                                    |
 | `ADMIN_PASSWORD`                                          | Yes      | Local and production | Password for admin/basic-auth endpoints.                                                                                                    |
 | `MERCADOPAGO_ACCESS_TOKEN`                                | Yes      | Payment feature      | Mercado Pago API access token for Checkout Pro. Get it from [Mercado Pago Developers](https://www.mercadopago.com.br/developers/panel/app).  |
+| `MERCADO_PAGO_SECRET_SIGNATURE`                           | Yes      | Payment webhook      | Secret from Mercado Pago > Your integrations > Webhooks; used to validate webhook requests.                                                |
 | `FRONTEND_URL`                                            | Yes      | Payment feature      | Full URL of the frontend (e.g. `http://localhost:3000` for local, `https://your-site.com` for production). Required for Mercado Pago return URLs. |
 | `PORT`                                                    | No       | Optional             | Port the server listens on (default: 8080). Cloud Run sets this in production.                                                              |
 | `FIRESTORE_EMULATOR_HOST`                                 | No       | Local only           | Set by `run-local.sh` when using the Firestore emulator (e.g. `localhost:8081`). Do not set in production.                                  |
@@ -257,7 +258,7 @@ Copy the `.env.example` file in each directory to create your local env file (e.
 **Files:**
 
 - **Local development:** Create `server/.env` or `server/.env.local` with `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, and `FRONTEND_URL` (e.g. `http://localhost:3000`). See `server/.env.example`.
-- **Production (Cloud Run):** Create `server/.env.prod` with `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, and `FRONTEND_URL`. The deploy script reads this when deploying to Cloud Run.
+- **Production (Cloud Run):** Create `server/.env.prod` with `ADMIN_USER`, `ADMIN_PASSWORD`, `MERCADOPAGO_ACCESS_TOKEN`, `MERCADO_PAGO_SECRET_SIGNATURE`, and `FRONTEND_URL`. The deploy script reads this when deploying to Cloud Run.
 
 ## Troubleshooting
 

@@ -42,7 +42,7 @@
 }
 
 .checkout-title {
-  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-family: 'Glacial Indifference', sans-serif;
   font-size: 3em;
   font-weight: bold;
   text-align: center;
@@ -208,6 +208,22 @@
 
 .checkout-from-input::placeholder {
   color: #999;
+}
+
+.checkout-from-input.checkout-input-invalid {
+  border-color: #c53030;
+}
+
+.checkout-from-input.checkout-input-invalid:focus {
+  border-color: #c53030;
+}
+
+.checkout-field-error {
+  display: block;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.9em;
+  color: #c53030;
+  margin-top: 6px;
 }
 
 .checkout-required {

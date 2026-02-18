@@ -12,6 +12,122 @@
   color: #2c2c2c;
 }
 
+.gifts-last-purchase {
+  max-width: 1200px;
+  margin: 0 auto 24px;
+  padding: 24px;
+  border-radius: 0;
+  border: 2px solid;
+}
+
+.gifts-last-purchase-success {
+  background-color: #f0fff4;
+  border-color: #4caf50;
+}
+
+.gifts-last-purchase-pending {
+  background-color: #fefcbf;
+  border-color: #ecc94b;
+}
+
+.gifts-last-purchase-error {
+  background-color: #fff5f5;
+  border-color: #fc8181;
+}
+
+.gifts-last-purchase-inner {
+  text-align: left;
+}
+
+.gifts-last-purchase-title {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.4em;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #2c2c2c;
+}
+
+.gifts-last-purchase-message {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #555;
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.gifts-last-purchase-details {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 0.95em;
+  color: #555;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 0;
+}
+
+.gifts-last-purchase-details p,
+.gifts-last-purchase-details ul {
+  margin: 0 0 8px 0;
+}
+
+.gifts-last-purchase-details ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.gifts-last-purchase-total {
+  font-weight: 600;
+  color: #2c2c2c;
+  margin-top: 8px !important;
+}
+
+.gifts-last-purchase-user-message {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.gifts-last-purchase-user-message p {
+  margin: 8px 0 0 0;
+  white-space: pre-wrap;
+}
+
+.gifts-last-purchase-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gifts-last-purchase-btn {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  padding: 12px 24px;
+  border: none;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background-color 0.3s ease;
+}
+
+.gifts-last-purchase-btn:not(.gifts-last-purchase-btn-secondary) {
+  background-color: #DCAE9D;
+  color: #fff;
+}
+
+.gifts-last-purchase-btn:not(.gifts-last-purchase-btn-secondary):hover {
+  background-color: #c99d8a;
+}
+
+.gifts-last-purchase-btn-secondary {
+  background-color: transparent;
+  color: #555;
+  border: 2px solid #ccc;
+}
+
+.gifts-last-purchase-btn-secondary:hover {
+  background-color: #f5f5f5;
+}
+
 .gifts-container {
   max-width: 1200px;
   margin: 0 auto;

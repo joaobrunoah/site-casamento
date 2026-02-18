@@ -106,8 +106,10 @@ Any route marked **Auth required** below must include the `X-Auth-Hash` header. 
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/payment/create-preference` | No | Body: `items` (array of `title`, `quantity`, `unit_price`, `description?`), `external_reference?`. Creates Mercado Pago checkout preference. Returns `{ init_point, preference_id }`. |
-| POST | `/payment/save-purchase` | No | Body: `fromName`, `message?`, `gifts` (array of `id?`, `nome`, `descricao`, `preco`, `quantidade`), `totalPrice`, `paymentId?`. Saves a confirmed purchase to Firestore. Returns `{ id }`. |
+| POST | `/payment/create-preference` | No | Body: `items`, `payer_email?`, `external_reference?` (purchase id). Creates Mercado Pago checkout preference. Returns `{ init_point, preference_id }`. |
+| POST | `/payment/save-purchase` | No | Body: `fromName`, `email?`, `message?`, `gifts`, `totalPrice`, `paymentId?`. Saves a purchase (status `pending`) before payment. Returns `{ id }`. |
+| GET | `/payment/purchase/:id` | No | Returns a single purchase by id (for user to see details and payment status). |
+| POST | `/payment/webhook` | No | Called by Mercado Pago when payment status changes. Body: `type`, `data.id` (payment id). Updates purchase status from MP API. |
 | GET | `/payment/list-purchases` | **Yes** | Returns all purchases from Firestore (admin view). |
 
 ---
