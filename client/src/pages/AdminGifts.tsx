@@ -16,12 +16,20 @@ interface Gift {
   imagem: string;
 }
 
+interface PurchaseGiftItem {
+  id?: string;
+  nome: string;
+  descricao?: string;
+  preco: number;
+  quantidade: number;
+}
+
 interface Purchase {
   id: string;
   fromName: string;
   email: string;
   message: string;
-  gifts: Array<{ nome: string; quantidade: number }>;
+  gifts: PurchaseGiftItem[];
   totalPrice: number;
   paymentId: string | null;
   status?: 'pending' | 'approved' | 'rejected';
@@ -63,6 +71,7 @@ const AdminGifts: React.FC = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmationDialog, setConfirmationDialog] = useState<ConfirmationDialog | null>(null);
   const [filterPopup, setFilterPopup] = useState<FilterPopupState | null>(null);
+  const [purchaseDetailPopup, setPurchaseDetailPopup] = useState<Purchase | null>(null);
   const toastIdCounter = useRef<number>(0);
 
   // Filter states
@@ -224,7 +233,14 @@ const AdminGifts: React.FC = () => {
     return filtered;
   };
 
-  const totalPurchased = purchases.reduce((sum, p) => sum + (p.totalPrice || 0), 0);
+  const totalPurchased = purchases.reduce(
+    (sum, p) => sum + (p.status === 'approved' ? (p.totalPrice || 0) : 0),
+    0,
+  );
+  const totalPending = purchases.reduce(
+    (sum, p) => sum + (p.status === 'pending' ? (p.totalPrice || 0) : 0),
+    0,
+  );
 
   // Handle open popup for new gift
   const handleAddGift = () => {
@@ -679,9 +695,15 @@ const AdminGifts: React.FC = () => {
                     {statsExpanded && (
                       <div className="stats-row">
                         <div className="stat-item">
-                          <div className="stat-label">R$ Comprados</div>
+                          <div className="stat-label">R$ Comprados (aprovados)</div>
                           <div className="stat-value">
                             R$ {totalPurchased.toFixed(2)}
+                          </div>
+                        </div>
+                        <div className="stat-item">
+                          <div className="stat-label">R$ Pendentes</div>
+                          <div className="stat-value stat-value-pending">
+                            R$ {totalPending.toFixed(2)}
                           </div>
                         </div>
                       </div>
@@ -722,7 +744,14 @@ const AdminGifts: React.FC = () => {
                       filterable: false,
                       render: (p: Purchase) => {
                         const s = p.status || 'pending';
-                        return s === 'approved' ? 'Aprovado' : s === 'rejected' ? 'Recusado' : 'Pendente';
+                        const label = s === 'approved' ? 'Aprovado' : s === 'rejected' ? 'Recusado' : 'Pendente';
+                        const icon = s === 'approved' ? '✓' : s === 'rejected' ? '✕' : '⚠';
+                        return (
+                          <span className={`payment-status payment-status--${s === 'approved' ? 'approved' : s === 'rejected' ? 'rejected' : 'pending'}`}>
+                            <span className="payment-status-label">{label}</span>
+                            <span className="payment-status-icon" aria-hidden>{icon}</span>
+                          </span>
+                        );
                       },
                     },
                     {
@@ -734,6 +763,7 @@ const AdminGifts: React.FC = () => {
                     },
                   ]}
                   data={getSortedPurchases()}
+                  onRowClick={(p) => setPurchaseDetailPopup(p)}
                   onFilterClick={(columnId, e) =>
                     handleOpenFilterPopup('purchases', columnId, e)
                   }
@@ -826,6 +856,60 @@ const AdminGifts: React.FC = () => {
           onApply={handleApplyFilter}
           onClear={handleClearFilter}
         />
+      )}
+
+      {/* Purchase Detail Popup (Comprados) */}
+      {purchaseDetailPopup && (
+        <div className="popup-overlay" onClick={() => setPurchaseDetailPopup(null)}>
+          <div className="popup-content purchase-detail-popup" onClick={(e) => e.stopPropagation()}>
+            <div className="popup-header">
+              <h2>Detalhes da compra</h2>
+              <button className="popup-close" onClick={() => setPurchaseDetailPopup(null)} aria-label="Fechar">×</button>
+            </div>
+            <div className="popup-body purchase-detail-body">
+              <div className="purchase-detail-row">
+                <span className="purchase-detail-label">De:</span>
+                <span className="purchase-detail-value">{purchaseDetailPopup.fromName || '—'}</span>
+              </div>
+              <div className="purchase-detail-row">
+                <span className="purchase-detail-label">E-mail:</span>
+                <span className="purchase-detail-value">{purchaseDetailPopup.email || '—'}</span>
+              </div>
+              <div className="purchase-detail-section">
+                <span className="purchase-detail-label">Presentes:</span>
+                <ul className="purchase-detail-gifts">
+                  {purchaseDetailPopup.gifts?.map((g, i) => (
+                    <li key={i} className="purchase-detail-gift-item">
+                      <div className="purchase-detail-gift-name">{g.nome}</div>
+                      {g.descricao && (
+                        <div className="purchase-detail-gift-desc">{g.descricao}</div>
+                      )}
+                      <div className="purchase-detail-gift-meta">
+                        R$ {Number(g.preco).toFixed(2)} × {g.quantidade} = R$ {(Number(g.preco) * (g.quantidade ?? 1)).toFixed(2)}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="purchase-detail-row purchase-detail-total">
+                <span className="purchase-detail-label">Total:</span>
+                <span className="purchase-detail-value">R$ {(purchaseDetailPopup.totalPrice ?? 0).toFixed(2)}</span>
+              </div>
+              {purchaseDetailPopup.message && (
+                <div className="purchase-detail-section">
+                  <span className="purchase-detail-label">Mensagem aos noivos:</span>
+                  <p className="purchase-detail-message">{purchaseDetailPopup.message}</p>
+                </div>
+              )}
+              <div className="purchase-detail-row">
+                <span className="purchase-detail-label">Status do pagamento:</span>
+                <span className={`payment-status payment-status--${purchaseDetailPopup.status === 'approved' ? 'approved' : purchaseDetailPopup.status === 'rejected' ? 'rejected' : 'pending'}`}>
+                  {purchaseDetailPopup.status === 'approved' ? 'Aprovado' : purchaseDetailPopup.status === 'rejected' ? 'Recusado' : 'Pendente'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

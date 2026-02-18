@@ -193,6 +193,11 @@ echo -e "${BLUE}📋 Recent server output:${NC}"
 tail -10 /tmp/nestjs-server.log
 echo ""
 
+# Seed fake purchases linked to seeded gifts (Comprados tab; run after server so gifts exist)
+echo -e "${BLUE}📦 Seeding fake purchases (linked to seeded gifts)...${NC}"
+(cd server && node scripts/seed-local-purchases.js) || true
+echo -e "${GREEN}✅ Fake purchases ready${NC}\n"
+
 # Start React development server in the background
 echo -e "${BLUE}⚛️  Starting React development server...${NC}"
 cd client

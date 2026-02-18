@@ -119,6 +119,44 @@
   color: #333;
 }
 
+.stat-value-pending {
+  color: #b8860b;
+}
+
+/* Payment status in Comprados table */
+.payment-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.payment-status-label {
+  flex: 1;
+}
+
+.payment-status-icon {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.payment-status--approved .payment-status-label,
+.payment-status--approved .payment-status-icon {
+  color: #2e7d32;
+}
+
+.payment-status--rejected .payment-status-label,
+.payment-status--rejected .payment-status-icon {
+  color: #c62828;
+}
+
+.payment-status--pending .payment-status-label,
+.payment-status--pending .payment-status-icon {
+  color: #b8860b;
+}
+
 /* Purchases table cells */
 .lista-presentes-cell,
 .message-cell {
@@ -434,6 +472,99 @@
 
 .popup-body {
   padding: 24px;
+}
+
+/* Purchase Detail Popup (Comprados) */
+.popup-content.purchase-detail-popup {
+  max-width: 520px;
+}
+
+.purchase-detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.purchase-detail-row {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.purchase-detail-label {
+  font-weight: 600;
+  color: #333;
+  min-width: 140px;
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.purchase-detail-value {
+  color: #555;
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.purchase-detail-total .purchase-detail-value {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.purchase-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.purchase-detail-section .purchase-detail-label {
+  margin-bottom: 4px;
+}
+
+.purchase-detail-gifts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.purchase-detail-gift-item {
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.purchase-detail-gift-name {
+  font-weight: 600;
+  color: #333;
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.purchase-detail-gift-desc {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 4px;
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.purchase-detail-gift-meta {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  color: #555;
+  font-family: 'Glacial Indifference', sans-serif;
+}
+
+.purchase-detail-message {
+  margin: 0;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border: 1px solid #eee;
+  color: #555;
+  font-family: 'Glacial Indifference', sans-serif;
+  white-space: pre-wrap;
 }
 
 /* Gift Form */

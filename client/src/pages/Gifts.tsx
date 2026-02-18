@@ -142,7 +142,11 @@ const Gifts: React.FC = () => {
                 )}
                 <div className="gift-footer">
                   <span className="gift-price">R$ {gift.preco.toFixed(2)}</span>
-                  {isInCart(gift.id) ? (
+                  {gift.estoque <= 0 ? (
+                    <span className="gift-sold-out" aria-live="polite">
+                      Esgotado
+                    </span>
+                  ) : isInCart(gift.id) ? (
                     <button
                       className="remove-from-cart-button"
                       onClick={() => removeFromCart(gift.id)}
@@ -153,7 +157,6 @@ const Gifts: React.FC = () => {
                     <button
                       className="add-to-cart-button"
                       onClick={() => addToCart(gift)}
-                      disabled={gift.estoque <= 0}
                     >
                       Adicionar ao Carrinho
                     </button>

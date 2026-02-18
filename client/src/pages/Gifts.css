@@ -240,6 +240,17 @@
   opacity: 0.6;
 }
 
+.gift-sold-out {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 500;
+  color: #888;
+  padding: 10px 16px;
+  background-color: #e8e8e8;
+  border-radius: 4px;
+  display: inline-block;
+}
+
 .remove-from-cart-button {
   font-family: 'Glacial Indifference', sans-serif;
   font-size: 1em;

@@ -2,7 +2,8 @@ import { createHmac } from 'crypto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { FirebaseService } from '../firebase/firebase.service';
 
-const MERCADOPAGO_PREFERENCES_URL = 'https://api.mercadopago.com/checkout/preferences';
+const MERCADOPAGO_PREFERENCES_URL =
+  'https://api.mercadopago.com/checkout/preferences';
 const MERCADOPAGO_PAYMENTS_URL = 'https://api.mercadopago.com/v1/payments';
 
 export type PurchaseStatus = 'pending' | 'approved' | 'rejected';
@@ -76,19 +77,24 @@ export class PaymentService {
       return false;
     }
     const dataIdStr = String(dataId);
-    const manifestId =
-      /^[a-zA-Z0-9]+$/.test(dataIdStr) ? dataIdStr.toLowerCase() : dataIdStr;
+    const manifestId = /^[a-zA-Z0-9]+$/.test(dataIdStr)
+      ? dataIdStr.toLowerCase()
+      : dataIdStr;
     const partsManifest: string[] = [`id:${manifestId}`];
     if (xRequestId != null && xRequestId !== '') {
       partsManifest.push(`request-id:${xRequestId}`);
     }
     partsManifest.push(`ts:${ts}`);
     const manifest = partsManifest.join(';') + ';';
-    const computed = createHmac('sha256', secret).update(manifest).digest('hex');
+    const computed = createHmac('sha256', secret)
+      .update(manifest)
+      .digest('hex');
     return computed === receivedHash;
   }
 
-  async createCheckoutPreference(body: CreatePreferenceBody): Promise<MercadoPagoPreferenceResponse> {
+  async createCheckoutPreference(
+    body: CreatePreferenceBody,
+  ): Promise<MercadoPagoPreferenceResponse> {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
     if (!accessToken) {
       throw new HttpException(
@@ -97,14 +103,19 @@ export class PaymentService {
       );
     }
 
-    const rawFrontend = (process.env.FRONTEND_URL || '').trim().replace(/\/+$/, '');
+    const rawFrontend = (process.env.FRONTEND_URL || '')
+      .trim()
+      .replace(/\/+$/, '');
     if (!rawFrontend || rawFrontend === 'undefined') {
       throw new HttpException(
         'FRONTEND_URL is required for payment return URLs (e.g. http://localhost:3000 or your production URL)',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    if (!rawFrontend.startsWith('http://') && !rawFrontend.startsWith('https://')) {
+    if (
+      !rawFrontend.startsWith('http://') &&
+      !rawFrontend.startsWith('https://')
+    ) {
       throw new HttpException(
         'FRONTEND_URL must start with http:// or https://',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -125,9 +136,13 @@ export class PaymentService {
         ? `${frontendUrl}/payment?status=pending&purchase_id=${encodeURIComponent(body.external_reference)}`
         : `${frontendUrl}/payment?status=pending`;
 
-    if (!successUrl.startsWith('http://') && !successUrl.startsWith('https://')) {
+    if (
+      !successUrl.startsWith('http://') &&
+      !successUrl.startsWith('https://')
+    ) {
       throw new HttpException(
-        'FRONTEND_URL must be a full URL (e.g. http://localhost:3000 or https://your-site.com). Got: ' + (frontendUrl || '(empty)'),
+        'FRONTEND_URL must be a full URL (e.g. http://localhost:3000 or https://your-site.com). Got: ' +
+          (frontendUrl || '(empty)'),
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -147,7 +162,9 @@ export class PaymentService {
           quantity: Math.max(1, Math.floor(item.quantity)),
           unit_price: unitPrice,
           currency_id: 'BRL',
-          ...(item.description && { description: item.description.substring(0, 256) }),
+          ...(item.description && {
+            description: item.description.substring(0, 256),
+          }),
         };
       }),
       back_urls: {
@@ -155,7 +172,9 @@ export class PaymentService {
         failure: failureUrl,
         pending: pendingUrl,
       },
-      ...(body.external_reference && { external_reference: body.external_reference }),
+      ...(body.external_reference && {
+        external_reference: body.external_reference,
+      }),
       ...(body.payer_email && {
         payer: {
           email: body.payer_email,
@@ -171,7 +190,10 @@ export class PaymentService {
     }
 
     // Debug: log payload and response (remover em produção se quiser)
-    console.log('[Mercado Pago] Creating preference with payload:', JSON.stringify(payload, null, 2));
+    console.log(
+      '[Mercado Pago] Creating preference with payload:',
+      JSON.stringify(payload, null, 2),
+    );
 
     const response = await fetch(MERCADOPAGO_PREFERENCES_URL, {
       method: 'POST',
@@ -186,13 +208,20 @@ export class PaymentService {
     if (!response.ok) {
       let message = 'Failed to create payment preference';
       try {
-        const errJson = JSON.parse(responseText) as { message?: string; cause?: Array<{ description?: string }> };
+        const errJson = JSON.parse(responseText) as {
+          message?: string;
+          cause?: Array<{ description?: string }>;
+        };
         if (errJson.message) message = errJson.message;
         else if (Array.isArray(errJson.cause) && errJson.cause[0]?.description)
           message = errJson.cause[0].description;
       } catch {
-        if (response.status === 401) message = 'Invalid Mercado Pago access token. Check MERCADOPAGO_ACCESS_TOKEN.';
-        else if (response.status === 400) message = 'Invalid request to Mercado Pago. Check item data (title, quantity, unit_price).';
+        if (response.status === 401)
+          message =
+            'Invalid Mercado Pago access token. Check MERCADOPAGO_ACCESS_TOKEN.';
+        else if (response.status === 400)
+          message =
+            'Invalid request to Mercado Pago. Check item data (title, quantity, unit_price).';
       }
       console.error('Mercado Pago API error:', response.status, responseText);
       throw new HttpException(message, HttpStatus.BAD_GATEWAY);
@@ -202,7 +231,10 @@ export class PaymentService {
 
     // Usar sandbox_init_point quando o token é de teste (Checkout Pro em modo sandbox)
     const isTestToken = accessToken.startsWith('TEST-');
-    const initPoint = isTestToken && data.sandbox_init_point ? data.sandbox_init_point : data.init_point;
+    const initPoint =
+      isTestToken && data.sandbox_init_point
+        ? data.sandbox_init_point
+        : data.init_point;
 
     console.log('[Mercado Pago] Preference created:', {
       id: data.id,
@@ -237,7 +269,13 @@ export class PaymentService {
     fromName: string;
     email: string;
     message: string;
-    gifts: Array<{ id?: string; nome: string; descricao?: string; preco: number; quantidade: number }>;
+    gifts: Array<{
+      id?: string;
+      nome: string;
+      descricao?: string;
+      preco: number;
+      quantidade: number;
+    }>;
     totalPrice: number;
     paymentId: string | null;
     status: PurchaseStatus;
@@ -279,10 +317,50 @@ export class PaymentService {
     paymentId: string | null,
   ): Promise<void> {
     const db = this.firebaseService.getFirestore();
-    await db.collection('purchases').doc(purchaseId).update({
-      status,
-      ...(paymentId != null && { paymentId }),
-    });
+    await db
+      .collection('purchases')
+      .doc(purchaseId)
+      .update({
+        status,
+        ...(paymentId != null && { paymentId }),
+      });
+  }
+
+  /**
+   * Decrements inventory (estoque) for each gift in the purchase.
+   * Only call this when payment is approved.
+   */
+  private async decrementGiftInventory(purchaseId: string): Promise<void> {
+    const purchase = await this.getPurchase(purchaseId);
+    if (!purchase?.gifts?.length) return;
+
+    const db = this.firebaseService.getFirestore();
+    const FieldValue = this.firebaseService.getFieldValue();
+
+    for (const item of purchase.gifts) {
+      const giftId = item.id;
+      const qty = Math.max(0, Math.floor(item.quantidade ?? 1));
+      if (!giftId || qty === 0) continue;
+
+      const giftRef = db.collection('gifts').doc(giftId);
+      try {
+        await giftRef.update({
+          estoque: FieldValue.increment(-qty),
+        });
+        console.log(
+          '[Webhook] Decremented gift',
+          giftId,
+          'by',
+          qty,
+        );
+      } catch (err) {
+        console.error(
+          '[Webhook] Failed to decrement inventory for gift',
+          giftId,
+          err,
+        );
+      }
+    }
   }
 
   async handleWebhookNotification(paymentId: string): Promise<void> {
@@ -298,7 +376,11 @@ export class PaymentService {
       },
     });
     if (!response.ok) {
-      console.error('[Webhook] Failed to fetch payment from Mercado Pago:', response.status, await response.text());
+      console.error(
+        '[Webhook] Failed to fetch payment from Mercado Pago:',
+        response.status,
+        await response.text(),
+      );
       return;
     }
     const payment = (await response.json()) as {
@@ -308,7 +390,10 @@ export class PaymentService {
     };
     const externalRef = payment.external_reference ?? null;
     if (!externalRef) {
-      console.warn('[Webhook] Payment has no external_reference, skipping:', paymentId);
+      console.warn(
+        '[Webhook] Payment has no external_reference, skipping:',
+        paymentId,
+      );
       return;
     }
     const statusMap: Record<string, PurchaseStatus> = {
@@ -322,8 +407,22 @@ export class PaymentService {
       in_mediation: 'pending',
     };
     const purchaseStatus = statusMap[payment.status ?? ''] ?? 'pending';
-    await this.updatePurchaseStatus(externalRef, purchaseStatus, String(payment.id ?? paymentId));
-    console.log('[Webhook] Updated purchase', externalRef, 'to status', purchaseStatus, 'payment', paymentId);
+    await this.updatePurchaseStatus(
+      externalRef,
+      purchaseStatus,
+      String(payment.id ?? paymentId),
+    );
+    if (purchaseStatus === 'approved') {
+      await this.decrementGiftInventory(externalRef);
+    }
+    console.log(
+      '[Webhook] Updated purchase',
+      externalRef,
+      'to status',
+      purchaseStatus,
+      'payment',
+      paymentId,
+    );
   }
 
   async listPurchases(): Promise<
@@ -332,7 +431,13 @@ export class PaymentService {
       fromName: string;
       email: string;
       message: string;
-      gifts: Array<{ nome: string; quantidade: number }>;
+      gifts: Array<{
+        id?: string;
+        nome: string;
+        descricao?: string;
+        preco: number;
+        quantidade: number;
+      }>;
       totalPrice: number;
       paymentId: string | null;
       status: PurchaseStatus;
@@ -347,7 +452,10 @@ export class PaymentService {
     return snapshot.docs.map((doc) => {
       const data = doc.data();
       const gifts = (data.gifts || []) as Array<{
+        id?: string;
         nome?: string;
+        descricao?: string;
+        preco?: number;
         quantidade?: number;
       }>;
       return {
@@ -356,7 +464,10 @@ export class PaymentService {
         email: data.email || '',
         message: data.message || '',
         gifts: gifts.map((g) => ({
+          id: g.id,
           nome: g.nome || '',
+          descricao: g.descricao,
+          preco: Number(g.preco) ?? 0,
           quantidade: g.quantidade ?? 1,
         })),
         totalPrice: data.totalPrice ?? 0,
