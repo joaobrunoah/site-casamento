@@ -326,43 +326,6 @@ export class PaymentService {
       });
   }
 
-  /**
-   * Decrements inventory (estoque) for each gift in the purchase.
-   * Only call this when payment is approved.
-   */
-  private async decrementGiftInventory(purchaseId: string): Promise<void> {
-    const purchase = await this.getPurchase(purchaseId);
-    if (!purchase?.gifts?.length) return;
-
-    const db = this.firebaseService.getFirestore();
-    const FieldValue = this.firebaseService.getFieldValue();
-
-    for (const item of purchase.gifts) {
-      const giftId = item.id;
-      const qty = Math.max(0, Math.floor(item.quantidade ?? 1));
-      if (!giftId || qty === 0) continue;
-
-      const giftRef = db.collection('gifts').doc(giftId);
-      try {
-        await giftRef.update({
-          estoque: FieldValue.increment(-qty),
-        });
-        console.log(
-          '[Webhook] Decremented gift',
-          giftId,
-          'by',
-          qty,
-        );
-      } catch (err) {
-        console.error(
-          '[Webhook] Failed to decrement inventory for gift',
-          giftId,
-          err,
-        );
-      }
-    }
-  }
-
   async handleWebhookNotification(paymentId: string): Promise<void> {
     const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN;
     if (!accessToken) {
@@ -412,9 +375,6 @@ export class PaymentService {
       purchaseStatus,
       String(payment.id ?? paymentId),
     );
-    if (purchaseStatus === 'approved') {
-      await this.decrementGiftInventory(externalRef);
-    }
     console.log(
       '[Webhook] Updated purchase',
       externalRef,

@@ -18,15 +18,47 @@ import { FieldValue } from 'firebase-admin/firestore';
 export class GiftsController {
   constructor(private firebaseService: FirebaseService) {}
 
+  /**
+   * Returns total quantity sold per gift id from approved purchases only.
+   * Used to compute disponivel = estoque - sold (inventory is calculated, not stored).
+   */
+  private async getSoldQuantityByGiftId(): Promise<Record<string, number>> {
+    const db = this.firebaseService.getFirestore();
+    const snapshot = await db
+      .collection('purchases')
+      .where('status', '==', 'approved')
+      .get();
+    const sold: Record<string, number> = {};
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data();
+      const items = (data.gifts || []) as Array<{ id?: string; quantidade?: number }>;
+      items.forEach((item) => {
+        if (item.id) {
+          sold[item.id] = (sold[item.id] ?? 0) + (item.quantidade ?? 1);
+        }
+      });
+    });
+    return sold;
+  }
+
   @Get('listGifts')
   async listGifts() {
     try {
       const db = this.firebaseService.getFirestore();
       const snapshot = await db.collection('gifts').get();
-      const gifts = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+      const soldByGiftId = await this.getSoldQuantityByGiftId();
+      const gifts = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        const estoque = Number(data.estoque) ?? 0;
+        const sold = soldByGiftId[doc.id] ?? 0;
+        const disponivel = Math.max(0, estoque - sold);
+        return {
+          id: doc.id,
+          ...data,
+          estoque,
+          disponivel,
+        };
+      });
       return gifts;
     } catch (error) {
       console.error('Error fetching gifts', error);
@@ -51,9 +83,17 @@ export class GiftsController {
         throw new HttpException('Gift not found', HttpStatus.NOT_FOUND);
       }
 
+      const data = giftDoc.data()!;
+      const soldByGiftId = await this.getSoldQuantityByGiftId();
+      const estoque = Number(data.estoque) ?? 0;
+      const sold = soldByGiftId[giftDoc.id] ?? 0;
+      const disponivel = Math.max(0, estoque - sold);
+
       return {
         id: giftDoc.id,
-        ...giftDoc.data(),
+        ...data,
+        estoque,
+        disponivel,
       };
     } catch (error) {
       console.error('Error fetching gift', error);

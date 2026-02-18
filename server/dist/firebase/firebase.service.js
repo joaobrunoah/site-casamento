@@ -158,7 +158,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Hotel em Santorini',
                     descricao: '3 noites em um hotel boutique com vista para o pôr do sol em Santorini. Inclui café da manhã e traslado do aeroporto.',
-                    preco: 450.00,
+                    preco: 450.0,
                     estoque: 1,
                     imagem: 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -167,7 +167,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Curso de Mergulho em Mykonos',
                     descricao: 'Curso de mergulho certificado PADI para iniciantes. Inclui equipamento completo, instrutor certificado e certificado digital.',
-                    preco: 280.00,
+                    preco: 280.0,
                     estoque: 2,
                     imagem: 'https://images.unsplash.com/photo-1583212292454-2fe62f3f3dd6?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -176,7 +176,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Jantar Romântico em Atenas',
                     descricao: 'Jantar para dois em restaurante tradicional grego no centro histórico de Atenas. Inclui entrada, prato principal, sobremesa e vinho grego.',
-                    preco: 120.00,
+                    preco: 120.0,
                     estoque: 3,
                     imagem: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -185,7 +185,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Passagens Aéreas para Grécia',
                     descricao: 'Passagens aéreas ida e volta para Atenas em classe econômica. Válido para voos diretos ou com conexão.',
-                    preco: 850.00,
+                    preco: 850.0,
                     estoque: 1,
                     imagem: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -194,7 +194,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Tour pelas Ilhas Gregas',
                     descricao: 'Cruzeiro de 1 dia visitando as ilhas de Mykonos, Delos e Paros. Inclui almoço a bordo, guia turístico e transporte.',
-                    preco: 180.00,
+                    preco: 180.0,
                     estoque: 2,
                     imagem: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -203,7 +203,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Spa e Relaxamento em Mykonos',
                     descricao: 'Pacote de spa de 2 horas incluindo massagem relaxante, banho turco e tratamento facial. Perfeito para relaxar após os passeios.',
-                    preco: 150.00,
+                    preco: 150.0,
                     estoque: 2,
                     imagem: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -212,7 +212,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Aluguel de Carro por 5 Dias',
                     descricao: 'Aluguel de carro compacto por 5 dias com seguro completo. Inclui GPS e quilometragem ilimitada. Retirada e devolução no aeroporto.',
-                    preco: 220.00,
+                    preco: 220.0,
                     estoque: 1,
                     imagem: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -221,7 +221,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Tour Gastronômico em Atenas',
                     descricao: 'Tour guiado de 3 horas pelos melhores restaurantes e tavernas de Atenas. Inclui degustação de pratos tradicionais e vinhos gregos.',
-                    preco: 95.00,
+                    preco: 95.0,
                     estoque: 2,
                     imagem: 'https://images.unsplash.com/photo-1555939594-58d7cb561b1d?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -230,7 +230,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Hospedagem em Mykonos',
                     descricao: '4 noites em hotel 4 estrelas em Mykonos, próximo às praias mais famosas. Inclui café da manhã e Wi-Fi gratuito.',
-                    preco: 520.00,
+                    preco: 520.0,
                     estoque: 1,
                     imagem: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -239,7 +239,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Aula de Culinária Grega',
                     descricao: 'Aula de culinária tradicional grega de 4 horas. Aprenda a preparar moussaka, souvlaki e baklava. Inclui almoço e receitas.',
-                    preco: 110.00,
+                    preco: 110.0,
                     estoque: 2,
                     imagem: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),
@@ -248,7 +248,7 @@ let FirebaseService = class FirebaseService {
                 {
                     nome: 'Presente de Teste',
                     descricao: 'Presente de teste para validação de pagamento.',
-                    preco: 0.10,
+                    preco: 0.1,
                     estoque: 10,
                     imagem: 'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&q=80',
                     createdAt: FieldValue.serverTimestamp(),

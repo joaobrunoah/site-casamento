@@ -6,6 +6,8 @@ export interface Gift {
   descricao: string;
   preco: number;
   estoque: number;
+  /** Available to sell: estoque minus approved-purchase quantities (calculated by API) */
+  disponivel?: number;
   imagem: string;
 }
 
@@ -30,7 +32,8 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [cart, setCart] = useState<CartItem[]>([]);
 
   const addToCart = (gift: Gift) => {
-    if (gift.estoque <= 0) {
+    const available = gift.disponivel ?? gift.estoque;
+    if (available <= 0) {
       return;
     }
 

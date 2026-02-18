@@ -13,6 +13,8 @@ interface Gift {
   descricao: string;
   preco: number;
   estoque: number;
+  /** Calculated: estoque minus approved purchases (from API) */
+  disponivel?: number;
   imagem: string;
 }
 
@@ -650,7 +652,16 @@ const AdminGifts: React.FC = () => {
                   id: 'estoque',
                   label: 'Estoque',
                   filterable: true,
-                  render: (gift: Gift) => gift.estoque || 0,
+                  render: (gift: Gift) => gift.estoque ?? 0,
+                },
+                {
+                  id: 'disponivel',
+                  label: 'Disponível',
+                  filterable: false,
+                  render: (gift: Gift) => {
+                    const d = gift.disponivel ?? gift.estoque ?? 0;
+                    return d <= 0 ? <span className="gift-unavailable">0 (esgotado)</span> : d;
+                  },
                 },
               ]}
               data={getSortedGifts()}

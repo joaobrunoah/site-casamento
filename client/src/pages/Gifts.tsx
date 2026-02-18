@@ -128,7 +128,14 @@ const Gifts: React.FC = () => {
 
       <div className="gifts-container">
         <div className="gifts-grid">
-          {gifts.map((gift) => (
+          {[...gifts]
+            .sort((a, b) => {
+              const availableA = (a.disponivel ?? a.estoque) > 0 ? 1 : 0;
+              const availableB = (b.disponivel ?? b.estoque) > 0 ? 1 : 0;
+              if (availableB !== availableA) return availableB - availableA;
+              return (a.nome || '').localeCompare(b.nome || '');
+            })
+            .map((gift) => (
             <div key={gift.id} className="gift-card">
               {gift.imagem && (
                 <div className="gift-image-container">
@@ -142,7 +149,7 @@ const Gifts: React.FC = () => {
                 )}
                 <div className="gift-footer">
                   <span className="gift-price">R$ {gift.preco.toFixed(2)}</span>
-                  {gift.estoque <= 0 ? (
+                  {(gift.disponivel ?? gift.estoque) <= 0 ? (
                     <span className="gift-sold-out" aria-live="polite">
                       Esgotado
                     </span>

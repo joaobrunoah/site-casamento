@@ -20,14 +20,41 @@ let GiftsController = class GiftsController {
     constructor(firebaseService) {
         this.firebaseService = firebaseService;
     }
+    async getSoldQuantityByGiftId() {
+        const db = this.firebaseService.getFirestore();
+        const snapshot = await db
+            .collection('purchases')
+            .where('status', '==', 'approved')
+            .get();
+        const sold = {};
+        snapshot.docs.forEach((doc) => {
+            const data = doc.data();
+            const items = (data.gifts || []);
+            items.forEach((item) => {
+                if (item.id) {
+                    sold[item.id] = (sold[item.id] ?? 0) + (item.quantidade ?? 1);
+                }
+            });
+        });
+        return sold;
+    }
     async listGifts() {
         try {
             const db = this.firebaseService.getFirestore();
             const snapshot = await db.collection('gifts').get();
-            const gifts = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
+            const soldByGiftId = await this.getSoldQuantityByGiftId();
+            const gifts = snapshot.docs.map((doc) => {
+                const data = doc.data();
+                const estoque = Number(data.estoque) ?? 0;
+                const sold = soldByGiftId[doc.id] ?? 0;
+                const disponivel = Math.max(0, estoque - sold);
+                return {
+                    id: doc.id,
+                    ...data,
+                    estoque,
+                    disponivel,
+                };
+            });
             return gifts;
         }
         catch (error) {
@@ -45,9 +72,16 @@ let GiftsController = class GiftsController {
             if (!giftDoc.exists) {
                 throw new common_1.HttpException('Gift not found', common_1.HttpStatus.NOT_FOUND);
             }
+            const data = giftDoc.data();
+            const soldByGiftId = await this.getSoldQuantityByGiftId();
+            const estoque = Number(data.estoque) ?? 0;
+            const sold = soldByGiftId[giftDoc.id] ?? 0;
+            const disponivel = Math.max(0, estoque - sold);
             return {
                 id: giftDoc.id,
-                ...giftDoc.data(),
+                ...data,
+                estoque,
+                disponivel,
             };
         }
         catch (error) {
