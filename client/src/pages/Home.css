@@ -1,16 +1,20 @@
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 #home h1 {
   font-size: 4em;
   line-height: 1.6;
-  font-weight: bold
+  font-weight: bold;
 }
 
 .h1-section {
-  font-family: 'BDScript', 'Cormorant Garamond', 'Playfair Display', serif;
+  font-family: "BDScript", "Cormorant Garamond", "Playfair Display", serif;
   font-size: 4em;
   font-weight: bold;
   text-align: center;
@@ -36,22 +40,22 @@
 /* Desktop: images side by side */
 @media (min-width: 769px) {
   #home h1 {
-    font-size: 8.0em;
+    font-size: 8em;
   }
-  
+
   .h1-section {
     font-size: 6em;
   }
-  
+
   .countdown-display {
     font-size: 3.5em;
   }
-  
+
   .home-images {
     flex-direction: row;
     gap: 0;
   }
-  
+
   .home-images img {
     flex: 1;
     max-width: 33.333%;
@@ -65,7 +69,7 @@
     flex-direction: column;
     gap: 0;
   }
-  
+
   .home-images img {
     width: 100%;
     max-width: 500px;
@@ -82,7 +86,7 @@
   font-size: 1.5em;
   font-weight: 500;
   margin-bottom: 10px;
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   letter-spacing: 0.1em;
   padding-top: 40px;
 }
@@ -90,7 +94,7 @@
 .home-location {
   font-size: 1.5em;
   font-weight: 400;
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   padding-bottom: 60px;
 }
 
@@ -105,7 +109,7 @@
 }
 
 .countdown-bar {
-  background-color: #DCAE9D;
+  background-color: #dcae9d;
   width: 100%;
   padding: 20px;
   text-align: center;
@@ -113,14 +117,14 @@
 
 .countdown-text {
   color: #2c2c2c;
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.2em;
   font-weight: 500;
   margin: 0;
 }
 
 .countdown-display {
-  font-family: 'Amsterdam', sans-serif;
+  font-family: "Amsterdam", sans-serif;
   color: #2c2c2c;
   font-size: 3em;
   line-height: 1.1;
@@ -128,7 +132,7 @@
 }
 
 #ceremony {
-  background-color: #EECCC3;
+  background-color: #eeccc3;
   padding: 0;
 }
 
@@ -168,9 +172,9 @@
 }
 
 .ceremony-text {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   color: #2c2c2c;
-  font-size: 1.0em;
+  font-size: 1em;
   line-height: 1.6;
   white-space: pre-line;
   margin-bottom: 20px;
@@ -178,7 +182,7 @@
 }
 
 .ceremony-map-link {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   color: #2c2c2c;
   font-size: 1.1em;
   text-decoration: underline;
@@ -196,19 +200,19 @@
   .ceremony-container {
     flex-direction: column;
   }
-  
+
   .ceremony-image-column {
     width: 100%;
     height: auto !important;
     aspect-ratio: 1 / 1;
     overflow: hidden;
   }
-  
+
   .ceremony-image-column img {
     width: 100%;
     object-fit: cover;
   }
-  
+
   .ceremony-text-column {
     width: 100%;
     padding: 30px 20px;
@@ -232,7 +236,7 @@
 }
 
 .cerimony-card {
-  border: 2px solid #DCAE9D;
+  border: 2px solid #dcae9d;
   border-radius: 0;
   padding: 10px 40px 40px 40px;
   margin-bottom: 20px;
@@ -266,7 +270,7 @@
 }
 
 .cerimony-date {
-  font-family: 'Amsterdam', sans-serif;
+  font-family: "Amsterdam", sans-serif;
   font-size: 3.5em;
   color: #2c2c2c;
   margin: 0;
@@ -275,7 +279,7 @@
 .cerimony-time-row {
   display: flex;
   align-items: center;
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
 }
 
 .cerimony-time {
@@ -286,14 +290,14 @@
 }
 
 .cerimony-time-title {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.3em;
   color: #2c2c2c;
   margin: 0;
 }
 
 .cerimony-description {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 0.9em;
   color: #2c2c2c;
   margin: 0;
@@ -308,7 +312,7 @@
 }
 
 .cerimony-label {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.3em;
   color: #2c2c2c;
   margin: 0;
@@ -316,16 +320,16 @@
 }
 
 .cerimony-dress-code {
-  font-family: 'Glacial Indifference', sans-serif;
-  font-size: 1.0em;
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
   color: #2c2c2c;
   margin: 0;
   line-height: 1.3;
 }
 
 .cerimony-place {
-  font-family: 'Glacial Indifference', sans-serif;
-  font-size: 1.0em;
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
   color: #2c2c2c;
   margin: 0;
   line-height: 1.3;
@@ -346,8 +350,8 @@
 }
 
 #hotels {
-  background-color: #EECCC3;
-  padding: 60px 20px 0 20px; /* no bottom padding - flush with dresscode section */
+  background-color: #eeccc3;
+  padding: 60px 20px 40px 20px;
 }
 
 .hotels-header {
@@ -380,14 +384,14 @@
 }
 
 .hotel-card {
-  border: 2px solid #FAE3D7;
+  border: 2px solid #fae3d7;
   border-radius: 0;
   padding: 30px;
   background-color: transparent;
 }
 
 .hotel-name {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.5em;
   font-weight: bold;
   color: #2c2c2c;
@@ -395,21 +399,21 @@
 }
 
 .hotel-distance {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1em;
   color: #2c2c2c;
   margin: 0 0 10px 0;
 }
 
 .hotel-instagram {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1em;
   color: #2c2c2c;
   margin: 0 0 20px 0;
 }
 
 .hotel-section-title {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.2em;
   font-weight: bold;
   color: #2c2c2c;
@@ -425,7 +429,7 @@
 }
 
 .hotel-room-title {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1.1em;
   font-weight: 600;
   color: #2c2c2c;
@@ -433,7 +437,7 @@
 }
 
 .hotel-rate {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 0.95em;
   color: #2c2c2c;
   margin: 4px 0;
@@ -441,7 +445,7 @@
 }
 
 .hotel-info {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 1em;
   color: #2c2c2c;
   margin: 5px 0;
@@ -449,7 +453,7 @@
 }
 
 .hotel-important {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   font-size: 0.95em;
   color: #2c2c2c;
   margin: 5px 0;
@@ -473,7 +477,7 @@
 
 .dresscode-text-column {
   width: 50%;
-  padding: 40px 40px 40px 0;
+  padding: 40px 40px 40px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -486,7 +490,7 @@
 }
 
 .dresscode-text {
-  font-family: 'Glacial Indifference', sans-serif;
+  font-family: "Glacial Indifference", sans-serif;
   color: #2c2c2c;
   font-size: 1em;
   line-height: 1.6;
@@ -527,6 +531,12 @@
   display: block;
 }
 
+@media (min-width: 1920px) {
+  .dresscode-text-column {
+    padding-left: 200px;
+  }
+}
+
 @media (max-width: 768px) {
   #dresscode {
     padding: 0 20px 40px 20px;
@@ -546,7 +556,7 @@
     width: calc(100% + 40px);
     margin-left: -20px;
     margin-right: -20px;
-    min-height: 400px;
+    min-height: 500px;
   }
 
   .dresscode-image-column img {
@@ -565,17 +575,17 @@
     align-items: center;
     gap: 20px;
   }
-  
+
   .hotels-header-image {
     height: 100px;
   }
-  
+
   .hotels-container {
     grid-template-columns: 1fr;
     gap: 20px;
     padding-top: 30px;
   }
-  
+
   .hotel-card {
     padding: 20px;
   }
@@ -585,25 +595,99 @@
   #cerimony-details {
     padding: 40px 20px;
   }
-  
+
   .cerimony-details-container {
     flex-direction: column;
     gap: 0px;
   }
-  
+
   .cerimony-details-column {
     width: 100%;
   }
-  
+
   .cerimony-card {
     padding: 30px 20px;
   }
-  
+
   .cerimony-title {
     font-size: 3em;
   }
-  
+
   .cerimony-date {
     font-size: 2.5em;
+  }
+}
+
+/* Transport section - same background as Hotéis */
+#transport {
+  background-color: #eeccc3;
+  padding: 20px;
+}
+
+.transport-content {
+  margin-top: 50px;
+  text-align: left;
+}
+
+.transport-intro {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+.transport-van-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: -32px;
+  margin-left: -30px;
+}
+
+.transport-van {
+  height: auto;
+  max-height: 120px;
+  width: auto;
+  display: block;
+}
+
+.transport-dotted {
+  border: none;
+  border-top: 2px dotted #2c2c2c;
+  width: 500px;
+  max-width: 100%;
+  margin: 0 0 20px 0;
+}
+
+.transport-subtitle {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1.25em;
+  font-weight: bold;
+  color: #2c2c2c;
+  margin: 0 0 20px 0;
+}
+
+.transport-text {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+}
+
+.transport-text + .transport-dotted {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+@media (min-width: 769px) {
+  #transport {
+    padding: 60px 20px 60px 60px;
+  }
+}
+
+@media (min-width: 1920px) {
+  #transport {
+    padding-left: 200px;
   }
 }

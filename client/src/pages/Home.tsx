@@ -655,7 +655,30 @@ const Home: React.FC = () => {
       </section>
       <section id="transport">
         <h1 className="h1-section">Transporte</h1>
-        {/* Content will be added later */}
+        <div className="transport-content">
+          <p className="transport-intro">
+            No dia da cerimônia, disponibilizaremos vans para realizar o
+            traslado de ida e volta da festa até os hotéis parceiros, garantindo
+            mais conforto e segurança para todos, para que possam aproveitar a
+            celebração com tranquilidade.
+          </p>
+          <div className="transport-van-wrapper">
+            <img src="/assets/van.png" alt="Van" className="transport-van" />
+          </div>
+          <hr className="transport-dotted" />
+          <h3 className="transport-subtitle">Estacionamento</h3>
+          <p className="transport-text">
+            Para aqueles que preferirem ir de carro, o local conta com
+            estacionamento.
+          </p>
+          <hr className="transport-dotted" />
+          <h3 className="transport-subtitle">Uber</h3>
+          <p className="transport-text">
+            Em Itu, também é possível utilizar Uber ou outros serviços de
+            transporte por aplicativo, caso prefiram.
+          </p>
+          <hr className="transport-dotted" />
+        </div>
       </section>
     </div>
   );
