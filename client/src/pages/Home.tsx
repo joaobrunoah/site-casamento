@@ -23,7 +23,8 @@ const Home: React.FC = () => {
       '/assets/hotel.png',
       '/assets/glass.svg',
       '/assets/bottom-cerimony.svg',
-      '/assets/background.jpeg'
+      '/assets/background.jpeg',
+      '/assets/dresscode.png'
     ];
 
     let imagesLoaded = false;
@@ -419,6 +420,37 @@ const Home: React.FC = () => {
             <p className="hotel-info">WhatsApp (Reservas): <a href="https://wa.me/+5511947303805" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>(11) 94730-3805</a></p>
             <p className="hotel-info">Telefone e WhatsApp: <a href="https://wa.me/+551134143454" target="_blank" rel="noopener noreferrer" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>(11) 3414-3454</a></p>
             <p className="hotel-info">E-mail: <a href="mailto:h8138@accor.com" style={{ color: '#2c2c2c', textDecoration: 'underline' }}>h8138@accor.com</a></p>
+          </div>
+        </div>
+      </section>
+      <section id="dresscode">
+        <div className="dresscode-container">
+          <div className="dresscode-text-column">
+            <h1 className="h1-section dresscode-title">Dress code - Traje</h1>
+            <div className="dresscode-text">
+              <p>O Dress code/ traje do dia 13 de Junho (cerimonia e festa) será <strong>Esporte fino.</strong></p>
+              <p><strong>Para as mulheres:</strong></p>
+              <ul>
+                <li>Vestidos midi ou longos</li>
+                <li>Conjuntos de alfaiataria</li>
+                <li>Tecidos como seda, crepe, cetim, chiffon, zibeline, etc.</li>
+                <li>Saltos ou sandálias elegantes (recomendamos salto grosso por conta do local)</li>
+                <li>Evitar vestidos muito curtos e malhas informais.</li>
+              </ul>
+              <p>Queremos que voce se sinta linda e confortável para aproveitar muito nossa festa!</p>
+              <p>Vai fazer frio, leve um xale pra se aquecer!</p>
+              <p>Disponibilizaremos chinelinhos na pista de dança!</p>
+              <p><strong>Para homens:</strong></p>
+              <ul>
+                <li>Terno (com ou sem gravata)</li>
+                <li>Costume com camisa social</li>
+                <li>Sapato social ou loafer de couro</li>
+                <li>Evitar jeans, tênis esportivo e camisetas</li>
+              </ul>
+            </div>
+          </div>
+          <div className="dresscode-image-column">
+            <img src="/assets/dresscode.png" alt="Dress code" />
           </div>
         </div>
       </section>

@@ -72,6 +72,11 @@ const Navigation: React.FC = () => {
             </button>
           </li>
           <li>
+            <button onClick={() => handleHomeClick('dresscode')}>
+              Dress code - Traje
+            </button>
+          </li>
+          <li>
             <button onClick={() => handleHomeClick('transport')}>
               Transporte
             </button>
@@ -150,6 +155,11 @@ const Navigation: React.FC = () => {
         <li>
           <button onClick={() => handleHomeClick('hotels')}>
             Hotéis
+          </button>
+        </li>
+        <li>
+          <button onClick={() => handleHomeClick('dresscode')}>
+            Dress code - Traje
           </button>
         </li>
         <li>
