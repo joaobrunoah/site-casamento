@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Script to run client, Nest.js server, and firestore locally
+# Script to run client, Nest.js server, and Firebase emulators locally
 # This script starts:
 # - React development server (port 3000)
 # - Nest.js server (port 8080)
-# - Firestore emulator (port 8080 - conflicts, so we'll use a different port)
+# - Firestore emulator (port 8081)
+# - Storage emulator (port 9199)
 # - Firebase Emulator UI (port 4000)
 
 set -e
@@ -20,7 +21,7 @@ NC='\033[0m' # No Color
 cleanup() {
     echo -e "\n${YELLOW}Shutting down services...${NC}"
     kill $SERVER_PID 2>/dev/null || true
-    kill $FIRESTORE_PID 2>/dev/null || true
+    kill $FIREBASE_EMULATORS_PID 2>/dev/null || true
     kill $CLIENT_PID 2>/dev/null || true
     exit 0
 }
@@ -90,34 +91,38 @@ else
     echo -e "${YELLOW}   Create client/.env.local to set REACT_APP_* environment variables.${NC}"
 fi
 
-# Start Firestore emulator in the background (using port 8081 to avoid conflict with Nest.js on 8080)
-echo -e "${BLUE}🔥 Starting Firestore emulator on port 8081...${NC}"
+# Start Firestore + Storage emulators in the background
+echo -e "${BLUE}🔥 Starting Firestore and Storage emulators...${NC}"
 echo -e "${YELLOW}📋 Emulator logs will be saved to: /tmp/firestore-emulator.log${NC}\n"
 FIRESTORE_PORT=8081
+STORAGE_PORT=9199
 export FIRESTORE_EMULATOR_HOST="localhost:${FIRESTORE_PORT}"
+export FIREBASE_STORAGE_EMULATOR_HOST="localhost:${STORAGE_PORT}"
 # Ensure NODE_ENV is not set to production for local development
 export NODE_ENV=${NODE_ENV:-development}
 
-firebase emulators:start --only firestore --project demo-project > /tmp/firestore-emulator.log 2>&1 &
-FIRESTORE_PID=$!
+firebase emulators:start --only firestore,storage --project demo-project > /tmp/firestore-emulator.log 2>&1 &
+FIREBASE_EMULATORS_PID=$!
 
-# Wait for Firestore emulator to be ready
-echo -e "${BLUE}⏳ Waiting for Firestore emulator to be ready...${NC}"
+# Wait for Firestore + Storage emulators to be ready
+echo -e "${BLUE}⏳ Waiting for Firestore and Storage emulators to be ready...${NC}"
 MAX_WAIT=30
 WAIT_COUNT=0
 while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
     # Check if process is still running
-    if ! kill -0 $FIRESTORE_PID 2>/dev/null; then
-        echo -e "${RED}❌ Firestore emulator process died. Check /tmp/firestore-emulator.log for details.${NC}"
+    if ! kill -0 $FIREBASE_EMULATORS_PID 2>/dev/null; then
+        echo -e "${RED}❌ Firebase emulators process died. Check /tmp/firestore-emulator.log for details.${NC}"
         echo -e "${YELLOW}Last 20 lines of log:${NC}"
         tail -20 /tmp/firestore-emulator.log
         exit 1
     fi
     
-    # Check if emulator is listening on the port
+    # Check if both emulators are listening on their ports
     # Try lsof first (works on macOS/Linux), then nc as fallback
-    if lsof -Pi :$FIRESTORE_PORT -sTCP:LISTEN -t >/dev/null 2>&1 || (command -v nc >/dev/null && nc -z localhost $FIRESTORE_PORT 2>/dev/null); then
+    if (lsof -Pi :$FIRESTORE_PORT -sTCP:LISTEN -t >/dev/null 2>&1 || (command -v nc >/dev/null && nc -z localhost $FIRESTORE_PORT 2>/dev/null)) && \
+       (lsof -Pi :$STORAGE_PORT -sTCP:LISTEN -t >/dev/null 2>&1 || (command -v nc >/dev/null && nc -z localhost $STORAGE_PORT 2>/dev/null)); then
         echo -e "${GREEN}✅ Firestore emulator is ready on port ${FIRESTORE_PORT}${NC}"
+        echo -e "${GREEN}✅ Storage emulator is ready on port ${STORAGE_PORT}${NC}"
         break
     fi
     
@@ -129,10 +134,10 @@ while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
 done
 
 if [ $WAIT_COUNT -eq $MAX_WAIT ]; then
-    echo -e "${RED}❌ Firestore emulator did not become ready within ${MAX_WAIT} seconds.${NC}"
+    echo -e "${RED}❌ Firebase emulators did not become ready within ${MAX_WAIT} seconds.${NC}"
     echo -e "${YELLOW}Last 20 lines of log:${NC}"
     tail -20 /tmp/firestore-emulator.log
-    kill $FIRESTORE_PID 2>/dev/null || true
+    kill $FIREBASE_EMULATORS_PID 2>/dev/null || true
     exit 1
 fi
 
@@ -149,7 +154,7 @@ if lsof -Pi :$SERVER_PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
         if lsof -Pi :$SERVER_PORT -sTCP:LISTEN -t >/dev/null 2>&1; then
             echo -e "${RED}❌ Failed to free port ${SERVER_PORT}. Please kill the process manually.${NC}"
             echo -e "${YELLOW}   Run: lsof -i :${SERVER_PORT}${NC}"
-            kill $FIRESTORE_PID 2>/dev/null || true
+            kill $FIREBASE_EMULATORS_PID 2>/dev/null || true
             exit 1
         else
             echo -e "${GREEN}✅ Port ${SERVER_PORT} is now free${NC}"
@@ -162,6 +167,7 @@ echo -e "${BLUE}🚀 Starting Nest.js server...${NC}"
 echo -e "${BLUE}📋 Environment variables being passed:${NC}"
 echo -e "   - NODE_ENV: ${NODE_ENV}"
 echo -e "   - FIRESTORE_EMULATOR_HOST: localhost:${FIRESTORE_PORT}"
+echo -e "   - FIREBASE_STORAGE_EMULATOR_HOST: localhost:${STORAGE_PORT}"
 echo -e "   - ADMIN_USER: ${ADMIN_USER}"
 echo -e "   - ADMIN_PASSWORD: ${ADMIN_PASSWORD:+***set***}"
 cd server
@@ -169,6 +175,7 @@ cd server
 # Using env to ensure variables are passed to the npm process
 env \
   FIRESTORE_EMULATOR_HOST="localhost:${FIRESTORE_PORT}" \
+  FIREBASE_STORAGE_EMULATOR_HOST="localhost:${STORAGE_PORT}" \
   NODE_ENV="${NODE_ENV}" \
   ADMIN_USER="${ADMIN_USER}" \
   ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
@@ -184,7 +191,7 @@ if ! kill -0 $SERVER_PID 2>/dev/null; then
     echo -e "${RED}❌ Failed to start Nest.js server. Check /tmp/nestjs-server.log for details.${NC}"
     echo -e "${YELLOW}Last 20 lines of log:${NC}"
     tail -20 /tmp/nestjs-server.log
-    kill $FIRESTORE_PID 2>/dev/null || true
+    kill $FIREBASE_EMULATORS_PID 2>/dev/null || true
     exit 1
 fi
 
@@ -212,7 +219,7 @@ sleep 3
 if ! kill -0 $CLIENT_PID 2>/dev/null; then
     echo -e "${RED}❌ Failed to start React server. Check /tmp/react-server.log for details.${NC}"
     kill $SERVER_PID 2>/dev/null || true
-    kill $FIRESTORE_PID 2>/dev/null || true
+    kill $FIREBASE_EMULATORS_PID 2>/dev/null || true
     exit 1
 fi
 
@@ -221,6 +228,7 @@ echo -e "${GREEN}📍 Services:${NC}"
 echo -e "   - React App:        ${BLUE}http://localhost:3000${NC}"
 echo -e "   - Nest.js API:      ${BLUE}http://localhost:8080${NC}"
 echo -e "   - Firestore:        ${BLUE}localhost:${FIRESTORE_PORT}${NC}"
+echo -e "   - Storage:          ${BLUE}localhost:${STORAGE_PORT}${NC}"
 echo -e "   - Emulator UI:      ${BLUE}http://localhost:4000${NC}"
 echo -e "\n${YELLOW}📋 To view server logs in real-time:${NC}"
 echo -e "   ${BLUE}tail -f /tmp/nestjs-server.log${NC}"
@@ -229,4 +237,4 @@ echo -e "   ${BLUE}tail -f /tmp/react-server.log${NC}"
 echo -e "\n${YELLOW}Press Ctrl+C to stop all services${NC}\n"
 
 # Wait for processes
-wait $SERVER_PID $FIRESTORE_PID $CLIENT_PID
+wait $SERVER_PID $FIREBASE_EMULATORS_PID $CLIENT_PID
