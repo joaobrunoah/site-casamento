@@ -12,7 +12,16 @@ const Gifts: React.FC = () => {
   const [lastPurchase, setLastPurchase] = useState<PurchaseDetails | null>(null);
   const [lastPurchaseLoading, setLastPurchaseLoading] = useState(true);
   const [lastPurchaseDismissed, setLastPurchaseDismissed] = useState(false);
-  const { cart, addToCart, removeFromCart, isInCart, totalItems, totalPrice } = useCart();
+  const {
+    cart,
+    addToCart,
+    removeFromCart,
+    increaseQuantity,
+    decreaseQuantity,
+    isInCart,
+    totalItems,
+    totalPrice,
+  } = useCart();
   const navigate = useNavigate();
 
   // Fetch gifts from API
@@ -132,7 +141,8 @@ const Gifts: React.FC = () => {
             .sort((a, b) => {
               const availableA = (a.disponivel ?? a.estoque) > 0 ? 1 : 0;
               const availableB = (b.disponivel ?? b.estoque) > 0 ? 1 : 0;
-              if (availableB !== availableA) return availableB - availableA;
+              if (availableA !== availableB) return availableB - availableA;
+              if (a.preco !== b.preco) return a.preco - b.preco;
               return (a.nome || '').localeCompare(b.nome || '');
             })
             .map((gift) => (
@@ -153,21 +163,71 @@ const Gifts: React.FC = () => {
                     <span className="gift-sold-out" aria-live="polite">
                       Esgotado
                     </span>
-                  ) : isInCart(gift.id) ? (
-                    <button
-                      className="remove-from-cart-button"
-                      onClick={() => removeFromCart(gift.id)}
-                    >
-                      Remover do Carrinho
-                    </button>
-                  ) : (
-                    <button
-                      className="add-to-cart-button"
-                      onClick={() => addToCart(gift)}
-                    >
-                      Adicionar ao Carrinho
-                    </button>
-                  )}
+                  ) : (() => {
+                    const isQuotaGift = Boolean(gift.quota || gift.nome?.includes('(Cota)'));
+                    const cartItem = cart.find((item) => item.gift.id === gift.id);
+                    const quantityInCart = cartItem?.quantity ?? 0;
+                    const available = gift.disponivel ?? gift.estoque;
+
+                    if (isQuotaGift && quantityInCart > 0) {
+                      const canIncrease = quantityInCart < available;
+                      return (
+                        <div className="gift-quota-controls">
+                          <button
+                            type="button"
+                            className="gift-quota-button"
+                            onClick={() => decreaseQuantity(gift.id)}
+                            aria-label="Diminuir quantidade"
+                          >
+                            −
+                          </button>
+                          <span className="gift-quota-quantity" aria-live="polite">
+                            {quantityInCart}
+                          </span>
+                          <button
+                            type="button"
+                            className="gift-quota-button"
+                            onClick={() => increaseQuantity(gift.id)}
+                            disabled={!canIncrease}
+                            aria-label="Aumentar quantidade"
+                          >
+                            +
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    if (isQuotaGift) {
+                      return (
+                        <button
+                          className="add-to-cart-button"
+                          onClick={() => addToCart(gift)}
+                        >
+                          Adicionar ao Carrinho
+                        </button>
+                      );
+                    }
+
+                    if (isInCart(gift.id)) {
+                      return (
+                        <button
+                          className="remove-from-cart-button"
+                          onClick={() => removeFromCart(gift.id)}
+                        >
+                          Remover do Carrinho
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <button
+                        className="add-to-cart-button"
+                        onClick={() => addToCart(gift)}
+                      >
+                        Adicionar ao Carrinho
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

@@ -43,7 +43,19 @@ const Checkout: React.FC = () => {
                   {item.gift.descricao && (
                     <p className="cart-item-description">{item.gift.descricao}</p>
                   )}
-                  <p className="cart-item-price">R$ {item.gift.preco.toFixed(2)}</p>
+                <div className="cart-item-price-row">
+                  <div className="cart-item-price-left">
+                    <span className="cart-item-unit-price">
+                      R$ {item.gift.preco.toFixed(2)}
+                    </span>
+                    <span className="cart-item-quantity">
+                      {item.quantity}×
+                    </span>
+                  </div>
+                  <span className="cart-item-total-price">
+                    R$ {(item.gift.preco * item.quantity).toFixed(2)}
+                  </span>
+                </div>
                 </div>
                 <button
                   className="cart-item-remove"

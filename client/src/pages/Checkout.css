@@ -105,6 +105,39 @@
   gap: 8px;
 }
 
+.cart-item-price-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.cart-item-price-left {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.cart-item-unit-price {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  color: #555;
+}
+
+.cart-item-quantity {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.cart-item-total-price {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.4em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
 .cart-item-name {
   font-family: 'Glacial Indifference', sans-serif;
   font-size: 1.4em;

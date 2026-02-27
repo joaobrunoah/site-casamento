@@ -206,124 +206,257 @@ export class FirebaseService implements OnModuleInit {
       console.log('🌴 Seeding gifts collection with Greece travel gifts...');
 
       const FieldValue = this.getFieldValue();
+      const ESTOQUE = 5;
+
+      // Faixas solicitadas:
+      // - 5 itens entre R$85 e R$150
+      // - 7 itens entre R$150 e R$300
+      // - 5 itens entre R$300 e R$700
+      // - 4 itens entre R$700 e R$1.500
+      // - 3 itens acima de R$1.500
+      // Total: 24 itens, estoque 5 cada
       const gifts = [
         {
-          nome: 'Hotel em Santorini',
+          nome: 'Gyros da Madrugada em Atenas',
           descricao:
-            '3 noites em um hotel boutique com vista para o pôr do sol em Santorini. Inclui café da manhã e traslado do aeroporto.',
-          preco: 450.0,
-          estoque: 1,
+            'Depois de um dia inteiro explorando, nada melhor que um gyros suculento para fechar a noite felizes da vida.',
+          preco: 95,
+          estoque: 6,
           imagem:
-            'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1200&q=80',
+            'https://www.tasteofhome.com/wp-content/uploads/2024/03/Homemade-Gyros_EXPS_FT24_269750_EC_010424_10.jpg',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         {
-          nome: 'Curso de Mergulho em Mykonos',
-          descricao:
-            'Curso de mergulho certificado PADI para iniciantes. Inclui equipamento completo, instrutor certificado e certificado digital.',
-          preco: 280.0,
-          estoque: 2,
+          nome: 'Sorvete Grego à Beira-Mar',
+          descricao: 'Uma pausa doce durante um passeio pelas ilhas gregas.',
+          preco: 110,
+          estoque: 5,
           imagem:
-            'https://images.unsplash.com/photo-1583212292454-2fe62f3f3dd6?w=1200&q=80',
+            'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/53/56/23/mitatos-handcrafted-ice.jpg?w=600&h=300&s=1',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        // --- R$85 a R$150 (5 itens) ---
+        {
+          nome: 'Uber em Atenas',
+          descricao:
+            'Nosso transporte confortável entre aeroporto, hotel e passeios.',
+          preco: 97,
+          estoque: 4,
+          imagem:
+            'https://dicadagrecia.com.br/wp-content/uploads/sites/24/2020/04/taxi-atenas-grecia-jpg.webp',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         {
-          nome: 'Jantar Romântico em Atenas',
+          nome: 'Brinde Grego a Dois',
           descricao:
-            'Jantar para dois em restaurante tradicional grego no centro histórico de Atenas. Inclui entrada, prato principal, sobremesa e vinho grego.',
-          preco: 120.0,
+            'Taças levantadas com vinho grego para celebrar nossa lua de mel.',
+          preco: 160,
+          estoque: 4,
+          imagem:
+            'https://dayanecasal.com/wp-content/uploads/2023/08/IMG_9524.jpg',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Tour em Plaka',
+          descricao:
+            'Caminhada charmosa por Plaka e Monastiraki com guia local, histórias curiosas e aquelas dicas de comida que so os locais conhecem.',
+          preco: 126,
+          estoque: 5,
+          imagem:
+            'https://uploads.grupodicas.com/2024/07/PqCmvEuV-plaka-atenas-jpeg.webp',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Date na Acrópole',
+          descricao:
+            'Entradas para explorar a Acrópole juntinhos e tirar fotos inesquecíveis.',
+          preco: 220,
+          estoque: 4,
+          imagem:
+            'https://cdn-imgix.headout.com/microbrands-banner-image/image/b698f96a3bf7e35418940973f33c4708-The%20Acropolis%20of%20Athens.jpeg',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Modo Férias: Spa em Casal',
+          descricao:
+            'Uma hora de massagem para desligar do mundo e recarregar as energias entre um passeio e outro.',
+          preco: 149,
+          estoque: 4,
+          imagem:
+            'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1a/68/5a/29/old-city-hamam.jpg?w=500&h=500&s=1',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        // --- R$150 a R$300 (7 itens) ---
+        {
+          nome: 'MasterChef da Lua de Mel',
+          descricao:
+            'Aula pratica para aprendermos receitas gregas e testar nosso talento culinario juntos.',
+          preco: 227,
+          estoque: 4,
+          imagem:
+            'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1b/06/23/1b/caption.jpg?w=500&h=400&s=1',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Jantar com Vista para a Acrópole',
+          descricao:
+            'Mesa especial em rooftop para brindar nossa história com vista iluminada.',
+          preco: 350,
           estoque: 3,
           imagem:
-            'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80',
+            'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/2c/e0/5d/60/acropolis-on-your-plate.jpg?w=900&h=500&s=1',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         {
-          nome: 'Passagens Aéreas para Grécia',
+          nome: 'Catamarã no Mar Egeu',
           descricao:
-            'Passagens aéreas ida e volta para Atenas em classe econômica. Válido para voos diretos ou com conexão.',
-          preco: 850.0,
-          estoque: 1,
+            'Meio dia navegando com paradas para mergulho em águas cristalinas.',
+          preco: 417,
+          estoque: 3,
           imagem:
-            'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1200&q=80',
+            'https://imageresizer.yachtsbt.com/boats/117724/5eb3f583d9e2447a5233c6ed.jpeg?method=fit&width=360&height=300&format=jpeg',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         {
-          nome: 'Tour pelas Ilhas Gregas',
+          nome: 'Tour gastronômico em Atenas',
           descricao:
-            'Cruzeiro de 1 dia visitando as ilhas de Mykonos, Delos e Paros. Inclui almoço a bordo, guia turístico e transporte.',
-          preco: 180.0,
+            'Um roteiro delicioso pelos sabores tradicionais da Grécia.',
+          preco: 258,
+          estoque: 4,
+          imagem:
+            'https://www.fuiserviajante.com/wp-content/uploads/2020/04/culinaria-grega-pratos-tipicos.jpg',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Aula de dança Grega',
+          descricao: 'Uma experiência divertida para entrarmos no ritmo local.',
+          preco: 230,
+          estoque: 3,
+          imagem:
+            'https://www.listenandlearn.com.br/blog/wp-content/uploads/2013/12/washington-DC-greek-wedding-58.jpg',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Espumante no Pôr do Sol em Santorini',
+          descricao: 'Um brinde especial vendo o sol desaparecer no mar Egeu.',
+          preco: 280,
+          estoque: 4,
+          imagem:
+            'https://media-cdn.tripadvisor.com/media/photo-s/11/39/de/d8/melhor-combinacao-champagne.jpg',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Diária Charmosa em Santorini',
+          descricao:
+            'Uma noite acordando com vista cinematográfica da caldeira.',
+          preco: 480,
+          imagem:
+            'https://cdn.hotel.express/santorini_grecia_fd0230cf29/santorini_grecia_fd0230cf29.jpg',
+          estoque: 3,
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Ensaio Fotográfico em Santorini',
+          descricao: 'Fotos profissionais para eternizar nossa lua de mel.',
+          preco: 390,
           estoque: 2,
           imagem:
-            'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200&q=80',
+            'https://media.tacdn.com/media/attractions-splice-spp-674x446/12/8f/c0/e0.jpg',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         {
-          nome: 'Spa e Relaxamento em Mykonos',
+          nome: 'Aluguel de Carro',
+          descricao: 'Um dia de carro para explorar os arredores de Atenas.',
+          preco: 299,
+          estoque: 3,
+          imagem:
+            'https://dicadagrecia.com.br/wp-content/uploads/sites/24/2020/03/aluguel-carro-grecia-5-1-jpg.webp',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        // --- R$300 a R$700 (5 itens) ---
+        {
+          nome: 'Passeio de Barco Privativo (Cota)',
           descricao:
-            'Pacote de spa de 2 horas incluindo massagem relaxante, banho turco e tratamento facial. Perfeito para relaxar após os passeios.',
-          preco: 150.0,
-          estoque: 2,
+            'Ajuda para realizarmos um cruzeiro de um dia para Paxos, Antipaxos e Grutas Azuis.',
+          preco: 650,
+          estoque: 3,
+          quota: true,
           imagem:
-            'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=1200&q=80',
+            'https://cdn.getyourguide.com/image/format=auto,fit=crop,gravity=center,quality=60,height=465,dpr=2/tour_img/563e3e7b4f5cef20.jpeg',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         {
-          nome: 'Aluguel de Carro por 5 Dias',
+          nome: 'Jantar nas termas de Agripa',
+          descricao: 'Um jantar à luz de velas nas antigas termas de Agripa.',
+          preco: 446,
+          estoque: 3,
+          imagem:
+            'https://cdn.getyourguide.com/image/format=auto,fit=crop,gravity=center,quality=60,height=465,dpr=2/tour_img/fed765b9fdb733d354f17b10f9cb060af51da466d6ed1e826c546f519236dbf1.jpg',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+        {
+          nome: 'Mergulho a Dois no Mar Egeu',
           descricao:
-            'Aluguel de carro compacto por 5 dias com seguro completo. Inclui GPS e quilometragem ilimitada. Retirada e devolução no aeroporto.',
-          preco: 220.0,
-          estoque: 1,
+            'Experiência de mergulho com instrutor e todo equipamento incluso para descobrirmos juntos o fundo do mar grego.',
+          preco: 463,
+          estoque: 3,
           imagem:
-            'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=1200&q=80',
+            'https://images.unsplash.com/photo-1551244072-5d12893278ab?w=1200&q=80',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
+        // --- R$700 a R$1.500 (4 itens) ---
         {
-          nome: 'Tour Gastronômico em Atenas',
+          nome: 'Mini Temporada em Hotel Boutique (Cota)',
           descricao:
-            'Tour guiado de 3 horas pelos melhores restaurantes e tavernas de Atenas. Inclui degustação de pratos tradicionais e vinhos gregos.',
-          preco: 95.0,
-          estoque: 2,
+            'Contribuição para três noites especiais em hotel boutique.',
+          preco: 700,
+          estoque: 3,
+          quota: true,
           imagem:
-            'https://images.unsplash.com/photo-1555939594-58d7cb561b1d?w=1200&q=80',
+            'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/30/b9/70/3b/caption.jpg?w=900&h=500&s=1',
+          createdAt: FieldValue.serverTimestamp(),
+          updatedAt: FieldValue.serverTimestamp(),
+        },
+
+        // --- Acima de R$1.500 (3 itens) ---
+        {
+          nome: 'Voo Atenas - Mykonos (Cota)',
+          descricao: 'Parte das passagens entre as ilhas gregas.',
+          preco: 780,
+          estoque: 4,
+          quota: true,
+          imagem:
+            'https://dicadagrecia.com.br/wp-content/uploads/sites/24/2020/07/mykonos-aeroporto-aviao-jpg.webp',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },
         {
-          nome: 'Hospedagem em Mykonos',
-          descricao:
-            '4 noites em hotel 4 estrelas em Mykonos, próximo às praias mais famosas. Inclui café da manhã e Wi-Fi gratuito.',
-          preco: 520.0,
-          estoque: 1,
+          nome: 'Passagem Aérea Brasil - Grécia (Cota)',
+          descricao: 'Contribuição para o grande vôo da nossa lua de mel.',
+          preco: 1200,
+          estoque: 5,
+          quota: true,
           imagem:
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80',
-          createdAt: FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        {
-          nome: 'Aula de Culinária Grega',
-          descricao:
-            'Aula de culinária tradicional grega de 4 horas. Aprenda a preparar moussaka, souvlaki e baklava. Inclui almoço e receitas.',
-          preco: 110.0,
-          estoque: 2,
-          imagem:
-            'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&q=80',
-          createdAt: FieldValue.serverTimestamp(),
-          updatedAt: FieldValue.serverTimestamp(),
-        },
-        {
-          nome: 'Presente de Teste',
-          descricao: 'Presente de teste para validação de pagamento.',
-          preco: 0.1,
-          estoque: 10,
-          imagem:
-            'https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=1200&q=80',
+            'https://dicadagrecia.com.br/wp-content/uploads/sites/24/2020/11/aviao-grecia-jpg.webp',
           createdAt: FieldValue.serverTimestamp(),
           updatedAt: FieldValue.serverTimestamp(),
         },

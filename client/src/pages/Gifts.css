@@ -209,6 +209,47 @@
   margin-top: auto;
 }
 
+.gift-quota-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gift-quota-button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #DCAE9D;
+  background-color: #ffffff;
+  color: #2c2c2c;
+  cursor: pointer;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 0;
+}
+
+.gift-quota-button:hover:not(:disabled) {
+  background-color: #F5E4DC;
+}
+
+.gift-quota-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.gift-quota-quantity {
+  min-width: 28px;
+  text-align: center;
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
 .gift-price {
   font-family: 'Glacial Indifference', sans-serif;
   font-size: 1.5em;
