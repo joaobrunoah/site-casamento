@@ -383,6 +383,16 @@ const AttendingForm: React.FC = () => {
                 <input
                   type="radio"
                   name="dataChegada"
+                  value="11/06"
+                  checked={dataChegada === '11/06'}
+                  onChange={(e) => setDataChegada(e.target.value)}
+                />
+                <span>11/06</span>
+              </label>
+              <label className="radio-label">
+                <input
+                  type="radio"
+                  name="dataChegada"
                   value="12/06"
                   checked={dataChegada === '12/06'}
                   onChange={(e) => setDataChegada(e.target.value)}
