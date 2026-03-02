@@ -326,7 +326,6 @@ export class FirebaseService implements OnModuleInit {
         metadata: {
           contentType: contentType,
         },
-        public: true, // Make the file publicly accessible
       });
 
       // In local Storage emulator, avoid signed URLs (they require ADC credentials).

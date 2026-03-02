@@ -133,6 +133,25 @@
   margin: 0 auto;
 }
 
+.gifts-intro-message {
+  background-color: #ffffff;
+  border: 2px solid #FAE3D7;
+  padding: 24px;
+  margin: 0 0 24px 0;
+}
+
+.gifts-intro-message p {
+  font-family: 'Glacial Indifference', sans-serif;
+  font-size: 1.1em;
+  line-height: 1.7;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+.gifts-intro-message p + p {
+  margin-top: 12px;
+}
+
 .gifts-grid {
   display: grid;
   grid-template-columns: 1fr;

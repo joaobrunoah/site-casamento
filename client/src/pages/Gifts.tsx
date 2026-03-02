@@ -136,6 +136,17 @@ const Gifts: React.FC = () => {
       )}
 
       <div className="gifts-container">
+        <div className="gifts-intro-message">
+          <p>
+            O maior presente é ter vocês ao nosso lado nesse dia tão especial ❤️
+          </p>
+          <p>
+            Mas, se quiserem nos presentear, criamos uma lista diferente:
+            experiências para a nossa lua de mel. Assim, cada presente se
+            transforma em uma lembrança incrível da nossa primeira viagem como
+            casados.
+          </p>
+        </div>
         <div className="gifts-grid">
           {[...gifts]
             .sort((a, b) => {
