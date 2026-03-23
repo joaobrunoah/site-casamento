@@ -627,6 +627,8 @@
 .transport-content {
   margin-top: 50px;
   text-align: left;
+  padding-left: 40px;
+  padding-right: 40px;
 }
 
 .transport-intro {
@@ -689,5 +691,111 @@
 @media (min-width: 1920px) {
   #transport {
     padding-left: 200px;
+  }
+}
+
+/* Beauty Salon section - same background as Dress Code (body texture) */
+#beauty-salon {
+  padding: 40px 20px;
+}
+
+.beauty-salon-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.beauty-salon-header-image {
+  height: 150px;
+  width: auto;
+}
+
+@media (max-width: 768px) {
+  .beauty-salon-header-image {
+    height: 100px;
+  }
+}
+
+.beauty-columns {
+  display: flex;
+  gap: 40px;
+  margin-top: 40px;
+  padding: 0 40px;
+}
+
+.beauty-column {
+  flex: 1;
+  min-width: 0;
+}
+
+.beauty-label {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  font-weight: bold;
+  color: #2c2c2c;
+  margin: 16px 0 6px 0;
+}
+
+.beauty-list {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  line-height: 1.8;
+  padding-left: 20px;
+  margin: 0 0 8px 0;
+}
+
+.beauty-contact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.beauty-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  text-decoration: none;
+}
+
+.beauty-contact-link:hover {
+  text-decoration: underline;
+}
+
+.beauty-phone-only span {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+}
+
+.beauty-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.beauty-footer-text {
+  font-family: "Glacial Indifference", sans-serif;
+  font-size: 1em;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin-top: 40px;
+  padding: 0 40px;
+}
+
+@media (max-width: 768px) {
+  .beauty-columns {
+    flex-direction: column;
+    padding: 0;
+    gap: 32px;
+  }
+
+  .beauty-footer-text {
+    padding: 0;
   }
 }

@@ -658,9 +658,13 @@ const Home: React.FC = () => {
         <div className="transport-content">
           <p className="transport-intro">
             No dia da cerimônia, disponibilizaremos vans para realizar o
-            traslado de ida e volta da festa até os hotéis parceiros, garantindo
-            mais conforto e segurança para todos, para que possam aproveitar a
+            traslado de volta da festa até os hotéis parceiros, garantindo mais
+            conforto e segurança para todos, para que possam aproveitar a
             celebração com tranquilidade.
+          </p>
+          <p className="transport-intro">
+            A ida poderá ser feita através dos apps Uber ou 99, que funcionam
+            bem no centro da cidade.
           </p>
           <div className="transport-van-wrapper">
             <img src="/assets/van.png" alt="Van" className="transport-van" />
@@ -672,13 +676,110 @@ const Home: React.FC = () => {
             estacionamento.
           </p>
           <hr className="transport-dotted" />
-          <h3 className="transport-subtitle">Uber</h3>
+          <h3 className="transport-subtitle">Aplicativos (Uber e 99)</h3>
           <p className="transport-text">
-            Em Itu, também é possível utilizar Uber ou outros serviços de
-            transporte por aplicativo, caso prefiram.
+            Em Itu, Uber e 99 funcionam muito bem durante o dia, no centro da
+            cidade, por isso recomendamos utilizar esses aplicativos para ir ao
+            local da cerimônia.
           </p>
           <hr className="transport-dotted" />
         </div>
+      </section>
+      <section id="beauty-salon">
+        <div className="beauty-salon-header">
+          <h1 className="h1-section">Salão de Beleza</h1>
+          <img
+            src="/assets/salao_beleza.png"
+            alt="Salão de Beleza"
+            className="beauty-salon-header-image"
+          />
+        </div>
+        <div className="beauty-columns">
+          <div className="beauty-column">
+            <h3 className="transport-subtitle">Chimini Cabelereiros</h3>
+            <p className="beauty-label">Valores:</p>
+            <ul className="beauty-list">
+              <li>Penteado: R$ 160 a R$ 250</li>
+              <li>Maquiagem com cílios: R$ 230</li>
+              <li>Maquiagem sem cílios: R$ 200</li>
+              <li>Pé e mão: R$ 90</li>
+              <li>Somente mão: R$ 45</li>
+              <li>Escova: a partir de R$ 80</li>
+            </ul>
+            <p className="beauty-label">Contato:</p>
+            <div className="beauty-contact">
+              <a
+                href="https://wa.me/5511997759400"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="beauty-contact-link"
+              >
+                <svg className="beauty-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                {" "}(11) 99775-9400
+              </a>
+            </div>
+            <div className="beauty-contact">
+              <a
+                href="https://www.instagram.com/chiminicabeleireiros/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="beauty-contact-link"
+              >
+                <svg className="beauty-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                </svg>
+                {" "}@chiminicabeleireiros
+              </a>
+            </div>
+          </div>
+          <div className="beauty-column">
+            <h3 className="transport-subtitle">Florence Hair</h3>
+            <p className="beauty-label">Valores:</p>
+            <ul className="beauty-list">
+              <li>Penteado R$286,00</li>
+              <li>Maquiagem social com ou sem cílios R$303,00</li>
+              <li>Escova a partir de R$83,00</li>
+              <li>Babyliss a partir de R$132,00</li>
+            </ul>
+            <p className="beauty-label">Contato:</p>
+            <div className="beauty-contact">
+              <a
+                href="https://wa.me/551140130811"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="beauty-contact-link"
+              >
+                <svg className="beauty-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                {" "}(11) 4013-0811
+              </a>
+            </div>
+            <div className="beauty-contact">
+              <a
+                href="https://www.instagram.com/florencehairitu/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="beauty-contact-link"
+              >
+                <svg className="beauty-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                </svg>
+                {" "}@florencehairitu
+              </a>
+            </div>
+            <div className="beauty-contact beauty-phone-only">
+              <span>Tel: (11) 4013-0483</span>
+            </div>
+          </div>
+        </div>
+        <p className="beauty-footer-text">
+          O atendimento é realizado no próprio salão, mediante agendamento
+          prévio. As convidadas interessadas devem entrar em contato diretamente
+          para marcar horário.
+        </p>
       </section>
     </div>
   );
