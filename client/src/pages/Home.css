@@ -336,6 +336,16 @@
   padding-bottom: 40px;
 }
 
+.cerimony-place-link {
+  text-decoration: underline;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+.cerimony-place-link:hover {
+  opacity: 0.7;
+}
+
 .cerimony-bottom-image {
   display: flex;
   justify-content: center;
@@ -721,7 +731,9 @@
   display: flex;
   gap: 40px;
   margin-top: 40px;
-  padding: 0 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .beauty-column {
@@ -785,7 +797,9 @@
   color: #2c2c2c;
   line-height: 1.6;
   margin-top: 40px;
-  padding: 0 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (max-width: 768px) {

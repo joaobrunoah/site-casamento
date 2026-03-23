@@ -8,6 +8,7 @@ interface CerimonyProps {
   description: string;
   dressCode: string;
   place: string;
+  placeUrl?: string;
   icon?: string;
 }
 
@@ -18,6 +19,7 @@ const Cerimony: React.FC<CerimonyProps> = ({
   description,
   dressCode,
   place,
+  placeUrl,
   icon
 }) => {
   return (
@@ -41,7 +43,18 @@ const Cerimony: React.FC<CerimonyProps> = ({
         <p className="cerimony-label">Traje</p>
         <p className="cerimony-dress-code">{dressCode}</p>
         <p className="cerimony-label">Local</p>
-        <p className="cerimony-place">{place}</p>
+        {placeUrl ? (
+          <a
+            href={placeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cerimony-place cerimony-place-link"
+          >
+            {place}
+          </a>
+        ) : (
+          <p className="cerimony-place">{place}</p>
+        )}
       </div>
       <div className="cerimony-bottom-image">
         <img src="/assets/bottom-cerimony.svg" alt="" />
