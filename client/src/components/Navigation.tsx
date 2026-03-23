@@ -81,6 +81,11 @@ const Navigation: React.FC = () => {
               Transporte
             </button>
           </li>
+          <li>
+            <button onClick={() => handleHomeClick('beauty-salon')}>
+              Salão de Beleza
+            </button>
+          </li>
           {showConfirmationForm && (
             <li>
               <Link to="/attending-form" onClick={closeMenu}>
@@ -165,6 +170,11 @@ const Navigation: React.FC = () => {
         <li>
           <button onClick={() => handleHomeClick('transport')}>
             Transporte
+          </button>
+        </li>
+        <li>
+          <button onClick={() => handleHomeClick('beauty-salon')}>
+            Salão de Beleza
           </button>
         </li>
         {showConfirmationForm && (
