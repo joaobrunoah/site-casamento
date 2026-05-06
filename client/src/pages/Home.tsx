@@ -276,7 +276,7 @@ const Home: React.FC = () => {
             <Cerimony
               title="Pré Wedding"
               dateText="12 de Junho"
-              timeText="20hs"
+              timeText="19hs"
               description="pizzada de boas vindas aos convidados"
               dressCode="Para a sexta feira (pré-casamento) : Casual"
               place="Hotel Gandini - Itu"
